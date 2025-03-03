@@ -21,16 +21,13 @@ class PtLessonTest {
 	@DisplayName("길이가 30을 넘은 메모 생성 실패")
 	void create_memo_over_length_fail() {
 		// given
-		Long trainerId = 1L;
-		Long traineeId = 2L;
-
 		String failMemo = "123456789012345678901234567890149238749823479823479734239874";
 
 		Member trainerMember = MemberFixture.getTrainerMember1();
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(trainerId, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeId, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 

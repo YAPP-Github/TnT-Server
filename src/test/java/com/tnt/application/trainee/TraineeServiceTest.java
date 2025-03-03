@@ -24,27 +24,27 @@ class TraineeServiceTest {
 	private TraineeSearchRepository traineeSearchRepository;
 
 	@Test
-	void getTraineeWithMemberId_fail() {
+	void getByMemberId_fail() {
 		// given
 		Long memberId = 1234567L;
 
-		given(traineeSearchRepository.findByMemberId(memberId)).willReturn(
+		given(traineeSearchRepository.find(memberId, null)).willReturn(
 			Optional.empty());
 
 		// when & then
-		Assertions.assertThatThrownBy(() -> traineeService.getTraineeWithMemberId(memberId))
+		Assertions.assertThatThrownBy(() -> traineeService.getByMemberId(memberId))
 			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test
-	void getTraineeWithId_fail() {
+	void getByTraineeId_fail() {
 		// given
 		Long traineeId = 124124L;
 
-		given(traineeSearchRepository.findById(traineeId)).willReturn(Optional.empty());
+		given(traineeSearchRepository.find(null, traineeId)).willReturn(Optional.empty());
 
 		// when & then
-		Assertions.assertThatThrownBy(() -> traineeService.getTraineeWithId(traineeId))
+		Assertions.assertThatThrownBy(() -> traineeService.getByTraineeId(traineeId))
 			.isInstanceOf(NotFoundException.class);
 	}
 }

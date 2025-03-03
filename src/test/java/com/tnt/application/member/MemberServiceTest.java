@@ -54,12 +54,12 @@ class MemberServiceTest {
 	@DisplayName("memberId로 회원 조회 성공")
 	void get_member_with_member_id_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
 
 		given(memberRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(Optional.ofNullable(trainerMember));
 
 		// when
-		Member result = memberService.getMemberWithMemberId(requireNonNull(trainerMember).getId());
+		Member result = memberService.getByMemberId(requireNonNull(trainerMember).getId());
 
 		// then
 		assertThat(result).isNotNull().isEqualTo(trainerMember);
@@ -75,7 +75,7 @@ class MemberServiceTest {
 		given(memberRepository.findByIdAndDeletedAtIsNull(999L)).willReturn(Optional.empty());
 
 		// when & then
-		assertThrows(NotFoundException.class, () -> memberService.getMemberWithMemberId(memberId));
+		assertThrows(NotFoundException.class, () -> memberService.getByMemberId(memberId));
 		verify(memberRepository).findByIdAndDeletedAtIsNull(999L);
 	}
 
@@ -83,7 +83,7 @@ class MemberServiceTest {
 	@DisplayName("socialId와 socialType으로 회원 조회 성공")
 	void get_member_with_social_id_and_type_success() {
 		// given
-		Member member = MemberFixture.getTrainerMember1WithId();
+		Member member = MemberFixture.getTrainerMemberWithId1();
 		String socialId = member.getSocialId();
 		SocialType socialType = member.getSocialType();
 
@@ -91,7 +91,7 @@ class MemberServiceTest {
 			Optional.of(member));
 
 		// when
-		Member result = memberService.getMemberWithSocialIdAndSocialType(socialId, socialType);
+		Member result = memberService.getBySocialIdAndSocialType(socialId, socialType);
 
 		// then
 		assertThat(result).isNotNull().isEqualTo(member);
@@ -117,7 +117,7 @@ class MemberServiceTest {
 	@DisplayName("이미 존재하는 회원 검증시 실패")
 	void validate_member_exists_error() {
 		// given
-		Member existingMember = MemberFixture.getTrainerMember1WithId();
+		Member existingMember = MemberFixture.getTrainerMemberWithId1();
 		String socialId = existingMember.getSocialId();
 		SocialType socialType = existingMember.getSocialType();
 
@@ -130,33 +130,17 @@ class MemberServiceTest {
 	}
 
 	@Test
-	@DisplayName("회원 저장 성공")
-	void save_member_success() {
-		// given
-		Member member = MemberFixture.getTrainerMember1WithId();
-
-		given(memberRepository.save(member)).willReturn(member);
-
-		// when
-		Member savedMember = memberService.saveMember(member);
-
-		// then
-		assertThat(savedMember).isNotNull().isEqualTo(member);
-		verify(memberRepository).save(member);
-	}
-
-	@Test
 	@DisplayName("memberId로 회원 타입 조회 성공")
 	void get_member_type_success() {
 		// given
-		Member member = MemberFixture.getTrainerMember1WithId();
+		Member member = MemberFixture.getTrainerMemberWithId1();
 		Long memberId = member.getId();
 
-		Trainer trainer = TrainerFixture.getTrainer2(member);
+		Trainer trainer = TrainerFixture.getTrainer1(member);
 
 		given(memberSearchRepository.findMemberType(memberId)).willReturn(
 			Optional.of(new MemberProjection.MemberTypeDto(member.getMemberType())));
-		given(trainerService.getTrainerWithMemberId(memberId)).willReturn(trainer);
+		given(trainerService.getByMemberId(memberId)).willReturn(trainer);
 		given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
 
 		// when
@@ -170,7 +154,7 @@ class MemberServiceTest {
 	@DisplayName("memberId로 회원 타입 조회 실패")
 	void get_member_type_fail() {
 		// given
-		Member member = MemberFixture.getTrainerMember1WithId();
+		Member member = MemberFixture.getTrainerMemberWithId1();
 		Long memberId = member.getId();
 
 		given(memberSearchRepository.findMemberType(memberId)).willReturn(Optional.empty());

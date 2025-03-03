@@ -5,7 +5,9 @@ import com.tnt.domain.trainee.Trainee;
 
 public final class TraineeFixture {
 
-	public static Trainee getTrainee1WithId(Long traineeId, Member member) {
+	public static Trainee getTrainee1WithId(Member member) {
+		Long traineeId = 1L;
+
 		return Trainee.builder()
 			.id(traineeId)
 			.member(member)

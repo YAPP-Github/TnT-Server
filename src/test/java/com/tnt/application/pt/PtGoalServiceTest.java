@@ -46,7 +46,7 @@ class PtGoalServiceTest {
 			.willReturn(ptGoals);
 
 		// when
-		List<PtGoal> result = ptGoalService.getAllPtGoalsWithTraineeId(traineeId);
+		List<PtGoal> result = ptGoalService.getAllByTraineeId(traineeId);
 
 		// then
 		assertThat(result).isNotNull().hasSize(2).isEqualTo(ptGoals);

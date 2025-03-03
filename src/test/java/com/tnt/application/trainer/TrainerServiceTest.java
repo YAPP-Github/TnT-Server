@@ -2,7 +2,6 @@ package com.tnt.application.trainer;
 
 import static com.tnt.domain.member.MemberType.TRAINER;
 import static com.tnt.domain.trainer.Trainer.INVITATION_CODE_LENGTH;
-import static com.tnt.domain.trainer.Trainer.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -20,6 +19,8 @@ import com.tnt.domain.member.SocialType;
 import com.tnt.domain.trainer.Trainer;
 import com.tnt.dto.trainer.response.InvitationCodeResponse;
 import com.tnt.dto.trainer.response.InvitationCodeVerifyResponse;
+import com.tnt.fixture.MemberFixture;
+import com.tnt.fixture.TrainerFixture;
 import com.tnt.infrastructure.mysql.repository.trainer.TrainerRepository;
 import com.tnt.infrastructure.mysql.repository.trainer.TrainerSearchRepository;
 
@@ -39,36 +40,15 @@ class TrainerServiceTest {
 	@DisplayName("트레이너 초대 코드 불러오기 성공")
 	void get_invitation_code_success() {
 		// given
-		Long trainerId = 1L;
-		Long memberId = 1L;
-		String socialId = "1234567890";
-		String email = "abc@gmail.com";
-		String name = "김영명";
-		String profileImageUrl = "https://profile.com/1234567890";
+		Member member = MemberFixture.getTrainerMember1();
 
-		Member member = Member.builder()
-			.id(memberId)
-			.socialId(socialId)
-			.email(email)
-			.name(name)
-			.profileImageUrl(profileImageUrl)
-			.serviceAgreement(true)
-			.collectionAgreement(true)
-			.advertisementAgreement(true)
-			.socialType(SocialType.KAKAO)
-			.memberType(TRAINER)
-			.build();
+		Trainer trainer = TrainerFixture.getTrainer1(member);
 
-		Trainer trainer = builder()
-			.id(trainerId)
-			.member(member)
-			.build();
-
-		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(memberId)).willReturn(
+		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(member.getId())).willReturn(
 			java.util.Optional.of(trainer));
 
 		// when
-		InvitationCodeResponse response = trainerService.getInvitationCode(memberId);
+		InvitationCodeResponse response = trainerService.getInvitationCode(member.getId());
 
 		// then
 		assertThat(response.invitationCode()).isNotNull();
@@ -92,38 +72,17 @@ class TrainerServiceTest {
 	@DisplayName("트레이너 초대 코드 재발급 성공")
 	void reissue_invitation_code_success() {
 		// given
-		Long trainerId = 1L;
-		Long memberId = 30L;
-		String socialId = "1234567890";
-		String email = "abc@gmail.com";
-		String name = "김영명";
-		String profileImageUrl = "https://profile.com/1234567890";
+		Member member = MemberFixture.getTrainerMemberWithId1();
 
-		Member member = Member.builder()
-			.id(memberId)
-			.socialId(socialId)
-			.email(email)
-			.name(name)
-			.profileImageUrl(profileImageUrl)
-			.serviceAgreement(true)
-			.collectionAgreement(true)
-			.advertisementAgreement(true)
-			.socialType(SocialType.KAKAO)
-			.memberType(TRAINER)
-			.build();
-
-		Trainer trainer = Trainer.builder()
-			.id(trainerId)
-			.member(member)
-			.build();
+		Trainer trainer = TrainerFixture.getTrainer1(member);
 
 		String invitationCodeBefore = trainer.getInvitationCode();
 
-		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(memberId)).willReturn(
+		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(member.getId())).willReturn(
 			java.util.Optional.of(trainer));
 
 		// when
-		InvitationCodeResponse response = trainerService.reissueInvitationCode(memberId);
+		InvitationCodeResponse response = trainerService.reissueInvitationCode(member.getId());
 
 		// then
 		assertThat(response.invitationCode()).isNotNull();
@@ -158,7 +117,7 @@ class TrainerServiceTest {
 
 		given(trainerRepository.existsByInvitationCodeAndDeletedAtIsNull(code))
 			.willReturn(true);
-		given(trainerSearchRepository.findByInvitationCode(code))
+		given(trainerSearchRepository.find(null, code))
 			.willReturn(java.util.Optional.of(Trainer.builder().member(member).build()));
 
 		// when

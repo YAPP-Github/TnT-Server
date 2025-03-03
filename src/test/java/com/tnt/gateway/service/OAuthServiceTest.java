@@ -6,12 +6,15 @@ import static com.tnt.domain.member.SocialType.APPLE;
 import static com.tnt.domain.member.SocialType.KAKAO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.anyString;
+import static org.mockito.BDDMockito.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.verify;
 
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
@@ -75,7 +78,6 @@ class OAuthServiceTest {
 		oAuthService = new OAuthService(webClient, sessionService, memberService);
 
 		ReflectionTestUtils.setField(oAuthService, "kakaoApiUrl", baseUrl);
-		ReflectionTestUtils.setField(oAuthService, "kakaoUnlinkUrl", baseUrl + "v1/user/unlink");
 		ReflectionTestUtils.setField(oAuthService, "appleApiUrl", appleApiUrl);
 	}
 
@@ -130,7 +132,7 @@ class OAuthServiceTest {
 			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 			.setBody("{\"id\": \"12345\"}"));
 
-		given(memberService.getMemberWithSocialIdAndSocialType("12345", KAKAO)).willReturn(member);
+		given(memberService.getBySocialIdAndSocialType("12345", KAKAO)).willReturn(member);
 
 		// when
 		OAuthLoginResponse response = oAuthService.oauthLogin(request);
@@ -146,21 +148,12 @@ class OAuthServiceTest {
 		// given
 		KeyPairGenerator ecKeyGen = KeyPairGenerator.getInstance("EC");
 		ecKeyGen.initialize(256);
-		KeyPair ecPair = ecKeyGen.generateKeyPair();
-		ECPrivateKey ecPrivateKey = (ECPrivateKey)ecPair.getPrivate();
 
 		KeyPairGenerator rsaKeyGen = KeyPairGenerator.getInstance("RSA");
 		rsaKeyGen.initialize(2048);
 		KeyPair rsaPair = rsaKeyGen.generateKeyPair();
 		RSAPublicKey rsaPublicKey = (RSAPublicKey)rsaPair.getPublic();
 		RSAPrivateKey rsaPrivateKey = (RSAPrivateKey)rsaPair.getPrivate();
-
-		// Apple 관련 필드값 설정
-		ReflectionTestUtils.setField(oAuthService, "privateKey",
-			Base64.getEncoder().encodeToString(ecPrivateKey.getEncoded()));
-		ReflectionTestUtils.setField(oAuthService, "teamId", "test-team-id");
-		ReflectionTestUtils.setField(oAuthService, "clientId", "test-client-id");
-		ReflectionTestUtils.setField(oAuthService, "keyId", "test-key-id");
 
 		String mockIdToken = JWT.create()
 			.withKeyId("test-kid")
@@ -185,7 +178,7 @@ class OAuthServiceTest {
 				"{\"keys\": [{\"kid\": \"test-kid\", \"kty\": \"RSA\", \"n\": \"" + mockN + "\", \"e\": \"" + mockE
 					+ "\"}]}"));
 
-		given(memberService.getMemberWithSocialIdAndSocialType("test-user-id", APPLE)).willReturn(mockMember);
+		given(memberService.getBySocialIdAndSocialType("test-user-id", APPLE)).willReturn(mockMember);
 
 		// when
 		OAuthLoginResponse response = oAuthService.oauthLogin(request);

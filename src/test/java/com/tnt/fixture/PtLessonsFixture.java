@@ -8,7 +8,7 @@ import com.tnt.domain.pt.PtTrainerTrainee;
 
 public class PtLessonsFixture {
 
-	public static List<PtLesson> getPtLessons1WithId(PtTrainerTrainee ptTrainerTrainee) {
+	public static List<PtLesson> getPtLessonsWithId1(PtTrainerTrainee ptTrainerTrainee) {
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
 

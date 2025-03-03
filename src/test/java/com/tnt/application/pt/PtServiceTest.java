@@ -65,14 +65,11 @@ class PtServiceTest {
 		// given
 		Long traineeMemberId = 20L;
 
-		Long trainerId = 1L;
-		Long traineeId = 2L;
-
 		Member trainerMember = MemberFixture.getTrainerMember1();
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(trainerId, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeId, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		String invitationCode = "1A2V3C4D";
 		LocalDate startDate = LocalDate.of(2025, 1, 1);
@@ -82,10 +79,11 @@ class PtServiceTest {
 		ConnectWithTrainerRequest request = new ConnectWithTrainerRequest(invitationCode, startDate, totalPtCount,
 			finishedPtCount);
 
-		given(trainerService.getTrainerWithInvitationCode(request.invitationCode())).willReturn(trainer);
-		given(traineeService.getTraineeWithMemberId(traineeMemberId)).willReturn(trainee);
-		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(traineeId)).willReturn(false);
-		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainerId, traineeId))
+		given(trainerService.getByInvitationCode(request.invitationCode())).willReturn(trainer);
+		given(traineeService.getByMemberId(traineeMemberId)).willReturn(trainee);
+		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(false);
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
+			trainee.getId()))
 			.willReturn(false);
 
 		// when
@@ -99,16 +97,11 @@ class PtServiceTest {
 	@DisplayName("트레이너와 연결 실패 - 이미 다른 트레이너와 연결 중")
 	void connectWithTrainer_already_connected_with_other_trainer_fail() {
 		// given
-		Long traineeMemberId = 20L;
-
-		Long trainerId = 1L;
-		Long traineeId = 2L;
-
 		Member trainerMember = MemberFixture.getTrainerMember1();
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(trainerId, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeId, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		String invitationCode = "1A2V3C4D";
 		LocalDate startDate = LocalDate.of(2025, 1, 1);
@@ -118,12 +111,12 @@ class PtServiceTest {
 		ConnectWithTrainerRequest request = new ConnectWithTrainerRequest(invitationCode, startDate, totalPtCount,
 			finishedPtCount);
 
-		given(trainerService.getTrainerWithInvitationCode(request.invitationCode())).willReturn(trainer);
-		given(traineeService.getTraineeWithMemberId(traineeMemberId)).willReturn(trainee);
-		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(traineeId)).willReturn(true);
+		given(trainerService.getByInvitationCode(request.invitationCode())).willReturn(trainer);
+		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
+		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(true);
 
 		// when & then
-		assertThatThrownBy(() -> ptService.connectWithTrainer(traineeMemberId, request))
+		assertThatThrownBy(() -> ptService.connectWithTrainer(traineeMember.getId(), request))
 			.isInstanceOf(ConflictException.class);
 	}
 
@@ -133,14 +126,11 @@ class PtServiceTest {
 		// given
 		Long traineeMemberId = 20L;
 
-		Long trainerId = 1L;
-		Long traineeId = 2L;
-
 		Member trainerMember = MemberFixture.getTrainerMember1();
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(trainerId, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeId, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		String invitationCode = "1A2V3C4D";
 		LocalDate startDate = LocalDate.of(2025, 1, 1);
@@ -150,10 +140,11 @@ class PtServiceTest {
 		ConnectWithTrainerRequest request = new ConnectWithTrainerRequest(invitationCode, startDate, totalPtCount,
 			finishedPtCount);
 
-		given(trainerService.getTrainerWithInvitationCode(request.invitationCode())).willReturn(trainer);
-		given(traineeService.getTraineeWithMemberId(traineeMemberId)).willReturn(trainee);
-		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(traineeId)).willReturn(false);
-		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainerId, traineeId))
+		given(trainerService.getByInvitationCode(request.invitationCode())).willReturn(trainer);
+		given(traineeService.getByMemberId(traineeMemberId)).willReturn(trainee);
+		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(false);
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
+			trainee.getId()))
 			.willReturn(true);
 
 		// when & then
@@ -166,15 +157,13 @@ class PtServiceTest {
 	void getPtLessonsOnDate_success() {
 		// given
 		Long memberId = 1L;
-		Long trainerId = 3L;
-		Long traineeId = 2L;
 		LocalDate date = LocalDate.of(2025, 1, 1);
 
 		Member trainerMember = MemberFixture.getTrainerMember1();
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(trainerId, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeId, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
@@ -186,25 +175,25 @@ class PtServiceTest {
 			.lessonEnd(LocalDateTime.of(date, LocalTime.of(11, 0)))
 			.build();
 
-		given(trainerService.getTrainerWithMemberId(memberId)).willReturn(trainer);
-		given(ptLessonSearchRepository.findAllByTrainerIdAndDate(trainerId, date)).willReturn(List.of(ptLesson));
+		given(trainerService.getByMemberId(memberId)).willReturn(trainer);
+		given(ptLessonSearchRepository.findAllByTrainerIdAndDate(trainer.getId(), date)).willReturn(List.of(ptLesson));
 
 		// when
 		GetPtLessonsOnDateResponse result = ptService.getPtLessonsOnDate(memberId, date);
 
 		// then
 		assertThat(result.count()).isEqualTo(1);
-		assertThat(result.lessons().getFirst().traineeId()).isEqualTo(String.valueOf(traineeId));
+		assertThat(result.lessons().getFirst().traineeId()).isEqualTo(String.valueOf(trainee.getId()));
 	}
 
 	@Test
 	@DisplayName("트레이너 id로 PT 트레이너 트레이니 조회 성공")
 	void get_pt_trainer_trainee_with_trainer_id_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
@@ -223,10 +212,10 @@ class PtServiceTest {
 	@DisplayName("트레이니 id로 PT 트레이너 트레이니 조회 성공")
 	void get_pt_trainer_trainee_with_trainee_id_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
@@ -245,15 +234,15 @@ class PtServiceTest {
 	@DisplayName("PT 레슨 조회 성공")
 	void get_pt_lessons_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessons1WithId(ptTrainerTrainee);
+		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessonsWithId1(ptTrainerTrainee);
 
 		given(ptLessonRepository.findAllByPtTrainerTraineeAndDeletedAtIsNull(ptTrainerTrainee)).willReturn(ptLessons);
 
@@ -268,10 +257,10 @@ class PtServiceTest {
 	@DisplayName("특정 월의 캘린더 PT 레슨 수 조회 성공")
 	void get_calendar_pt_lesson_count_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
@@ -302,7 +291,7 @@ class PtServiceTest {
 				.lessonEnd(date.plusDays(1).plusHours(1))
 				.build());
 
-		given(trainerService.getTrainerWithMemberId(trainer.getId())).willReturn(trainer);
+		given(trainerService.getByMemberId(trainer.getId())).willReturn(trainer);
 		given(ptLessonSearchRepository.findAllByTraineeIdForTrainerCalendar(trainer.getId(), year, month))
 			.willReturn(ptLessons);
 

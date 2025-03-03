@@ -5,15 +5,17 @@ import com.tnt.domain.trainer.Trainer;
 
 public final class TrainerFixture {
 
-	public static Trainer getTrainer1(Long trainerId, Member member) {
+	public static Trainer getTrainer1(Member member) {
 		return Trainer.builder()
-			.id(trainerId)
 			.member(member)
 			.build();
 	}
 
-	public static Trainer getTrainer2(Member member) {
+	public static Trainer getTrainerWithId1(Member member) {
+		Long trainerId = 1L;
+
 		return Trainer.builder()
+			.id(trainerId)
 			.member(member)
 			.build();
 	}

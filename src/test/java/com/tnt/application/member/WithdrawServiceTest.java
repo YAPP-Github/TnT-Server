@@ -64,11 +64,11 @@ class WithdrawServiceTest {
 	@DisplayName("트레이너 회원 탈퇴 성공")
 	void withdraw_trainer_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Trainer trainer = TrainerFixture.getTrainer1(1L, trainerMember);
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
 
-		given(memberService.getMemberWithMemberId(trainerMember.getId())).willReturn(trainerMember);
-		given(trainerService.getTrainerWithMemberId(trainerMember.getId())).willReturn(trainer);
+		given(memberService.getByMemberId(trainerMember.getId())).willReturn(trainerMember);
+		given(trainerService.getByMemberId(trainerMember.getId())).willReturn(trainer);
 
 		// when
 		withdrawService.withdraw(trainerMember.getId());
@@ -81,16 +81,16 @@ class WithdrawServiceTest {
 	@DisplayName("트레이니 회원 탈퇴 성공")
 	void withdraw_trainee_success() {
 		// given
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
-		Trainee trainee = TraineeFixture.getTrainee1WithId(1L, traineeMember);
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		List<PtGoal> ptGoals = List.of(PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
 		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
 
-		given(memberService.getMemberWithMemberId(traineeMember.getId())).willReturn(traineeMember);
-		given(traineeService.getTraineeWithMemberId(traineeMember.getId())).willReturn(trainee);
-		given(ptGoalService.getAllPtGoalsWithTraineeId(trainee.getId())).willReturn(ptGoals);
-		given(dietService.getAllDietsWithTraineeId(trainee.getId())).willReturn(diets);
+		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
+		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
+		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
+		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 
 		// when
 		withdrawService.withdraw(traineeMember.getId());
@@ -103,18 +103,18 @@ class WithdrawServiceTest {
 	@DisplayName("PT 관계가 있는 트레이너 회원 탈퇴 성공")
 	void withdraw_trainer_with_pt_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Member traineeMember = MemberFixture.getTraineeMember2WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId2();
 
-		Trainer trainer = TrainerFixture.getTrainer1(1L, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(1L, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessons1WithId(ptTrainerTrainee);
+		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessonsWithId1(ptTrainerTrainee);
 
-		given(memberService.getMemberWithMemberId(trainerMember.getId())).willReturn(trainerMember);
-		given(trainerService.getTrainerWithMemberId(trainerMember.getId())).willReturn(trainer);
+		given(memberService.getByMemberId(trainerMember.getId())).willReturn(trainerMember);
+		given(trainerService.getByMemberId(trainerMember.getId())).willReturn(trainer);
 		given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
 		given(ptService.getAllPtTrainerTraineeWithTrainerId(trainer.getId())).willReturn(List.of(ptTrainerTrainee));
 		given(ptService.getPtLessonWithPtTrainerTrainee(ptTrainerTrainee)).willReturn(ptLessons);
@@ -130,24 +130,24 @@ class WithdrawServiceTest {
 	@DisplayName("PT 관계가 있는 트레이니 회원 탈퇴 성공")
 	void withdraw_trainee_with_pt_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(1L, trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee1WithId(1L, traineeMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
 		List<PtGoal> ptGoals = List.of(PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
 		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
 
-		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessons1WithId(ptTrainerTrainee);
+		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessonsWithId1(ptTrainerTrainee);
 
-		given(memberService.getMemberWithMemberId(traineeMember.getId())).willReturn(traineeMember);
-		given(traineeService.getTraineeWithMemberId(traineeMember.getId())).willReturn(trainee);
+		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
+		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
 		given(ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId())).willReturn(true);
-		given(ptGoalService.getAllPtGoalsWithTraineeId(trainee.getId())).willReturn(ptGoals);
-		given(dietService.getAllDietsWithTraineeId(trainee.getId())).willReturn(diets);
+		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
+		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willReturn(ptTrainerTrainee);
 		given(ptService.getPtLessonWithPtTrainerTrainee(ptTrainerTrainee)).willReturn(ptLessons);
 
@@ -162,12 +162,12 @@ class WithdrawServiceTest {
 	@DisplayName("PT 관계가 없는 트레이너 회원 탈퇴 성공")
 	void withdraw_trainer_without_pt_success() {
 		// given
-		Member trainerMember = MemberFixture.getTrainerMember1WithId();
+		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
 
-		Trainer trainer = TrainerFixture.getTrainer1(1L, trainerMember);
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
 
-		given(memberService.getMemberWithMemberId(trainerMember.getId())).willReturn(trainerMember);
-		given(trainerService.getTrainerWithMemberId(trainerMember.getId())).willReturn(trainer);
+		given(memberService.getByMemberId(trainerMember.getId())).willReturn(trainerMember);
+		given(trainerService.getByMemberId(trainerMember.getId())).willReturn(trainer);
 		given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
 
 		// when
@@ -181,18 +181,18 @@ class WithdrawServiceTest {
 	@DisplayName("PT 관계가 없는 트레이니 회원 탈퇴 성공")
 	void withdraw_trainee_without_pt_success() {
 		// given
-		Member traineeMember = MemberFixture.getTraineeMember1WithId();
+		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 
-		Trainee trainee = TraineeFixture.getTrainee1WithId(1L, traineeMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		List<PtGoal> ptGoals = List.of(PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
 		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
 
-		given(memberService.getMemberWithMemberId(traineeMember.getId())).willReturn(traineeMember);
-		given(traineeService.getTraineeWithMemberId(traineeMember.getId())).willReturn(trainee);
+		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
+		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
 		given(ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId())).willReturn(true);
-		given(ptGoalService.getAllPtGoalsWithTraineeId(trainee.getId())).willReturn(ptGoals);
-		given(dietService.getAllDietsWithTraineeId(trainee.getId())).willReturn(diets);
+		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
+		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willThrow(NotFoundException.class);
 
 		// when
