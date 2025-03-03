@@ -215,16 +215,6 @@ public class PtService {
 		ptTrainerTrainee.completeLesson();
 		ptLesson.completeLesson(ptTrainerTrainee.getFinishedPtCount());
 	}
-	//
-	// @Transactional(readOnly = true)
-	// public GetDietResponse getDiet(Long memberId, Long dietId) {
-	// 	Trainee trainee = traineeService.getByMemberId(memberId);
-	//
-	// 	Diet diet = dietService.getByDietIdAndTraineeId(dietId, trainee.getId());
-	//
-	// 	return new GetDietResponse(diet.getId(), diet.getDate(), diet.getDietImageUrl(), diet.getDietType(),
-	// 		diet.getMemo());
-	// }
 
 	@Transactional(readOnly = true)
 	public GetTraineeCalendarPtLessonCountResponse getTraineeCalendarPtLessonCount(Long memberId, LocalDate startDate,
