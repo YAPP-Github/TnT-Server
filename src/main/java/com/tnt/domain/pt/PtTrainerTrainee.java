@@ -1,7 +1,5 @@
 package com.tnt.domain.pt;
 
-import static com.tnt.common.error.model.ErrorMessage.TRAINEE_NULL;
-import static com.tnt.common.error.model.ErrorMessage.TRAINER_NULL;
 import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 import static java.util.Objects.requireNonNull;
 
@@ -62,8 +60,8 @@ public class PtTrainerTrainee extends BaseTimeEntity {
 	public PtTrainerTrainee(Long id, Trainer trainer, Trainee trainee, LocalDate startedAt, Integer finishedPtCount,
 		Integer totalPtCount) {
 		this.id = id;
-		this.trainer = requireNonNull(trainer, TRAINER_NULL.getMessage());
-		this.trainee = requireNonNull(trainee, TRAINEE_NULL.getMessage());
+		this.trainer = requireNonNull(trainer);
+		this.trainee = requireNonNull(trainee);
 		this.startedAt = requireNonNull(startedAt);
 		this.finishedPtCount = requireNonNull(finishedPtCount);
 		this.totalPtCount = requireNonNull(totalPtCount);

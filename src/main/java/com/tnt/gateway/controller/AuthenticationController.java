@@ -16,6 +16,7 @@ import com.tnt.gateway.dto.response.CheckSessionResponse;
 import com.tnt.gateway.dto.response.OAuthLoginResponse;
 import com.tnt.gateway.service.OAuthService;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -48,5 +49,12 @@ public class AuthenticationController {
 	@ResponseStatus(OK)
 	public CheckSessionResponse checkSession(@AuthMember Long memberId) {
 		return memberService.getMemberType(memberId);
+	}
+
+	@Hidden
+	@GetMapping("/health-check")
+	@ResponseStatus(OK)
+	public String healthCheck() {
+		return "OK";
 	}
 }

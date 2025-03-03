@@ -82,7 +82,7 @@ public class S3Service {
 			byte[] processedImage = processImage(image, extension);
 			sw.stop();
 
-			log.info("========== 이미지 처리 시간: {}ms ==========", sw.getTotalTimeMillis());
+			log.debug("========== 이미지 처리 시간: {}ms ==========", sw.getTotalTimeMillis());
 
 			return s3Adapter.uploadFile(processedImage, folderPath, extension);
 		} catch (Exception e) {

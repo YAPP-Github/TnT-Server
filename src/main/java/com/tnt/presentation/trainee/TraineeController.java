@@ -22,7 +22,6 @@ import com.tnt.application.member.NotificationService;
 import com.tnt.application.pt.PtService;
 import com.tnt.application.s3.S3Service;
 import com.tnt.application.trainee.DietService;
-import com.tnt.application.trainee.TraineeService;
 import com.tnt.dto.trainee.request.ConnectWithTrainerRequest;
 import com.tnt.dto.trainee.request.CreateDietRequest;
 import com.tnt.dto.trainee.response.ConnectWithTrainerResponse;
@@ -45,7 +44,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TraineeController {
 
-	private final TraineeService traineeService;
 	private final S3Service s3Service;
 	private final PtService ptService;
 	private final DietService dietService;
@@ -69,11 +67,10 @@ public class TraineeController {
 	public CreateDietResponse createDiet(@AuthMember Long memberId,
 		@RequestPart("request") @Valid CreateDietRequest request,
 		@RequestPart(value = "dietImage", required = false) MultipartFile dietImage) {
-		Long traineeId = ptService.validateDuplicationDiet(memberId, request.date());
-
+		Long traineeId = ptService.validateDietDuplicateAndGetTraineeId(memberId, request.date());
 		String dietImageUrl = s3Service.uploadImage(null, DIET_S3_IMAGE_PATH, dietImage);
 
-		return ptService.createDiet(traineeId, request, dietImageUrl);
+		return dietService.addDiet(traineeId, request, dietImageUrl);
 	}
 
 	@Operation(summary = "특정 식단 조회 API")
@@ -81,7 +78,7 @@ public class TraineeController {
 	@GetMapping("/diets/{dietId}")
 	public GetDietResponse getDiet(@AuthMember Long memberId,
 		@Parameter(description = "식단 ID", example = "12345") @PathVariable("dietId") Long dietId) {
-		return ptService.getDiet(memberId, dietId);
+		return dietService.getDiet(memberId, dietId);
 	}
 
 	@Operation(summary = "캘린더 PT 수업, 기록 있는 날짜 조회 API")

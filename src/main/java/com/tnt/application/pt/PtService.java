@@ -1,6 +1,7 @@
 package com.tnt.application.pt;
 
 import static com.tnt.common.error.model.ErrorMessage.DIET_DUPLICATE_TIME;
+import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_CREATE_BEFORE_START;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_DUPLICATE_TIME;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_MORE_THAN_ONE_A_DAY;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_NOT_FOUND;
@@ -37,9 +38,6 @@ import com.tnt.domain.trainee.Trainee;
 import com.tnt.domain.trainer.Trainer;
 import com.tnt.dto.trainee.TraineeProjection;
 import com.tnt.dto.trainee.request.ConnectWithTrainerRequest;
-import com.tnt.dto.trainee.request.CreateDietRequest;
-import com.tnt.dto.trainee.response.CreateDietResponse;
-import com.tnt.dto.trainee.response.GetDietResponse;
 import com.tnt.dto.trainee.response.GetTraineeCalendarPtLessonCountResponse;
 import com.tnt.dto.trainee.response.GetTraineeDailyRecordsResponse;
 import com.tnt.dto.trainer.ConnectWithTrainerDto;
@@ -57,6 +55,7 @@ import com.tnt.infrastructure.mysql.repository.pt.PtLessonRepository;
 import com.tnt.infrastructure.mysql.repository.pt.PtLessonSearchRepository;
 import com.tnt.infrastructure.mysql.repository.pt.PtTrainerTraineeRepository;
 import com.tnt.infrastructure.mysql.repository.pt.PtTrainerTraineeSearchRepository;
+import com.tnt.infrastructure.mysql.repository.trainee.DietRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -73,11 +72,12 @@ public class PtService {
 	private final PtTrainerTraineeSearchRepository ptTrainerTraineeSearchRepository;
 	private final PtLessonRepository ptLessonRepository;
 	private final PtLessonSearchRepository ptLessonSearchRepository;
+	private final DietRepository dietRepository;
 
 	@Transactional
 	public ConnectWithTrainerDto connectWithTrainer(Long memberId, ConnectWithTrainerRequest request) {
-		Trainer trainer = trainerService.getTrainerWithInvitationCode(request.invitationCode());
-		Trainee trainee = traineeService.getTraineeWithMemberId(memberId);
+		Trainer trainer = trainerService.getByInvitationCode(request.invitationCode());
+		Trainee trainee = traineeService.getByMemberId(memberId);
 
 		validateNotAlreadyConnected(trainer.getId(), trainee.getId());
 
@@ -103,13 +103,13 @@ public class PtService {
 		Long traineeId) {
 		validateIfNotConnected(trainerId, traineeId);
 
-		Trainer trainer = trainerService.getTrainerWithMemberId(memberId);
-		Trainee trainee = traineeService.getTraineeWithId(traineeId);
+		Trainer trainer = trainerService.getByMemberId(memberId);
+		Trainee trainee = traineeService.getByTraineeId(traineeId);
 
 		Member trainerMember = trainer.getMember(); // fetch join 으로 가져온 member
 		Member traineeMember = trainee.getMember(); // fetch join 으로 가져온 member
 
-		List<PtGoal> ptGoals = ptGoalService.getAllPtGoalsWithTraineeId(traineeId);
+		List<PtGoal> ptGoals = ptGoalService.getAllByTraineeId(traineeId);
 		String ptGoal = ptGoals.stream().map(PtGoal::getContent).collect(Collectors.joining(", "));
 
 		return new ConnectWithTraineeResponse(
@@ -121,7 +121,7 @@ public class PtService {
 
 	@Transactional(readOnly = true)
 	public GetPtLessonsOnDateResponse getPtLessonsOnDate(Long memberId, LocalDate date) {
-		Trainer trainer = trainerService.getTrainerWithMemberId(memberId);
+		Trainer trainer = trainerService.getByMemberId(memberId);
 
 		List<PtLesson> ptLessons = ptLessonSearchRepository.findAllByTrainerIdAndDate(trainer.getId(), date);
 
@@ -140,7 +140,7 @@ public class PtService {
 
 	@Transactional(readOnly = true)
 	public GetCalendarPtLessonCountResponse getCalendarPtLessonCount(Long memberId, Integer year, Integer month) {
-		Trainer trainer = trainerService.getTrainerWithMemberId(memberId);
+		Trainer trainer = trainerService.getByMemberId(memberId);
 
 		List<PtLesson> ptLessons = ptLessonSearchRepository.findAllByTraineeIdForTrainerCalendar(trainer.getId(), year,
 			month);
@@ -160,7 +160,7 @@ public class PtService {
 
 	@Transactional(readOnly = true)
 	public GetActiveTraineesResponse getActiveTrainees(Long memberId) {
-		Trainer trainer = trainerService.getTrainerWithMemberId(memberId);
+		Trainer trainer = trainerService.getByMemberId(memberId);
 
 		List<Trainee> trainees = ptTrainerTraineeSearchRepository.findAllTrainees(trainer.getId());
 
@@ -169,7 +169,7 @@ public class PtService {
 					trainee.getId())
 				.orElseThrow(() -> new NotFoundException(TRAINEE_NOT_FOUND));
 
-			List<String> ptGoals = ptGoalService.getAllPtGoalsWithTraineeId(trainee.getId())
+			List<String> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId())
 				.stream()
 				.map(PtGoal::getContent)
 				.toList();
@@ -215,44 +215,28 @@ public class PtService {
 		ptTrainerTrainee.completeLesson();
 		ptLesson.completeLesson(ptTrainerTrainee.getFinishedPtCount());
 	}
-
-	@Transactional
-	public CreateDietResponse createDiet(Long traineeId, CreateDietRequest request, String dietImageUrl) {
-		Diet diet = Diet.builder()
-			.traineeId(traineeId)
-			.date(request.date())
-			.dietImageUrl(dietImageUrl)
-			.memo(request.memo())
-			.dietType(request.dietType())
-			.build();
-
-		Diet saveDiet = dietService.save(diet);
-
-		return new CreateDietResponse(saveDiet.getId(), saveDiet.getDate(), saveDiet.getDietImageUrl(),
-			saveDiet.getDietType(), saveDiet.getMemo());
-	}
-
-	@Transactional(readOnly = true)
-	public GetDietResponse getDiet(Long memberId, Long dietId) {
-		Trainee trainee = traineeService.getTraineeWithMemberId(memberId);
-
-		Diet diet = dietService.getDietWithTraineeIdAndDietId(dietId, trainee.getId());
-
-		return new GetDietResponse(diet.getId(), diet.getDate(), diet.getDietImageUrl(), diet.getDietType(),
-			diet.getMemo());
-	}
+	//
+	// @Transactional(readOnly = true)
+	// public GetDietResponse getDiet(Long memberId, Long dietId) {
+	// 	Trainee trainee = traineeService.getByMemberId(memberId);
+	//
+	// 	Diet diet = dietService.getByDietIdAndTraineeId(dietId, trainee.getId());
+	//
+	// 	return new GetDietResponse(diet.getId(), diet.getDate(), diet.getDietImageUrl(), diet.getDietType(),
+	// 		diet.getMemo());
+	// }
 
 	@Transactional(readOnly = true)
 	public GetTraineeCalendarPtLessonCountResponse getTraineeCalendarPtLessonCount(Long memberId, LocalDate startDate,
 		LocalDate endDate) {
-		Trainee trainee = traineeService.getTraineeWithMemberId(memberId);
+		Trainee trainee = traineeService.getByMemberId(memberId);
 
 		// 기간 내 PT 수업 조회
 		List<PtLesson> ptLessons = ptLessonSearchRepository.findAllByTraineeIdForTraineeCalendar(trainee.getId(),
 			startDate, endDate);
 
 		// 기간 내 식단 조회
-		List<Diet> diets = dietService.getDietsWithTraineeIdForTraineeCalendar(trainee.getId(), startDate, endDate);
+		List<Diet> diets = dietService.getAllByTraineeIdForTraineeCalendar(trainee.getId(), startDate, endDate);
 
 		// Mapping
 		List<LocalDate> dates = Stream.concat(
@@ -272,7 +256,7 @@ public class PtService {
 
 	@Transactional(readOnly = true)
 	public GetTraineeDailyRecordsResponse getDailyRecords(Long memberId, LocalDate date) {
-		Trainee trainee = traineeService.getTraineeWithMemberIdNoFetch(memberId);
+		Trainee trainee = traineeService.getByMemberIdNoFetch(memberId);
 
 		// PT 정보 조회
 		TraineeProjection.PtInfoDto ptResult = ptLessonSearchRepository.findAllByTraineeIdForDaily(trainee.getId(),
@@ -285,7 +269,7 @@ public class PtService {
 					ptResult.session(), ptResult.lessonStart(), ptResult.lessonEnd());
 
 		// 식단 정보 조회
-		List<Diet> diets = dietService.getDietsWithTraineeIdForDaily(trainee.getId(), date);
+		List<Diet> diets = dietService.getAllByTraineeIdForDaily(trainee.getId(), date);
 
 		// 식단 정보 Mapping to DietRecord
 		List<GetTraineeDailyRecordsResponse.DietRecord> dietRecords = diets.stream()
@@ -296,10 +280,10 @@ public class PtService {
 		return new GetTraineeDailyRecordsResponse(date, ptInfo, dietRecords);
 	}
 
-	public Long validateDuplicationDiet(Long memberId, LocalDateTime date) {
-		Trainee trainee = traineeService.getTraineeWithMemberId(memberId);
+	public Long validateDietDuplicateAndGetTraineeId(Long memberId, LocalDateTime date) {
+		Trainee trainee = traineeService.getByMemberId(memberId);
 
-		if (dietService.isDietExistWithTraineeIdAndDate(trainee.getId(), date)) {
+		if (dietService.isDietExistByTraineeIdAndDate(trainee.getId(), date)) {
 			throw new ConflictException(DIET_DUPLICATE_TIME);
 		}
 
@@ -358,6 +342,10 @@ public class PtService {
 	}
 
 	private void validateLessonTime(PtTrainerTrainee ptTrainerTrainee, LocalDateTime start, LocalDateTime end) {
+		if (ptTrainerTrainee.getStartedAt().isAfter(start.toLocalDate())) {
+			throw new BadRequestException(PT_LESSON_CREATE_BEFORE_START);
+		}
+
 		if (ptLessonSearchRepository.existsByStartAndEnd(ptTrainerTrainee, start, end)) {
 			throw new ConflictException(PT_LESSON_DUPLICATE_TIME);
 		}

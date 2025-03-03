@@ -21,39 +21,34 @@ public class TrainerService {
 	private final TrainerRepository trainerRepository;
 	private final TrainerSearchRepository trainerSearchRepository;
 
+	@Transactional
+	public InvitationCodeResponse reissueInvitationCode(Long memberId) {
+		Trainer trainer = getByMemberId(memberId);
+		trainer.setNewInvitationCode();
+
+		return new InvitationCodeResponse(trainer.getInvitationCode());
+	}
+
 	public InvitationCodeResponse getInvitationCode(Long memberId) {
-		Trainer trainer = getTrainerWithMemberId(memberId);
+		Trainer trainer = getByMemberId(memberId);
 
 		return new InvitationCodeResponse(trainer.getInvitationCode());
 	}
 
 	public InvitationCodeVerifyResponse verifyInvitationCode(String invitationCode) {
 		boolean isVerified = trainerRepository.existsByInvitationCodeAndDeletedAtIsNull(invitationCode);
-		String trainerName = isVerified ? getTrainerWithInvitationCode(invitationCode).getMember().getName() : null;
+		String trainerName = isVerified ? getByInvitationCode(invitationCode).getMember().getName() : null;
 
 		return new InvitationCodeVerifyResponse(isVerified, trainerName);
 	}
 
-	@Transactional
-	public InvitationCodeResponse reissueInvitationCode(Long memberId) {
-		Trainer trainer = getTrainerWithMemberId(memberId);
-		trainer.setNewInvitationCode();
-
-		return new InvitationCodeResponse(trainer.getInvitationCode());
-	}
-
-	@Transactional
-	public Trainer saveTrainer(Trainer trainer) {
-		return trainerRepository.save(trainer);
-	}
-
-	public Trainer getTrainerWithMemberId(Long memberId) {
+	public Trainer getByMemberId(Long memberId) {
 		return trainerRepository.findByMemberIdAndDeletedAtIsNull(memberId)
 			.orElseThrow(() -> new NotFoundException(TRAINER_NOT_FOUND));
 	}
 
-	public Trainer getTrainerWithInvitationCode(String invitationCode) {
-		return trainerSearchRepository.findByInvitationCode(invitationCode)
+	public Trainer getByInvitationCode(String invitationCode) {
+		return trainerSearchRepository.find(null, invitationCode)
 			.orElseThrow(() -> new NotFoundException(TRAINER_NOT_FOUND));
 	}
 

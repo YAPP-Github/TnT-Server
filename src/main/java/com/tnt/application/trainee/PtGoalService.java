@@ -16,12 +16,12 @@ public class PtGoalService {
 
 	private final PtGoalRepository ptGoalRepository;
 
-	public List<PtGoal> getAllPtGoalsWithTraineeId(Long traineeId) {
-		return ptGoalRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId);
-	}
-
 	@Transactional
 	public List<PtGoal> saveAllPtGoals(List<PtGoal> ptGoals) {
 		return ptGoalRepository.saveAll(ptGoals);
+	}
+
+	public List<PtGoal> getAllByTraineeId(Long traineeId) {
+		return ptGoalRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId);
 	}
 }
