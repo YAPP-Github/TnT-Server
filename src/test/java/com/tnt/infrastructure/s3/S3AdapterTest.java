@@ -19,7 +19,6 @@ import com.tnt.common.error.exception.ImageException;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3Utilities;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
@@ -31,9 +30,6 @@ class S3AdapterTest {
 
 	@Mock
 	private S3Client s3Client;
-
-	@Mock
-	private S3Utilities s3Utilities;
 
 	@BeforeEach
 	void setUp() {

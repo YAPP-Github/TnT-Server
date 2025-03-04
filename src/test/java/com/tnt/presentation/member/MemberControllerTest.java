@@ -175,7 +175,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 
 		trainerRepository.save(trainer);
 
@@ -233,7 +233,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee1 = TraineeFixture.getTrainee2(traineeMember1);
 		Trainee trainee2 = TraineeFixture.getTrainee2(traineeMember2);
 		Trainee trainee3 = TraineeFixture.getTrainee2(traineeMember3);
@@ -289,7 +289,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee2(traineeMember);
 
 		trainerRepository.save(trainer);

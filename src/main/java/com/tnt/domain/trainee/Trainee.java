@@ -1,7 +1,6 @@
 package com.tnt.domain.trainee;
 
 import static com.tnt.common.error.model.ErrorMessage.TRAINEE_INVALID_CAUTION_NOTE;
-import static com.tnt.common.error.model.ErrorMessage.TRAINEE_NULL_MEMBER;
 import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
@@ -59,7 +58,7 @@ public class Trainee extends BaseTimeEntity {
 	@Builder
 	public Trainee(Long id, Member member, Double height, Double weight, @Nullable String cautionNote) {
 		this.id = id;
-		this.member = requireNonNull(member, TRAINEE_NULL_MEMBER.getMessage());
+		this.member = requireNonNull(member);
 		this.height = height;
 		this.weight = weight;
 		validateAndSetCautionNote(cautionNote);

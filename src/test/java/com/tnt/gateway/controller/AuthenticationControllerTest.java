@@ -57,6 +57,33 @@ class AuthenticationControllerTest {
 		assertThat(checkSessionResponse.memberType()).isEqualTo(TRAINER);
 	}
 
+	@Test
+	@DisplayName("Health Check 성공")
+	void health_check_success() {
+		// when
+		String response = authenticationController.healthCheck();
+
+		// then
+		assertThat(response).isEqualTo("OK");
+	}
+
+	@Test
+	@DisplayName("로그아웃 성공")
+	void logout_success() {
+		// given
+		Long memberId = 111L;
+		String sessionId = "testSessionId";
+
+		given(oauthService.logout(memberId)).willReturn(new LogoutResponse(sessionId));
+
+		// when
+		LogoutResponse response = authenticationController.logout(memberId);
+
+		//then
+		assertThat(response.sessionId()).isEqualTo(sessionId);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
 	@Nested
 	@DisplayName("Login 테스트")
 	class LoginTest {
@@ -135,28 +162,6 @@ class AuthenticationControllerTest {
 			assertThatThrownBy(() -> authenticationController.oauthLogin(request))
 				.isInstanceOf(NotFoundException.class)
 				.hasMessage(MEMBER_NOT_FOUND.getMessage());
-		}
-	}
-
-	@Nested
-	@DisplayName("Logout 테스트")
-	class LogoutTest {
-
-		@Test
-		@DisplayName("로그아웃 성공")
-		void logout_success() {
-			// given
-			Long memberId = 111L;
-			String sessionId = "testSessionId";
-
-			given(oauthService.logout(memberId)).willReturn(new LogoutResponse(sessionId));
-
-			// when
-			LogoutResponse response = authenticationController.logout(memberId);
-
-			//then
-			assertThat(response.sessionId()).isEqualTo(sessionId);
-			assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		}
 	}
 }

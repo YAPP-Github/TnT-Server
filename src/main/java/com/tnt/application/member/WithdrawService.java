@@ -40,7 +40,7 @@ public class WithdrawService {
 
 	@Transactional
 	public WithdrawDto withdraw(Long memberId) {
-		Member member = memberService.getMemberWithMemberId(memberId);
+		Member member = memberService.getByMemberId(memberId);
 
 		deleteMemberData(member);
 
@@ -51,7 +51,7 @@ public class WithdrawService {
 
 	private void deleteMemberData(Member member) {
 		if (member.getMemberType() == TRAINER) {
-			Trainer trainer = trainerService.getTrainerWithMemberId(member.getId());
+			Trainer trainer = trainerService.getByMemberId(member.getId());
 
 			if (ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())) {
 				List<PtTrainerTrainee> ptTrainerTrainee = ptService.getAllPtTrainerTraineeWithTrainerId(
@@ -69,9 +69,9 @@ public class WithdrawService {
 		}
 
 		if (member.getMemberType() == TRAINEE) {
-			Trainee trainee = traineeService.getTraineeWithMemberId(member.getId());
-			List<PtGoal> ptGoals = ptGoalService.getAllPtGoalsWithTraineeId(trainee.getId());
-			List<Diet> diets = dietService.getAllDietsWithTraineeId(trainee.getId());
+			Trainee trainee = traineeService.getByMemberId(member.getId());
+			List<PtGoal> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId());
+			List<Diet> diets = dietService.getAllByTraineeId(trainee.getId());
 
 			if (ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId())) {
 				try {

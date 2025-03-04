@@ -32,8 +32,9 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 
-	private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-	private final AntPathMatcher pathMatcher = new AntPathMatcher();
+	private static final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+
 	private final List<String> allowedUris;
 	private final SessionService sessionService;
 	private final ObjectMapper objectMapper;

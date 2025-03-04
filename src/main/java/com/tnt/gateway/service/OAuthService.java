@@ -60,23 +60,8 @@ public class OAuthService {
 	@Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
 	private String kakaoApiUrl;
 
-	@Value("${social-login.provider.kakao.unlink-uri}")
-	private String kakaoUnlinkUrl;
-
 	@Value("${social-login.provider.apple.audience}")
 	private String appleApiUrl;
-
-	@Value("${social-login.provider.apple.team-id}")
-	private String teamId;
-
-	@Value("${social-login.provider.apple.client-id}")
-	private String clientId;
-
-	@Value("${social-login.provider.apple.key-id}")
-	private String keyId;
-
-	@Value("${social-login.provider.apple.private-key}")
-	private String privateKey;
 
 	@Transactional
 	public OAuthLoginResponse oauthLogin(OAuthLoginRequest request) {
@@ -86,7 +71,7 @@ public class OAuthService {
 		Member member;
 
 		try {
-			member = memberService.getMemberWithSocialIdAndSocialType(socialId, request.socialType());
+			member = memberService.getBySocialIdAndSocialType(socialId, request.socialType());
 		} catch (NotFoundException e) {
 			return new OAuthLoginResponse(null, socialId, socialEmail, request.socialType(), false, UNREGISTERED);
 		}

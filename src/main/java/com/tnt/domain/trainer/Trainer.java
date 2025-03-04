@@ -2,7 +2,6 @@ package com.tnt.domain.trainer;
 
 import static com.tnt.common.error.model.ErrorMessage.TRAINER_INVALID_INVITATION_CODE;
 import static com.tnt.common.error.model.ErrorMessage.TRAINER_INVITATION_CODE_GENERATE_FAILED;
-import static com.tnt.common.error.model.ErrorMessage.TRAINER_NULL_MEMBER;
 import static io.micrometer.common.util.StringUtils.isBlank;
 import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 import static java.util.Objects.requireNonNull;
@@ -57,7 +56,7 @@ public class Trainer extends BaseTimeEntity {
 	@Builder
 	public Trainer(Long id, Member member) {
 		this.id = id;
-		this.member = requireNonNull(member, TRAINER_NULL_MEMBER.getMessage());
+		this.member = requireNonNull(member);
 		setNewInvitationCode();
 	}
 
