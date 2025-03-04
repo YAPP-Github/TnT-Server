@@ -33,6 +33,7 @@ import com.tnt.dto.member.response.SignUpResponse;
 import com.tnt.fixture.MemberFixture;
 import com.tnt.gateway.service.SessionService;
 import com.tnt.infrastructure.mysql.repository.member.MemberRepository;
+import com.tnt.infrastructure.mysql.repository.pt.PtGoalRepository;
 import com.tnt.infrastructure.mysql.repository.trainee.TraineeRepository;
 import com.tnt.infrastructure.mysql.repository.trainer.TrainerRepository;
 
@@ -59,6 +60,9 @@ class SignUpServiceTest {
 
 	@Mock
 	private TraineeRepository traineeRepository;
+
+	@Mock
+	private PtGoalRepository ptGoalRepository;
 
 	@Test
 	@DisplayName("트레이너 회원가입 성공")
@@ -93,7 +97,7 @@ class SignUpServiceTest {
 		given(memberRepository.save(any(Member.class))).willReturn(traineeMember);
 		given(traineeRepository.save(any(Trainee.class))).willReturn(
 			Trainee.builder().id(1L).member(traineeMember).height(180.0).weight(75.0).build());
-		given(ptGoalService.saveAllPtGoals(anyList())).willReturn(Stream.of("목표1", "목표2")
+		given(ptGoalRepository.saveAll(anyList())).willReturn(Stream.of("목표1", "목표2")
 			.map(content -> PtGoal.builder().traineeId(traineeMember.getId()).content(content).build())
 			.toList());
 
@@ -110,7 +114,7 @@ class SignUpServiceTest {
 		assertThat(result).isNotNull().isEqualTo(traineeMember.getId());
 		verify(memberRepository).save(any(Member.class));
 		verify(traineeRepository).save(any(Trainee.class));
-		verify(ptGoalService).saveAllPtGoals(any());
+		verify(ptGoalRepository).saveAll(any());
 	}
 
 	@Test

@@ -21,6 +21,7 @@ import com.tnt.dto.member.request.SignUpRequest;
 import com.tnt.dto.member.response.SignUpResponse;
 import com.tnt.gateway.service.SessionService;
 import com.tnt.infrastructure.mysql.repository.member.MemberRepository;
+import com.tnt.infrastructure.mysql.repository.pt.PtGoalRepository;
 import com.tnt.infrastructure.mysql.repository.trainee.TraineeRepository;
 import com.tnt.infrastructure.mysql.repository.trainer.TrainerRepository;
 
@@ -37,6 +38,7 @@ public class SignUpService {
 	private final MemberRepository memberRepository;
 	private final TrainerRepository trainerRepository;
 	private final TraineeRepository traineeRepository;
+	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional
 	public Long signUp(SignUpRequest request) {
@@ -114,6 +116,6 @@ public class SignUpService {
 				.build())
 			.toList();
 
-		ptGoalService.saveAllPtGoals(ptGoals);
+		ptGoalRepository.saveAll(ptGoals);
 	}
 }
