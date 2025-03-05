@@ -6,7 +6,6 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -63,8 +62,11 @@ public class MemberController {
 	@PostMapping
 	@ResponseStatus(OK)
 	public UpdateMemberInfoResponse updateMemberInfo(@AuthMember Long memberId,
-		@RequestBody UpdateMemberInfoRequest request) {
-		return memberService.updateMemberInfo(memberId, request);
+		@RequestPart("request") @Valid UpdateMemberInfoRequest request,
+		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+		String profileImageUrl = s3Service.uploadProfileImage(profileImage, request.memberType());
+
+		return memberService.updateMemberInfo(memberId, request, profileImageUrl);
 	}
 
 	@Operation(summary = "회원 탈퇴 API")

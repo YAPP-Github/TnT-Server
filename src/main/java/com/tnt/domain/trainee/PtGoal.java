@@ -48,15 +48,15 @@ public class PtGoal extends BaseTimeEntity {
 		this.content = validateContent(content);
 	}
 
+	public void softDelete() {
+		this.deletedAt = LocalDateTime.now();
+	}
+
 	private String validateContent(String content) {
 		if (isBlank(content) || content.length() > CONTENT_LENGTH) {
 			throw new IllegalArgumentException(PT_GOAL_INVALID_CONTENT.getMessage());
 		}
 
 		return content;
-	}
-
-	public void softDelete() {
-		this.deletedAt = LocalDateTime.now();
 	}
 }

@@ -165,6 +165,10 @@ public class Member extends BaseTimeEntity {
 		}
 	}
 
+	public void updateBirthday(LocalDate birthday) {
+		this.birthday = birthday;
+	}
+
 	public void softDelete() {
 		this.socialId = null;
 		this.deletedAt = LocalDateTime.now();

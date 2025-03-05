@@ -47,6 +47,7 @@ import com.tnt.domain.trainee.PtGoal;
 import com.tnt.domain.trainee.Trainee;
 import com.tnt.domain.trainer.Trainer;
 import com.tnt.dto.member.request.SignUpRequest;
+import com.tnt.dto.member.request.UpdateMemberInfoRequest;
 import com.tnt.fixture.MemberFixture;
 import com.tnt.fixture.PtGoalsFixture;
 import com.tnt.fixture.PtTrainerTraineeFixture;
@@ -316,6 +317,126 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("$.trainee.height").value(trainee.getHeight()))
 			.andExpect(jsonPath("$.trainee.weight").value(trainee.getWeight()))
 			.andExpect(jsonPath("$.trainee.cautionNote").value(trainee.getCautionNote()))
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 트레이너 회원 정보 수정 성공")
+	void update_member_info_trainer_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember1 = MemberFixture.getTraineeMember1();
+		Member traineeMember2 = MemberFixture.getTraineeMember3();
+		Member traineeMember3 = MemberFixture.getTraineeMember4();
+
+		trainerMember = memberRepository.save(trainerMember);
+		memberRepository.save(traineeMember1);
+		memberRepository.save(traineeMember2);
+		memberRepository.save(traineeMember3);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+		Trainee trainee1 = TraineeFixture.getTrainee2(traineeMember1);
+		Trainee trainee2 = TraineeFixture.getTrainee2(traineeMember2);
+		Trainee trainee3 = TraineeFixture.getTrainee2(traineeMember3);
+
+		trainerRepository.save(trainer);
+		traineeRepository.save(trainee1);
+		traineeRepository.save(trainee2);
+		traineeRepository.save(trainee3);
+
+		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee1.getId());
+
+		ptGoalRepository.saveAll(ptGoals);
+
+		PtTrainerTrainee ptTrainerTrainee1 = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee1);
+		PtTrainerTrainee ptTrainerTrainee2 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee2);
+		PtTrainerTrainee ptTrainerTrainee3 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee3);
+
+		ptTrainerTrainee3.softDelete();
+
+		ptTrainerTraineeRepository.save(ptTrainerTrainee1);
+		ptTrainerTraineeRepository.save(ptTrainerTrainee2);
+		ptTrainerTraineeRepository.save(ptTrainerTrainee3);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(TRAINER, "홍길동", null, null, null, null, null);
+
+		// when
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+		var result = mockMvc.perform(multipart("/members")
+			.file(jsonRequest)
+			.file(profileImage)
+			.contentType(MULTIPART_FORM_DATA_VALUE));
+
+		// then
+		result.andExpect(status().isOk())
+			.andExpect(jsonPath("$.memberType").value(request.memberType().toString()))
+			.andExpect(jsonPath("$.name").value(request.name()))
+			.andExpect(jsonPath("$.profileImageUrl").value(trainerMember.getProfileImageUrl()))
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 트레이니 회원 정보 수정 성공")
+	void update_member_info_trainee_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		memberRepository.save(trainerMember);
+		traineeMember = memberRepository.save(traineeMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(traineeMember.getId(),
+			String.valueOf(traineeMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee2(traineeMember);
+
+		trainerRepository.save(trainer);
+		traineeRepository.save(trainee);
+
+		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee.getId());
+
+		ptGoalRepository.saveAll(ptGoals);
+
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+
+		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(TRAINEE, "홍길동", LocalDate.of(1990, 1, 1), 175.0,
+			70.0, "테스트 주의사항", List.of("체중 감량", "건강 관리"));
+
+		// when
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+		var result = mockMvc.perform(multipart("/members")
+			.file(jsonRequest)
+			.file(profileImage)
+			.contentType(MULTIPART_FORM_DATA_VALUE));
+
+		// then
+		result.andExpect(status().isOk())
+			.andExpect(jsonPath("$.memberType").value(request.memberType().toString()))
+			.andExpect(jsonPath("$.name").value(request.name()))
+			.andExpect(jsonPath("$.profileImageUrl").value(traineeMember.getProfileImageUrl()))
+			.andExpect(jsonPath("$.trainee.birthday").value(request.birthday().toString()))
+			.andExpect(jsonPath("$.trainee.height").value(request.height()))
+			.andExpect(jsonPath("$.trainee.weight").value(request.weight()))
+			.andExpect(jsonPath("$.trainee.cautionNote").value(request.cautionNote()))
+			.andExpect(jsonPath("$.trainee.ptGoals[0]").value(request.goalContents().getFirst()))
 			.andDo(print());
 	}
 

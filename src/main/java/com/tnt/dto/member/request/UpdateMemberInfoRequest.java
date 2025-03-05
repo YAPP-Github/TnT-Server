@@ -3,13 +3,20 @@ package com.tnt.dto.member.request;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.tnt.domain.member.MemberType;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 
 @Schema(description = "회원 정보 수정 API 요청")
 public record UpdateMemberInfoRequest(
+	@Schema(description = "회원 타입", example = "TRAINER", nullable = false)
+	@NotNull(message = "회원 타입은 필수입니다.")
+	MemberType memberType,
+
 	@Schema(description = "회원 이름", example = "홍길동", nullable = false)
 	@NotBlank(message = "회원 이름은 필수입니다.")
 	String name,

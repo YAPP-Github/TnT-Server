@@ -64,6 +64,16 @@ public class Trainee extends BaseTimeEntity {
 		validateAndSetCautionNote(cautionNote);
 	}
 
+	public void updateTraineeInfo(Double height, Double weight, String cautionNote) {
+		this.height = height;
+		this.weight = weight;
+		this.cautionNote = cautionNote;
+	}
+
+	public void softDelete() {
+		this.deletedAt = LocalDateTime.now();
+	}
+
 	private void validateAndSetCautionNote(String cautionNote) {
 		if (isNull(cautionNote)) {
 			return;
@@ -74,9 +84,5 @@ public class Trainee extends BaseTimeEntity {
 		}
 
 		this.cautionNote = cautionNote;
-	}
-
-	public void softDelete() {
-		this.deletedAt = LocalDateTime.now();
 	}
 }

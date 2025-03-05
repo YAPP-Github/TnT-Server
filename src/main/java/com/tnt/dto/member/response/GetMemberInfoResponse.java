@@ -26,13 +26,13 @@ public record GetMemberInfoResponse(
 	SocialType socialType,
 
 	@Schema(description = "트레이너 정보", nullable = true)
-	TrainerInfo trainer,
+	GetTrainerInfo trainer,
 
 	@Schema(description = "트레이니 정보", nullable = true)
-	TraineeInfo trainee
+	GetTraineeInfo trainee
 ) {
 
-	public record TrainerInfo(
+	public record GetTrainerInfo(
 		@Schema(description = "관리 중인 회원", example = "23", nullable = true)
 		Integer activeTraineeCount,
 
@@ -42,7 +42,7 @@ public record GetMemberInfoResponse(
 
 	}
 
-	public record TraineeInfo(
+	public record GetTraineeInfo(
 		@Schema(description = "트레이너 연결 여부", example = "true", nullable = false)
 		Boolean isConnected,
 
