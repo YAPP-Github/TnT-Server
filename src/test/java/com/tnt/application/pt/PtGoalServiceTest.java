@@ -46,7 +46,7 @@ class PtGoalServiceTest {
 			.willReturn(ptGoals);
 
 		// when
-		List<PtGoal> result = ptGoalService.getAllPtGoalsWithTraineeId(traineeId);
+		List<PtGoal> result = ptGoalService.getAllByTraineeId(traineeId);
 
 		// then
 		assertThat(result).isNotNull().hasSize(2).isEqualTo(ptGoals);
@@ -71,7 +71,7 @@ class PtGoalServiceTest {
 		given(ptGoalRepository.saveAll(ptGoals)).willReturn(ptGoals);
 
 		// when
-		List<PtGoal> savedPtGoals = ptGoalService.saveAllPtGoals(ptGoals);
+		List<PtGoal> savedPtGoals = ptGoalRepository.saveAll(ptGoals);
 
 		// then
 		assertThat(savedPtGoals).isNotNull().hasSize(2).isEqualTo(ptGoals);

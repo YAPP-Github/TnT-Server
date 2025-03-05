@@ -1,7 +1,6 @@
 package com.tnt.domain.trainee;
 
 import static com.tnt.common.error.model.ErrorMessage.PT_GOAL_INVALID_CONTENT;
-import static com.tnt.common.error.model.ErrorMessage.PT_GOAL_NULL_TRAINEE_ID;
 import static io.micrometer.common.util.StringUtils.isBlank;
 import static java.util.Objects.requireNonNull;
 
@@ -45,7 +44,7 @@ public class PtGoal extends BaseTimeEntity {
 	@Builder
 	public PtGoal(Long id, Long traineeId, String content) {
 		this.id = id;
-		this.traineeId = requireNonNull(traineeId, PT_GOAL_NULL_TRAINEE_ID.getMessage());
+		this.traineeId = requireNonNull(traineeId);
 		this.content = validateContent(content);
 	}
 

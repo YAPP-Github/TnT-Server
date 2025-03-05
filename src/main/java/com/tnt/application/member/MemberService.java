@@ -42,28 +42,17 @@ public class MemberService {
 	private final TraineeService traineeService;
 	private final PtGoalService ptGoalService;
 	private final PtService ptService;
+
 	private final MemberRepository memberRepository;
 	private final MemberSearchRepository memberSearchRepository;
 
-	@Transactional
-	public Member saveMember(Member member) {
-		return memberRepository.save(member);
-	}
-
-	public void validateMemberNotExists(String socialId, SocialType socialType) {
-		memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
-			.ifPresent(member -> {
-				throw new ConflictException(MEMBER_CONFLICT);
-			});
-	}
-
 	@Transactional(readOnly = true)
 	public GetMemberInfoResponse getMemberInfo(Long memberId) {
-		Member member = getMemberWithMemberId(memberId);
+		Member member = getByMemberId(memberId);
 		GetMemberInfoResponse memberInfo = null;
 
 		if (member.getMemberType() == TRAINER) {
-			Trainer trainer = trainerService.getTrainerWithMemberId(memberId);
+			Trainer trainer = trainerService.getByMemberId(memberId);
 			List<PtTrainerTrainee> ptTrainerTrainees = ptService.getAllPtTrainerTraineeWithTrainerIdWithDeleted(
 				trainer.getId());
 
@@ -78,8 +67,8 @@ public class MemberService {
 			memberInfo = new GetMemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
 				member.getMemberType(), member.getSocialType(), trainerInfo, null);
 		} else if (member.getMemberType() == TRAINEE) {
-			Trainee trainee = traineeService.getTraineeWithMemberId(memberId);
-			List<String> ptGoals = ptGoalService.getAllPtGoalsWithTraineeId(trainee.getId()).stream().map(
+			Trainee trainee = traineeService.getByMemberId(memberId);
+			List<String> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId()).stream().map(
 				PtGoal::getContent).toList();
 			boolean isConnected = ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId());
 
@@ -101,22 +90,29 @@ public class MemberService {
 		boolean isConnected = false;
 
 		if (memberTypeDto.memberType() == TRAINER) {
-			Trainer trainer = trainerService.getTrainerWithMemberId(memberId);
+			Trainer trainer = trainerService.getByMemberId(memberId);
 			isConnected = ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId());
 		} else if (memberTypeDto.memberType() == TRAINEE) {
-			Trainee trainee = traineeService.getTraineeWithMemberId(memberId);
+			Trainee trainee = traineeService.getByMemberId(memberId);
 			isConnected = ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId());
 		}
 
 		return new CheckSessionResponse(memberTypeDto.memberType(), isConnected);
 	}
 
-	public Member getMemberWithMemberId(Long memberId) {
+	public void validateMemberNotExists(String socialId, SocialType socialType) {
+		memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
+			.ifPresent(member -> {
+				throw new ConflictException(MEMBER_CONFLICT);
+			});
+	}
+
+	public Member getByMemberId(Long memberId) {
 		return memberRepository.findByIdAndDeletedAtIsNull(memberId)
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
 	}
 
-	public Member getMemberWithSocialIdAndSocialType(String socialId, SocialType socialType) {
+	public Member getBySocialIdAndSocialType(String socialId, SocialType socialType) {
 		return memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
 	}

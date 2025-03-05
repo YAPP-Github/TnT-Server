@@ -111,7 +111,7 @@ class TraineeControllerTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		trainerRepository.save(trainer);
@@ -359,7 +359,7 @@ class TraineeControllerTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		trainer = trainerRepository.save(trainer);
@@ -444,7 +444,7 @@ class TraineeControllerTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		trainerRepository.save(trainer);
@@ -511,7 +511,7 @@ class TraineeControllerTest {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		Trainer trainer = TrainerFixture.getTrainer2(trainerMember);
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
 		trainerRepository.save(trainer);

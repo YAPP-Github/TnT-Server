@@ -1,6 +1,5 @@
 package com.tnt.domain.pt;
 
-import static com.tnt.common.error.model.ErrorMessage.PT_TRAINER_TRAINEE_NULL;
 import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
@@ -64,7 +63,7 @@ public class PtLesson extends BaseTimeEntity {
 	public PtLesson(Long id, PtTrainerTrainee ptTrainerTrainee, LocalDateTime lessonStart, LocalDateTime lessonEnd,
 		@Nullable String memo, Integer session) {
 		this.id = id;
-		this.ptTrainerTrainee = requireNonNull(ptTrainerTrainee, PT_TRAINER_TRAINEE_NULL.getMessage());
+		this.ptTrainerTrainee = requireNonNull(ptTrainerTrainee);
 		this.lessonStart = requireNonNull(lessonStart);
 		this.lessonEnd = requireNonNull(lessonEnd);
 		this.isCompleted = false;

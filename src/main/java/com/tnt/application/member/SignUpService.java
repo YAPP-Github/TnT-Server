@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tnt.application.trainee.PtGoalService;
-import com.tnt.application.trainee.TraineeService;
-import com.tnt.application.trainer.TrainerService;
 import com.tnt.domain.member.Member;
 import com.tnt.domain.member.MemberType;
 import com.tnt.domain.trainee.PtGoal;
@@ -22,6 +20,10 @@ import com.tnt.domain.trainer.Trainer;
 import com.tnt.dto.member.request.SignUpRequest;
 import com.tnt.dto.member.response.SignUpResponse;
 import com.tnt.gateway.service.SessionService;
+import com.tnt.infrastructure.mysql.repository.member.MemberRepository;
+import com.tnt.infrastructure.mysql.repository.pt.PtGoalRepository;
+import com.tnt.infrastructure.mysql.repository.trainee.TraineeRepository;
+import com.tnt.infrastructure.mysql.repository.trainer.TrainerRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,9 +33,12 @@ public class SignUpService {
 
 	private final SessionService sessionService;
 	private final MemberService memberService;
-	private final TrainerService trainerService;
-	private final TraineeService traineeService;
 	private final PtGoalService ptGoalService;
+
+	private final MemberRepository memberRepository;
+	private final TrainerRepository trainerRepository;
+	private final TraineeRepository traineeRepository;
+	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional
 	public Long signUp(SignUpRequest request) {
@@ -47,9 +52,8 @@ public class SignUpService {
 	}
 
 	@Transactional
-	public SignUpResponse finishSignUpWithImage(String profileImageUrl, Long memberId, MemberType memberType) {
-		Member member = memberService.getMemberWithMemberId(memberId);
-
+	public SignUpResponse finishSignUpAfterImageUpload(String profileImageUrl, Long memberId, MemberType memberType) {
+		Member member = memberService.getByMemberId(memberId);
 		member.updateProfileImageUrl(profileImageUrl);
 
 		String sessionId = String.valueOf(getTsid());
@@ -65,7 +69,7 @@ public class SignUpService {
 			.member(member)
 			.build();
 
-		trainerService.saveTrainer(trainer);
+		trainerRepository.save(trainer);
 
 		return member.getId();
 	}
@@ -79,7 +83,7 @@ public class SignUpService {
 			.cautionNote(request.cautionNote())
 			.build();
 
-		trainee = traineeService.saveTrainee(trainee);
+		trainee = traineeRepository.save(trainee);
 
 		createPtGoals(trainee, request.goalContents());
 
@@ -101,7 +105,7 @@ public class SignUpService {
 			.memberType(memberType)
 			.build();
 
-		return memberService.saveMember(member);
+		return memberRepository.save(member);
 	}
 
 	private void createPtGoals(Trainee trainee, List<String> goalContents) {
@@ -112,6 +116,6 @@ public class SignUpService {
 				.build())
 			.toList();
 
-		ptGoalService.saveAllPtGoals(ptGoals);
+		ptGoalRepository.saveAll(ptGoals);
 	}
 }

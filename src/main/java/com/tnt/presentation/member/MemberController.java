@@ -49,7 +49,7 @@ public class MemberController {
 		Long memberId = signUpService.signUp(request);
 		String profileImageUrl = s3Service.uploadProfileImage(profileImage, request.memberType());
 
-		return signUpService.finishSignUpWithImage(profileImageUrl, memberId, request.memberType());
+		return signUpService.finishSignUpAfterImageUpload(profileImageUrl, memberId, request.memberType());
 	}
 
 	@Operation(summary = "회원 조회 API")
