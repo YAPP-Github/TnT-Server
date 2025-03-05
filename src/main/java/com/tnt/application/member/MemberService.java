@@ -102,9 +102,7 @@ public class MemberService {
 		if (memberTypeDto.memberType() == TRAINER) {
 			Trainer trainer = trainerService.getByMemberId(memberId);
 			isConnected = ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId());
-		}
-
-		if (memberTypeDto.memberType() == TRAINEE) {
+		} else if (memberTypeDto.memberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
 			isConnected = ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId());
 		}
