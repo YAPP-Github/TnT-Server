@@ -6,6 +6,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,8 +19,10 @@ import com.tnt.application.member.WithdrawService;
 import com.tnt.application.s3.S3Service;
 import com.tnt.dto.member.WithdrawDto;
 import com.tnt.dto.member.request.SignUpRequest;
+import com.tnt.dto.member.request.UpdateMemberInfoRequest;
 import com.tnt.dto.member.response.GetMemberInfoResponse;
 import com.tnt.dto.member.response.SignUpResponse;
+import com.tnt.dto.member.response.UpdateMemberInfoResponse;
 import com.tnt.gateway.config.AuthMember;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,6 +57,14 @@ public class MemberController {
 	@ResponseStatus(OK)
 	public GetMemberInfoResponse getMemberInfo(@AuthMember Long memberId) {
 		return memberService.getMemberInfo(memberId);
+	}
+
+	@Operation(summary = "회원 정보 수정 API")
+	@PostMapping
+	@ResponseStatus(OK)
+	public UpdateMemberInfoResponse updateMemberInfo(@AuthMember Long memberId,
+		@RequestBody UpdateMemberInfoRequest request) {
+		return memberService.updateMemberInfo(memberId, request);
 	}
 
 	@Operation(summary = "회원 탈퇴 API")

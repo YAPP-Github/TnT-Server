@@ -153,6 +153,12 @@ public class Member extends BaseTimeEntity {
 		}
 	}
 
+	public void updateName(String name) {
+		if (!isBlank(name) && !this.name.equals(name)) {
+			this.name = name;
+		}
+	}
+
 	public void updateProfileImageUrl(String profileImageUrl) {
 		if (!isBlank(profileImageUrl) && !this.profileImageUrl.equals(profileImageUrl)) {
 			this.profileImageUrl = profileImageUrl;

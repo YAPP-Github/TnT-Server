@@ -23,9 +23,11 @@ import com.tnt.domain.pt.PtTrainerTrainee;
 import com.tnt.domain.trainee.PtGoal;
 import com.tnt.domain.trainee.Trainee;
 import com.tnt.domain.trainer.Trainer;
+import com.tnt.dto.member.request.UpdateMemberInfoRequest;
 import com.tnt.dto.member.response.GetMemberInfoResponse;
 import com.tnt.dto.member.response.GetMemberInfoResponse.TraineeInfo;
 import com.tnt.dto.member.response.GetMemberInfoResponse.TrainerInfo;
+import com.tnt.dto.member.response.UpdateMemberInfoResponse;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
 import com.tnt.infrastructure.mysql.repository.member.MemberRepository;
 import com.tnt.infrastructure.mysql.repository.member.MemberSearchRepository;
@@ -117,5 +119,13 @@ public class MemberService {
 	public Member getMemberWithSocialIdAndSocialType(String socialId, SocialType socialType) {
 		return memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+	}
+
+	public UpdateMemberInfoResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
+		Member findMember = getMemberWithMemberId(memberId);
+
+		if (findMember.getMemberType() == TRAINER) {
+			findMember.updateName(request.name());
+		}
 	}
 }
