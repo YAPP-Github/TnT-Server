@@ -1124,4 +1124,71 @@ class TrainerControllerTest {
 		//noinspection OptionalGetWithoutIsPresent
 		assertThat(ptLessonRepository.findById(ptLesson.getId()).get().getIsCompleted()).isTrue();
 	}
+
+	@Test
+	@DisplayName("통합 테스트 - PT 수업 완료 취소 처리 성공")
+	void cancel_pt_lesson_success() throws Exception {
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+		traineeMember = memberRepository.save(traineeMember);
+
+		CustomUserDetails trainerUserDetails = new CustomUserDetails(trainerMember.getId(),
+			trainerMember.getId().toString(),
+			authoritiesMapper.mapAuthorities(List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(trainerUserDetails, null,
+			authoritiesMapper.mapAuthorities(trainerUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = Trainer.builder()
+			.member(trainerMember)
+			.build();
+
+		Trainee trainee = Trainee.builder()
+			.member(traineeMember)
+			.height(180.5)
+			.weight(78.4)
+			.cautionNote("주의사항")
+			.build();
+
+		trainer = trainerRepository.save(trainer);
+		trainee = traineeRepository.save(trainee);
+
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+
+		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+
+		PtLesson ptLesson1 = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(1)
+			.lessonStart(LocalDateTime.of(2025, 1, 1, 10, 0))
+			.lessonEnd(LocalDateTime.of(2025, 1, 1, 11, 0))
+			.memo("THIS IS MEMO")
+			.build();
+
+		PtLesson ptLesson2 = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(2)
+			.lessonStart(LocalDateTime.of(2025, 1, 3, 10, 0))
+			.lessonEnd(LocalDateTime.of(2025, 1, 3, 11, 0))
+			.build();
+
+		PtLesson ptLesson3 = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(3)
+			.lessonStart(LocalDateTime.of(2025, 1, 4, 10, 0))
+			.lessonEnd(LocalDateTime.of(2025, 1, 4, 11, 0))
+			.build();
+
+		ptLesson1.complete(1);
+
+		ptLessonRepository.saveAll(List.of(ptLesson1, ptLesson2, ptLesson3));
+
+		// when & then
+		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/cancel", ptLesson1.getId()))
+			.andExpect(status().isOk());
+	}
 }
