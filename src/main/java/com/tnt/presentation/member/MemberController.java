@@ -19,9 +19,8 @@ import com.tnt.application.s3.S3Service;
 import com.tnt.dto.member.WithdrawDto;
 import com.tnt.dto.member.request.SignUpRequest;
 import com.tnt.dto.member.request.UpdateMemberInfoRequest;
-import com.tnt.dto.member.response.GetMemberInfoResponse;
+import com.tnt.dto.member.response.MemberInfoResponse;
 import com.tnt.dto.member.response.SignUpResponse;
-import com.tnt.dto.member.response.UpdateMemberInfoResponse;
 import com.tnt.gateway.config.AuthMember;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,19 +53,19 @@ public class MemberController {
 	@Operation(summary = "회원 조회 API")
 	@GetMapping
 	@ResponseStatus(OK)
-	public GetMemberInfoResponse getMemberInfo(@AuthMember Long memberId) {
+	public MemberInfoResponse getMemberInfo(@AuthMember Long memberId) {
 		return memberService.getMemberInfo(memberId);
 	}
 
 	@Operation(summary = "회원 정보 수정 API")
 	@PostMapping
 	@ResponseStatus(OK)
-	public UpdateMemberInfoResponse updateMemberInfo(@AuthMember Long memberId,
+	public void updateMemberInfo(@AuthMember Long memberId,
 		@RequestPart("request") @Valid UpdateMemberInfoRequest request,
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
 		String profileImageUrl = s3Service.uploadProfileImage(profileImage, request.memberType());
 
-		return memberService.updateMemberInfo(memberId, request, profileImageUrl);
+		memberService.updateMemberInfo(memberId, request, profileImageUrl);
 	}
 
 	@Operation(summary = "회원 탈퇴 API")

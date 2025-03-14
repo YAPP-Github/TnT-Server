@@ -429,14 +429,6 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		// then
 		result.andExpect(status().isOk())
-			.andExpect(jsonPath("$.memberType").value(request.memberType().toString()))
-			.andExpect(jsonPath("$.name").value(request.name()))
-			.andExpect(jsonPath("$.profileImageUrl").value(traineeMember.getProfileImageUrl()))
-			.andExpect(jsonPath("$.trainee.birthday").value(request.birthday().toString()))
-			.andExpect(jsonPath("$.trainee.height").value(request.height()))
-			.andExpect(jsonPath("$.trainee.weight").value(request.weight()))
-			.andExpect(jsonPath("$.trainee.cautionNote").value(request.cautionNote()))
-			.andExpect(jsonPath("$.trainee.ptGoals[0]").value(request.goalContents().getFirst()))
 			.andDo(print());
 	}
 

@@ -67,7 +67,7 @@ public class Trainee extends BaseTimeEntity {
 	public void updateTraineeInfo(Double height, Double weight, String cautionNote) {
 		this.height = height;
 		this.weight = weight;
-		this.cautionNote = cautionNote;
+		validateAndSetCautionNote(cautionNote);
 	}
 
 	public void softDelete() {

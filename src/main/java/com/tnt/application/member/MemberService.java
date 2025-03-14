@@ -27,11 +27,9 @@ import com.tnt.domain.trainee.PtGoal;
 import com.tnt.domain.trainee.Trainee;
 import com.tnt.domain.trainer.Trainer;
 import com.tnt.dto.member.request.UpdateMemberInfoRequest;
-import com.tnt.dto.member.response.GetMemberInfoResponse;
-import com.tnt.dto.member.response.GetMemberInfoResponse.GetTraineeInfo;
-import com.tnt.dto.member.response.GetMemberInfoResponse.GetTrainerInfo;
-import com.tnt.dto.member.response.UpdateMemberInfoResponse;
-import com.tnt.dto.member.response.UpdateMemberInfoResponse.UpdateTraineeInfo;
+import com.tnt.dto.member.response.MemberInfoResponse;
+import com.tnt.dto.member.response.MemberInfoResponse.TraineeInfo;
+import com.tnt.dto.member.response.MemberInfoResponse.TrainerInfo;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
 import com.tnt.infrastructure.mysql.repository.member.MemberRepository;
 import com.tnt.infrastructure.mysql.repository.member.MemberSearchRepository;
@@ -53,9 +51,9 @@ public class MemberService {
 	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional(readOnly = true)
-	public GetMemberInfoResponse getMemberInfo(Long memberId) {
+	public MemberInfoResponse getMemberInfo(Long memberId) {
 		Member member = getByMemberId(memberId);
-		GetMemberInfoResponse memberInfo = null;
+		MemberInfoResponse memberInfo = null;
 
 		if (member.getMemberType() == TRAINER) {
 			Trainer trainer = trainerService.getByMemberId(memberId);
@@ -68,10 +66,10 @@ public class MemberService {
 
 			int totalTraineeCount = ptTrainerTrainees.size();
 
-			GetTrainerInfo getTrainerInfo = new GetTrainerInfo(activeTraineeCount, totalTraineeCount);
+			TrainerInfo trainerInfo = new TrainerInfo(activeTraineeCount, totalTraineeCount);
 
-			memberInfo = new GetMemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
-				member.getMemberType(), member.getSocialType(), getTrainerInfo, null);
+			memberInfo = new MemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
+				member.getMemberType(), member.getSocialType(), trainerInfo, null);
 		}
 
 		if (member.getMemberType() == TRAINEE) {
@@ -82,11 +80,11 @@ public class MemberService {
 				.toList();
 			boolean isConnected = ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId());
 
-			GetTraineeInfo getTraineeInfo = new GetTraineeInfo(isConnected, member.getBirthday(),
-				member.getAge(), trainee.getHeight(), trainee.getWeight(), trainee.getCautionNote(), ptGoals);
+			TraineeInfo traineeInfo = new TraineeInfo(isConnected, member.getBirthday(), member.getAge(),
+				trainee.getHeight(), trainee.getWeight(), trainee.getCautionNote(), ptGoals);
 
-			memberInfo = new GetMemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
-				member.getMemberType(), member.getSocialType(), null, getTraineeInfo);
+			memberInfo = new MemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
+				member.getMemberType(), member.getSocialType(), null, traineeInfo);
 		}
 
 		return memberInfo;
@@ -111,39 +109,20 @@ public class MemberService {
 	}
 
 	@Transactional
-	public UpdateMemberInfoResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest request,
+	public void updateMemberInfo(Long memberId, UpdateMemberInfoRequest request,
 		String profileImageUrl) {
 		Member findMember = getByMemberId(memberId);
-		UpdateMemberInfoResponse memberInfo = null;
 
 		findMember.updateName(request.name());
 		findMember.updateProfileImageUrl(profileImageUrl);
 
-		// 트레이너
-		if (findMember.getMemberType() == TRAINER) {
-			memberInfo = new UpdateMemberInfoResponse(findMember.getMemberType(), profileImageUrl, findMember.getName(),
-				null);
-		}
-
-		// 트레이니
 		if (findMember.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
 
 			findMember.updateBirthday(request.birthday());
 			trainee.updateTraineeInfo(request.height(), request.weight(), request.cautionNote());
-
-			List<String> ptGoals = updatePtGoals(trainee, request.goalContents()).stream()
-				.map(PtGoal::getContent)
-				.toList();
-
-			UpdateTraineeInfo updateTraineeInfo = new UpdateTraineeInfo(findMember.getBirthday(), findMember.getAge(),
-				trainee.getHeight(), trainee.getWeight(), trainee.getCautionNote(), ptGoals);
-
-			memberInfo = new UpdateMemberInfoResponse(findMember.getMemberType(), profileImageUrl, findMember.getName(),
-				updateTraineeInfo);
+			updatePtGoals(trainee, request.goalContents());
 		}
-
-		return memberInfo;
 	}
 
 	public void validateMemberNotExists(String socialId, SocialType socialType) {
@@ -163,7 +142,7 @@ public class MemberService {
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
 	}
 
-	private List<PtGoal> updatePtGoals(Trainee trainee, List<String> newGoalContents) {
+	private void updatePtGoals(Trainee trainee, List<String> newGoalContents) {
 		// 기존 PT 목표들 조회
 		List<PtGoal> currentPtGoals = ptGoalService.getAllByTraineeId(trainee.getId());
 
@@ -196,12 +175,9 @@ public class MemberService {
 
 		if (!newPtGoals.isEmpty()) {
 			ptGoalRepository.saveAll(newPtGoals);
+			currentPtGoals.addAll(newPtGoals);
 		}
 
 		// 최종 목표 목록 리턴 (기존 유지된 목표 + 새로 추가된 목표)
-		List<PtGoal> result = new ArrayList<>(currentPtGoals);
-		result.addAll(newPtGoals);
-
-		return result;
 	}
 }

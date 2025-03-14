@@ -23,6 +23,7 @@ import com.tnt.domain.trainee.Trainee;
 import com.tnt.domain.trainer.Trainer;
 import com.tnt.dto.member.WithdrawDto;
 import com.tnt.gateway.service.SessionService;
+import com.tnt.infrastructure.mysql.repository.pt.PtGoalRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ public class WithdrawService {
 	private final PtGoalService ptGoalService;
 	private final DietService dietService;
 	private final PtService ptService;
+	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional
 	public WithdrawDto withdraw(Long memberId) {
@@ -85,7 +87,7 @@ public class WithdrawService {
 				}
 			}
 
-			ptGoals.forEach(PtGoal::softDelete);
+			ptGoalRepository.deleteAll(ptGoals);
 
 			diets.forEach(Diet::softDelete);
 

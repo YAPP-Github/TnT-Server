@@ -4,8 +4,6 @@ import static com.tnt.common.error.model.ErrorMessage.PT_GOAL_INVALID_CONTENT;
 import static io.micrometer.common.util.StringUtils.isBlank;
 import static java.util.Objects.requireNonNull;
 
-import java.time.LocalDateTime;
-
 import com.tnt.infrastructure.mysql.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -38,18 +36,11 @@ public class PtGoal extends BaseTimeEntity {
 	@Column(name = "content", nullable = false, length = CONTENT_LENGTH)
 	private String content;
 
-	@Column(name = "deleted_at", nullable = true)
-	private LocalDateTime deletedAt;
-
 	@Builder
 	public PtGoal(Long id, Long traineeId, String content) {
 		this.id = id;
 		this.traineeId = requireNonNull(traineeId);
 		this.content = validateContent(content);
-	}
-
-	public void softDelete() {
-		this.deletedAt = LocalDateTime.now();
 	}
 
 	private String validateContent(String content) {
