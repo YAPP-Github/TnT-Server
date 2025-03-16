@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tnt.application.trainee.TraineeService;
 import com.tnt.application.trainer.TrainerService;
 import com.tnt.common.error.exception.ConflictException;
+import com.tnt.common.error.exception.NotFoundException;
 import com.tnt.domain.member.Member;
 import com.tnt.domain.pt.PtLesson;
 import com.tnt.domain.pt.PtTrainerTrainee;
@@ -165,12 +166,12 @@ class PtServiceTest {
 		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
 		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
-			trainee.getId())).willThrow(ConflictException.class);
+			trainee.getId())).willReturn(false);
 
 		// when & then
 		assertThatThrownBy(
 			() -> ptService.getFirstTrainerTraineeConnect(traineeMemberId, trainer.getId(), trainee.getId()))
-			.isInstanceOf(ConflictException.class);
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test
