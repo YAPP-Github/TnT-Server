@@ -153,6 +153,27 @@ class PtServiceTest {
 	}
 
 	@Test
+	@DisplayName("트레이니와 연결 후 정보 조회 실패")
+	void get_first_trainer_trainee_connect_fail() {
+		// given
+		Long traineeMemberId = 20L;
+
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
+
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
+			trainee.getId())).willThrow(ConflictException.class);
+
+		// when & then
+		assertThatThrownBy(
+			() -> ptService.getFirstTrainerTraineeConnect(traineeMemberId, trainer.getId(), trainee.getId()))
+			.isInstanceOf(ConflictException.class);
+	}
+
+	@Test
 	@DisplayName("트레이너 - 특정 날짜 수업 리스트 조회 성공")
 	void getPtLessonsOnDate_success() {
 		// given

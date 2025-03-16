@@ -97,8 +97,7 @@ public class PtService {
 	}
 
 	@Transactional(readOnly = true)
-	public ConnectWithTraineeResponse getFirstTrainerTraineeConnect(Long memberId, Long trainerId,
-		Long traineeId) {
+	public ConnectWithTraineeResponse getFirstTrainerTraineeConnect(Long memberId, Long trainerId, Long traineeId) {
 		validateIfNotConnected(trainerId, traineeId);
 
 		Trainer trainer = trainerService.getByMemberId(memberId);
