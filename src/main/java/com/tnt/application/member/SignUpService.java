@@ -11,7 +11,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tnt.application.trainee.PtGoalService;
 import com.tnt.domain.member.Member;
 import com.tnt.domain.member.MemberType;
 import com.tnt.domain.trainee.PtGoal;
@@ -33,7 +32,6 @@ public class SignUpService {
 
 	private final SessionService sessionService;
 	private final MemberService memberService;
-	private final PtGoalService ptGoalService;
 
 	private final MemberRepository memberRepository;
 	private final TrainerRepository trainerRepository;

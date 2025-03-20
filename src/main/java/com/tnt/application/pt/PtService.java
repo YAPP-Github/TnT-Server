@@ -55,7 +55,6 @@ import com.tnt.infrastructure.mysql.repository.pt.PtLessonRepository;
 import com.tnt.infrastructure.mysql.repository.pt.PtLessonSearchRepository;
 import com.tnt.infrastructure.mysql.repository.pt.PtTrainerTraineeRepository;
 import com.tnt.infrastructure.mysql.repository.pt.PtTrainerTraineeSearchRepository;
-import com.tnt.infrastructure.mysql.repository.trainee.DietRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -72,7 +71,6 @@ public class PtService {
 	private final PtTrainerTraineeSearchRepository ptTrainerTraineeSearchRepository;
 	private final PtLessonRepository ptLessonRepository;
 	private final PtLessonSearchRepository ptLessonSearchRepository;
-	private final DietRepository dietRepository;
 
 	@Transactional
 	public ConnectWithTrainerDto connectWithTrainer(Long memberId, ConnectWithTrainerRequest request) {
@@ -99,8 +97,7 @@ public class PtService {
 	}
 
 	@Transactional(readOnly = true)
-	public ConnectWithTraineeResponse getFirstTrainerTraineeConnect(Long memberId, Long trainerId,
-		Long traineeId) {
+	public ConnectWithTraineeResponse getFirstTrainerTraineeConnect(Long memberId, Long trainerId, Long traineeId) {
 		validateIfNotConnected(trainerId, traineeId);
 
 		Trainer trainer = trainerService.getByMemberId(memberId);
@@ -213,7 +210,36 @@ public class PtService {
 		PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
 
 		ptTrainerTrainee.completeLesson();
-		ptLesson.completeLesson(ptTrainerTrainee.getFinishedPtCount());
+		ptLesson.complete(ptTrainerTrainee.getFinishedPtCount());
+
+		List<PtLesson> lessonsNotCompleted =
+			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(ptTrainerTrainee);
+
+		lessonsNotCompleted.forEach(lesson -> {
+			if (!lesson.getId().equals(ptLessonId)) {
+				lesson.increaseSession();
+			}
+		});
+	}
+
+	@Transactional
+	public void cancelPtLesson(Long memberId, Long ptLessonId) {
+		trainerService.validateTrainerRegistration(memberId);
+
+		PtLesson ptLesson = getPtLessonWithId(ptLessonId);
+		PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
+
+		List<PtLesson> lessonsNotCompleted =
+			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(ptTrainerTrainee);
+
+		lessonsNotCompleted.forEach(lesson -> {
+			if (!lesson.getId().equals(ptLessonId) && lesson.getSession() > ptLesson.getSession()) {
+				lesson.decreaseSession();
+			}
+		});
+
+		ptTrainerTrainee.cancelLesson();
+		ptLesson.cancel(ptTrainerTrainee.getCurrentPtSession());
 	}
 
 	@Transactional(readOnly = true)
@@ -249,7 +275,7 @@ public class PtService {
 		Trainee trainee = traineeService.getByMemberIdNoFetch(memberId);
 
 		// PT 정보 조회
-		TraineeProjection.PtInfoDto ptResult = ptLessonSearchRepository.findAllByTraineeIdForDaily(trainee.getId(),
+		TraineeProjection.PtInfoDto ptResult = ptLessonSearchRepository.findPtInfoByTraineeIdForDaily(trainee.getId(),
 			date).orElse(new TraineeProjection.PtInfoDto(null, null, null, null, null));
 
 		// PT 정보 Mapping to PtInfo

@@ -10,4 +10,6 @@ import com.tnt.domain.pt.PtTrainerTrainee;
 public interface PtLessonRepository extends JpaRepository<PtLesson, Long> {
 
 	List<PtLesson> findAllByPtTrainerTraineeAndDeletedAtIsNull(PtTrainerTrainee ptTrainerTrainee);
+
+	List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(PtTrainerTrainee ptTrainerTrainee);
 }
