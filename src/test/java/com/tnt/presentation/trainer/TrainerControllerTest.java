@@ -1095,19 +1095,7 @@ class TrainerControllerTest {
 
 		ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
-		PtGoal ptGoal1 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("다이어트")
-			.build();
-
-		PtGoal ptGoal2 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("체중 감량")
-			.build();
-
-		ptGoalRepository.saveAll(List.of(ptGoal1, ptGoal2));
-
-		PtLesson ptLesson = PtLesson.builder()
+		PtLesson ptLesson1 = PtLesson.builder()
 			.ptTrainerTrainee(ptTrainerTrainee)
 			.session(4)
 			.lessonStart(LocalDateTime.of(2025, 1, 1, 10, 0))
@@ -1115,14 +1103,23 @@ class TrainerControllerTest {
 			.memo("THIS IS MEMO")
 			.build();
 
-		ptLesson = ptLessonRepository.save(ptLesson);
+		PtLesson ptLesson2 = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(5)
+			.lessonStart(LocalDateTime.of(2025, 1, 2, 10, 0))
+			.lessonEnd(LocalDateTime.of(2025, 1, 2, 11, 0))
+			.memo("THIS IS MEMO2")
+			.build();
+
+		ptLesson1 = ptLessonRepository.save(ptLesson1);
+		ptLessonRepository.save(ptLesson2);
 
 		// when & then
-		assertThat(ptLesson.getIsCompleted()).isFalse();
-		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/complete", ptLesson.getId()))
+		assertThat(ptLesson1.getIsCompleted()).isFalse();
+		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/complete", ptLesson1.getId()))
 			.andExpect(status().isOk());
 		//noinspection OptionalGetWithoutIsPresent
-		assertThat(ptLessonRepository.findById(ptLesson.getId()).get().getIsCompleted()).isTrue();
+		assertThat(ptLessonRepository.findById(ptLesson1.getId()).get().getIsCompleted()).isTrue();
 	}
 
 	@Test
