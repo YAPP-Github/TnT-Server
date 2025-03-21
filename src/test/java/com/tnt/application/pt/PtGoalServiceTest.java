@@ -42,7 +42,7 @@ class PtGoalServiceTest {
 				.build()
 		);
 
-		given(ptGoalRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId))
+		given(ptGoalRepository.findAllByTraineeId(traineeId))
 			.willReturn(ptGoals);
 
 		// when
@@ -50,7 +50,7 @@ class PtGoalServiceTest {
 
 		// then
 		assertThat(result).isNotNull().hasSize(2).isEqualTo(ptGoals);
-		verify(ptGoalRepository).findAllByTraineeIdAndDeletedAtIsNull(traineeId);
+		verify(ptGoalRepository).findAllByTraineeId(traineeId);
 	}
 
 	@Test

@@ -32,6 +32,7 @@ import com.tnt.fixture.PtTrainerTraineeFixture;
 import com.tnt.fixture.TraineeFixture;
 import com.tnt.fixture.TrainerFixture;
 import com.tnt.gateway.service.SessionService;
+import com.tnt.infrastructure.mysql.repository.pt.PtGoalRepository;
 
 @ExtendWith(MockitoExtension.class)
 class WithdrawServiceTest {
@@ -56,6 +57,9 @@ class WithdrawServiceTest {
 
 	@Mock
 	private PtService ptService;
+
+	@Mock
+	private PtGoalRepository ptGoalRepository;
 
 	@InjectMocks
 	private WithdrawService withdrawService;

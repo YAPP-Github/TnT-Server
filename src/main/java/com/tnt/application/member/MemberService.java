@@ -26,10 +26,10 @@ import com.tnt.domain.pt.PtTrainerTrainee;
 import com.tnt.domain.trainee.PtGoal;
 import com.tnt.domain.trainee.Trainee;
 import com.tnt.domain.trainer.Trainer;
+import com.tnt.dto.member.MemberInfo;
+import com.tnt.dto.member.MemberInfo.TraineeInfo;
+import com.tnt.dto.member.MemberInfo.TrainerInfo;
 import com.tnt.dto.member.request.UpdateMemberInfoRequest;
-import com.tnt.dto.member.response.MemberInfoResponse;
-import com.tnt.dto.member.response.MemberInfoResponse.TraineeInfo;
-import com.tnt.dto.member.response.MemberInfoResponse.TrainerInfo;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
 import com.tnt.infrastructure.mysql.repository.member.MemberRepository;
 import com.tnt.infrastructure.mysql.repository.member.MemberSearchRepository;
@@ -51,9 +51,9 @@ public class MemberService {
 	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional(readOnly = true)
-	public MemberInfoResponse getMemberInfo(Long memberId) {
+	public MemberInfo getMemberInfo(Long memberId) {
 		Member member = getByMemberId(memberId);
-		MemberInfoResponse memberInfo = null;
+		MemberInfo memberInfo = null;
 
 		if (member.getMemberType() == TRAINER) {
 			Trainer trainer = trainerService.getByMemberId(memberId);
@@ -68,7 +68,7 @@ public class MemberService {
 
 			TrainerInfo trainerInfo = new TrainerInfo(activeTraineeCount, totalTraineeCount);
 
-			memberInfo = new MemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
+			memberInfo = new MemberInfo(member.getName(), member.getEmail(), member.getProfileImageUrl(),
 				member.getMemberType(), member.getSocialType(), trainerInfo, null);
 		}
 
@@ -83,7 +83,7 @@ public class MemberService {
 			TraineeInfo traineeInfo = new TraineeInfo(isConnected, member.getBirthday(), member.getAge(),
 				trainee.getHeight(), trainee.getWeight(), trainee.getCautionNote(), ptGoals);
 
-			memberInfo = new MemberInfoResponse(member.getName(), member.getEmail(), member.getProfileImageUrl(),
+			memberInfo = new MemberInfo(member.getName(), member.getEmail(), member.getProfileImageUrl(),
 				member.getMemberType(), member.getSocialType(), null, traineeInfo);
 		}
 
@@ -109,12 +109,17 @@ public class MemberService {
 	}
 
 	@Transactional
-	public void updateMemberInfo(Long memberId, UpdateMemberInfoRequest request,
-		String profileImageUrl) {
+	public void updateMemberProfileImage(Long memberId, String profileImageUrl) {
+		Member findMember = getByMemberId(memberId);
+
+		findMember.updateProfileImageUrl(profileImageUrl);
+	}
+
+	@Transactional
+	public void updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
 		Member findMember = getByMemberId(memberId);
 
 		findMember.updateName(request.name());
-		findMember.updateProfileImageUrl(profileImageUrl);
 
 		if (findMember.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
@@ -177,7 +182,5 @@ public class MemberService {
 			ptGoalRepository.saveAll(newPtGoals);
 			currentPtGoals.addAll(newPtGoals);
 		}
-
-		// 최종 목표 목록 리턴 (기존 유지된 목표 + 새로 추가된 목표)
 	}
 }

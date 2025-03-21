@@ -16,6 +16,6 @@ public class PtGoalService {
 	private final PtGoalRepository ptGoalRepository;
 
 	public List<PtGoal> getAllByTraineeId(Long traineeId) {
-		return ptGoalRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId);
+		return ptGoalRepository.findAllByTraineeId(traineeId);
 	}
 }

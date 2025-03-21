@@ -1,4 +1,4 @@
-package com.tnt.dto.member.response;
+package com.tnt.dto.member;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,7 +9,7 @@ import com.tnt.domain.member.SocialType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "회원 조회 API 응답")
-public record MemberInfoResponse(
+public record MemberInfo(
 	@Schema(description = "회원 이름", example = "홍길동", nullable = false)
 	String name,
 
