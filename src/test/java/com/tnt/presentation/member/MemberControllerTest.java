@@ -322,6 +322,72 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	}
 
 	@Test
+	@DisplayName("통합 테스트 - 트레이너 회원 기존 프로필 사진 삭제 성공")
+	void update_trainer_profile_image_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+
+		trainerRepository.save(trainer);
+
+		// when & then
+		mockMvc.perform(multipart("/members/update-profile")
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findAll().getFirst();
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getProfileImageUrl()).isEqualTo(TRAINER_DEFAULT_IMAGE);
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 트레이니 회원 기존 프로필 사진 삭제 성공")
+	void update_trainee_profile_image_success() throws Exception {
+		// given
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		memberRepository.save(traineeMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(traineeMember.getId(),
+			String.valueOf(traineeMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainee trainee = TraineeFixture.getTrainee2(traineeMember);
+
+		traineeRepository.save(trainee);
+
+		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee.getId());
+
+		ptGoalRepository.saveAll(ptGoals);
+
+		// when & then
+		mockMvc.perform(multipart("/members/update-profile")
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findAll().getFirst();
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getProfileImageUrl()).isEqualTo(TRAINEE_DEFAULT_IMAGE);
+	}
+
+	@Test
 	@DisplayName("통합 테스트 - 회원 프로필 사진 수정 성공")
 	void update_member_profile_image_success() throws Exception {
 		// given
