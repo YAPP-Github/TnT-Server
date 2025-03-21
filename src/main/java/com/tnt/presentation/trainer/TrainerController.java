@@ -110,4 +110,12 @@ public class TrainerController {
 		@Parameter(description = "PT 수업 ID", example = "123456789") @PathVariable("ptLessonId") Long ptLessonId) {
 		ptService.completePtLesson(memberId, ptLessonId);
 	}
+
+	@Operation(summary = "PT 수업 취소 처리 API")
+	@ResponseStatus(OK)
+	@PutMapping("/lessons/{ptLessonId}/cancel")
+	public void cancelPtLesson(@AuthMember Long memberId,
+		@Parameter(description = "PT 수업 ID", example = "123456789") @PathVariable("ptLessonId") Long ptLessonId) {
+		ptService.cancelPtLesson(memberId, ptLessonId);
+	}
 }

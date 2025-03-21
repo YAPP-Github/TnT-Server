@@ -82,6 +82,38 @@ public class PtLessonSearchRepository {
 			.fetch();
 	}
 
+	public Optional<TraineeProjection.PtInfoDto> findPtInfoByTraineeIdForDaily(Long traineeId, LocalDate date) {
+		return Optional.ofNullable(
+			jpaQueryFactory
+				.select(new QTraineeProjection_PtInfoDto(trainer.member.name, trainer.member.profileImageUrl,
+					ptLesson.session, ptLesson.lessonStart, ptLesson.lessonEnd))
+				.from(ptLesson)
+				.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee)
+				.join(ptTrainerTrainee.trainer, trainer)
+				.join(trainer.member, member)
+				.where(ptTrainerTrainee.trainee.id.eq(traineeId),
+					ptLesson.lessonStart.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
+					ptLesson.deletedAt.isNull(),
+					ptTrainerTrainee.deletedAt.isNull(),
+					trainer.deletedAt.isNull(),
+					member.deletedAt.isNull())
+				.fetchOne()
+		);
+	}
+
+	public Optional<PtLesson> findById(Long id) {
+		return Optional.ofNullable(jpaQueryFactory
+			.selectFrom(ptLesson)
+			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee).fetchJoin()
+			.where(
+				ptLesson.id.eq(id),
+				ptLesson.deletedAt.isNull(),
+				ptTrainerTrainee.deletedAt.isNull()
+			)
+			.fetchOne()
+		);
+	}
+
 	public boolean existsByStartAndEnd(PtTrainerTrainee pt, LocalDateTime start, LocalDateTime end) {
 		return jpaQueryFactory
 			.selectOne()
@@ -112,37 +144,5 @@ public class PtLessonSearchRepository {
 				ptTrainerTrainee.deletedAt.isNull()
 			)
 			.fetchFirst() != null;
-	}
-
-	public Optional<TraineeProjection.PtInfoDto> findAllByTraineeIdForDaily(Long traineeId, LocalDate date) {
-		return Optional.ofNullable(
-			jpaQueryFactory
-				.select(new QTraineeProjection_PtInfoDto(trainer.member.name, trainer.member.profileImageUrl,
-					ptLesson.session, ptLesson.lessonStart, ptLesson.lessonEnd))
-				.from(ptLesson)
-				.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee)
-				.join(ptTrainerTrainee.trainer, trainer)
-				.join(trainer.member, member)
-				.where(ptTrainerTrainee.trainee.id.eq(traineeId),
-					ptLesson.lessonStart.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
-					ptLesson.deletedAt.isNull(),
-					ptTrainerTrainee.deletedAt.isNull(),
-					trainer.deletedAt.isNull(),
-					member.deletedAt.isNull())
-				.fetchOne()
-		);
-	}
-
-	public Optional<PtLesson> findById(Long id) {
-		return Optional.ofNullable(jpaQueryFactory
-			.selectFrom(ptLesson)
-			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee).fetchJoin()
-			.where(
-				ptLesson.id.eq(id),
-				ptLesson.deletedAt.isNull(),
-				ptTrainerTrainee.deletedAt.isNull()
-			)
-			.fetchOne()
-		);
 	}
 }

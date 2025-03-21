@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tnt.application.trainee.TraineeService;
 import com.tnt.application.trainer.TrainerService;
 import com.tnt.common.error.exception.ConflictException;
+import com.tnt.common.error.exception.NotFoundException;
 import com.tnt.domain.member.Member;
 import com.tnt.domain.pt.PtLesson;
 import com.tnt.domain.pt.PtTrainerTrainee;
@@ -150,6 +151,27 @@ class PtServiceTest {
 		// when & then
 		assertThatThrownBy(() -> ptService.connectWithTrainer(traineeMemberId, request))
 			.isInstanceOf(ConflictException.class);
+	}
+
+	@Test
+	@DisplayName("트레이니와 연결 후 정보 조회 실패")
+	void get_first_trainer_trainee_connect_fail() {
+		// given
+		Long traineeMemberId = 20L;
+
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
+
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
+			trainee.getId())).willReturn(false);
+
+		// when & then
+		assertThatThrownBy(
+			() -> ptService.getFirstTrainerTraineeConnect(traineeMemberId, trainer.getId(), trainee.getId()))
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test
