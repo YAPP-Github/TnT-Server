@@ -1,10 +1,5 @@
 package com.tnt.presentation.member;
 
-import static com.tnt.common.constant.ImageConstant.TRAINEE_DEFAULT_IMAGE;
-import static com.tnt.common.constant.ImageConstant.TRAINER_DEFAULT_IMAGE;
-import static com.tnt.domain.member.MemberType.TRAINEE;
-import static com.tnt.domain.member.MemberType.TRAINER;
-import static java.util.Objects.isNull;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -68,22 +63,7 @@ public class MemberController {
 	@ResponseStatus(OK)
 	public void updateMemberProfileImage(@AuthMember Long memberId,
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
-		MemberInfo memberInfo = memberService.getMemberInfo(memberId);
-		String currentProfileImageUrl = memberInfo.profileImageUrl();
-
-		s3Service.deleteProfileImage(currentProfileImageUrl);
-
-		if (isNull(profileImage)) {
-			if (memberInfo.memberType() == TRAINER) {
-				currentProfileImageUrl = TRAINER_DEFAULT_IMAGE;
-			}
-
-			if (memberInfo.memberType() == TRAINEE) {
-				currentProfileImageUrl = TRAINEE_DEFAULT_IMAGE;
-			}
-		} else {
-			currentProfileImageUrl = s3Service.uploadProfileImage(profileImage, memberInfo.memberType());
-		}
+		String currentProfileImageUrl = s3Service.updateProfileImage(memberId, profileImage);
 
 		memberService.updateMemberProfileImage(memberId, currentProfileImageUrl);
 	}
