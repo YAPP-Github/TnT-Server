@@ -110,21 +110,21 @@ public class MemberService {
 
 	@Transactional
 	public void updateMemberProfileImage(Long memberId, String profileImageUrl) {
-		Member findMember = getByMemberId(memberId);
+		Member member = getByMemberId(memberId);
 
-		findMember.updateProfileImageUrl(profileImageUrl);
+		member.updateProfileImageUrl(profileImageUrl);
 	}
 
 	@Transactional
 	public void updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
-		Member findMember = getByMemberId(memberId);
+		Member member = getByMemberId(memberId);
 
-		findMember.updateName(request.name());
+		member.updateName(request.name());
 
-		if (findMember.getMemberType() == TRAINEE) {
+		if (member.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
 
-			findMember.updateBirthday(request.birthday());
+			member.updateBirthday(request.birthday());
 			trainee.updateTraineeInfo(request.height(), request.weight(), request.cautionNote());
 			updatePtGoals(trainee, request.goalContents());
 		}
