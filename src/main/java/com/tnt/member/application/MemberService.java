@@ -1,7 +1,6 @@
 package com.tnt.member.application;
 
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_CONFLICT;
-import static com.tnt.common.error.model.ErrorMessage.MEMBER_NOT_FOUND;
 import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.dto.MemberProjection.MemberTypeDto;
@@ -12,15 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tnt.common.error.exception.ConflictException;
-import com.tnt.common.error.exception.NotFoundException;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
+import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.domain.SocialType;
 import com.tnt.member.dto.response.GetMemberInfoResponse;
 import com.tnt.member.dto.response.GetMemberInfoResponse.TraineeInfo;
 import com.tnt.member.dto.response.GetMemberInfoResponse.TrainerInfo;
-import com.tnt.member.infrastructure.MemberRepository;
-import com.tnt.member.infrastructure.MemberSearchRepository;
 import com.tnt.pt.application.PtService;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.PtGoalService;
@@ -42,7 +39,6 @@ public class MemberService {
 	private final PtService ptService;
 
 	private final MemberRepository memberRepository;
-	private final MemberSearchRepository memberSearchRepository;
 
 	@Transactional(readOnly = true)
 	public GetMemberInfoResponse getMemberInfo(Long memberId) {
@@ -82,9 +78,7 @@ public class MemberService {
 
 	@Transactional(readOnly = true)
 	public CheckSessionResponse getMemberType(Long memberId) {
-		MemberTypeDto memberTypeDto = memberSearchRepository.findMemberType(memberId)
-			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
-
+		MemberTypeDto memberTypeDto = memberRepository.findMemberType(memberId);
 		boolean isConnected = false;
 
 		if (memberTypeDto.memberType() == TRAINER) {
@@ -99,19 +93,16 @@ public class MemberService {
 	}
 
 	public void validateMemberNotExists(String socialId, SocialType socialType) {
-		memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
-			.ifPresent(member -> {
-				throw new ConflictException(MEMBER_CONFLICT);
-			});
+		if (memberRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)) {
+			throw new ConflictException(MEMBER_CONFLICT);
+		}
 	}
 
 	public Member getByMemberId(Long memberId) {
-		return memberRepository.findByIdAndDeletedAtIsNull(memberId)
-			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+		return memberRepository.findByIdAndDeletedAtIsNull(memberId);
 	}
 
 	public Member getBySocialIdAndSocialType(String socialId, SocialType socialType) {
-		return memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
-			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+		return memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType);
 	}
 }

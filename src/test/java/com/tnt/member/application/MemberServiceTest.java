@@ -8,9 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-import java.util.Optional;
-
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,11 +20,10 @@ import com.tnt.common.error.exception.NotFoundException;
 import com.tnt.fixture.MemberFixture;
 import com.tnt.fixture.TrainerFixture;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
+import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.domain.SocialType;
 import com.tnt.member.dto.MemberProjection;
-import com.tnt.member.infrastructure.MemberRepository;
-import com.tnt.member.infrastructure.MemberSearchRepository;
 import com.tnt.pt.application.PtService;
 import com.tnt.trainer.application.TrainerService;
 import com.tnt.trainer.domain.Trainer;
@@ -42,9 +38,6 @@ class MemberServiceTest {
 	private MemberRepository memberRepository;
 
 	@Mock
-	private MemberSearchRepository memberSearchRepository;
-
-	@Mock
 	private PtService ptService;
 
 	@Mock
@@ -56,7 +49,7 @@ class MemberServiceTest {
 		// given
 		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
 
-		given(memberRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(Optional.ofNullable(trainerMember));
+		given(memberRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(trainerMember);
 
 		// when
 		Member result = memberService.getByMemberId(requireNonNull(trainerMember).getId());
@@ -72,7 +65,7 @@ class MemberServiceTest {
 		// given
 		Long memberId = 999L;
 
-		given(memberRepository.findByIdAndDeletedAtIsNull(999L)).willReturn(Optional.empty());
+		given(memberRepository.findByIdAndDeletedAtIsNull(999L)).willThrow(NotFoundException.class);
 
 		// when & then
 		assertThrows(NotFoundException.class, () -> memberService.getByMemberId(memberId));
@@ -87,8 +80,7 @@ class MemberServiceTest {
 		String socialId = member.getSocialId();
 		SocialType socialType = member.getSocialType();
 
-		given(memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(
-			Optional.of(member));
+		given(memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(member);
 
 		// when
 		Member result = memberService.getBySocialIdAndSocialType(socialId, socialType);
@@ -105,12 +97,10 @@ class MemberServiceTest {
 		String socialId = "user";
 		SocialType socialType = KAKAO;
 
-		given(memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(
-			Optional.empty());
+		given(memberRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(false);
 
 		// when & then
 		assertDoesNotThrow(() -> memberService.validateMemberNotExists(socialId, socialType));
-		verify(memberRepository).findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType);
 	}
 
 	@Test
@@ -121,12 +111,11 @@ class MemberServiceTest {
 		String socialId = existingMember.getSocialId();
 		SocialType socialType = existingMember.getSocialType();
 
-		given(memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(
-			Optional.of(existingMember));
+		given(memberRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(
+			true);
 
 		// when & then
 		assertThrows(ConflictException.class, () -> memberService.validateMemberNotExists(socialId, socialType));
-		verify(memberRepository).findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType);
 	}
 
 	@Test
@@ -138,8 +127,8 @@ class MemberServiceTest {
 
 		Trainer trainer = TrainerFixture.getTrainer1(member);
 
-		given(memberSearchRepository.findMemberType(memberId)).willReturn(
-			Optional.of(new MemberProjection.MemberTypeDto(member.getMemberType())));
+		given(memberRepository.findMemberType(memberId)).willReturn(
+			new MemberProjection.MemberTypeDto(member.getMemberType()));
 		given(trainerService.getByMemberId(memberId)).willReturn(trainer);
 		given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
 
@@ -148,19 +137,5 @@ class MemberServiceTest {
 
 		// then
 		assertThat(checkSessionResponse.memberType()).isEqualTo(member.getMemberType());
-	}
-
-	@Test
-	@DisplayName("memberId로 회원 타입 조회 실패")
-	void get_member_type_fail() {
-		// given
-		Member member = MemberFixture.getTrainerMemberWithId1();
-		Long memberId = member.getId();
-
-		given(memberSearchRepository.findMemberType(memberId)).willReturn(Optional.empty());
-
-		// when & then
-		Assertions.assertThatThrownBy(() -> memberService.getMemberType(memberId))
-			.isInstanceOf(NotFoundException.class);
 	}
 }

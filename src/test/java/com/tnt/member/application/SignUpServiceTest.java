@@ -25,12 +25,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tnt.common.error.exception.ConflictException;
 import com.tnt.fixture.MemberFixture;
 import com.tnt.gateway.application.SessionService;
+import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.response.SignUpResponse;
-import com.tnt.member.infrastructure.MemberRepository;
 import com.tnt.pt.infrastructure.PtGoalRepository;
-import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainee.infrastructure.TraineeRepository;
@@ -48,9 +47,6 @@ class SignUpServiceTest {
 
 	@Mock
 	private MemberService memberService;
-
-	@Mock
-	private PtGoalService ptGoalService;
 
 	@Mock
 	private MemberRepository memberRepository;
