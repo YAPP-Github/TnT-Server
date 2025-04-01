@@ -1,7 +1,7 @@
 package com.tnt.fixture;
 
-import com.tnt.domain.member.Member;
-import com.tnt.domain.trainer.Trainer;
+import com.tnt.member.domain.Member;
+import com.tnt.trainer.domain.Trainer;
 
 public final class TrainerFixture {
 

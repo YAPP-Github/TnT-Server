@@ -1,12 +1,12 @@
 package com.tnt.fixture;
 
-import static com.tnt.domain.trainee.DietType.BREAKFAST;
-import static com.tnt.domain.trainee.DietType.DINNER;
-import static com.tnt.domain.trainee.DietType.LUNCH;
+import static com.tnt.trainee.domain.DietType.BREAKFAST;
+import static com.tnt.trainee.domain.DietType.DINNER;
+import static com.tnt.trainee.domain.DietType.LUNCH;
 
 import java.time.LocalDateTime;
 
-import com.tnt.domain.trainee.Diet;
+import com.tnt.trainee.domain.Diet;
 
 public final class DietFixture {
 

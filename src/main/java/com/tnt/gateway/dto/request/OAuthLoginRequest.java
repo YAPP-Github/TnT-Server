@@ -1,6 +1,6 @@
 package com.tnt.gateway.dto.request;
 
-import com.tnt.domain.member.SocialType;
+import com.tnt.member.domain.SocialType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

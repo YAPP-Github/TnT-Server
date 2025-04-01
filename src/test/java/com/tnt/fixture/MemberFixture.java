@@ -1,14 +1,14 @@
 package com.tnt.fixture;
 
-import static com.tnt.domain.member.MemberType.TRAINEE;
-import static com.tnt.domain.member.MemberType.TRAINER;
-import static com.tnt.domain.member.MemberType.UNREGISTERED;
-import static com.tnt.domain.member.SocialType.APPLE;
-import static com.tnt.domain.member.SocialType.KAKAO;
+import static com.tnt.member.domain.MemberType.TRAINEE;
+import static com.tnt.member.domain.MemberType.TRAINER;
+import static com.tnt.member.domain.MemberType.UNREGISTERED;
+import static com.tnt.member.domain.SocialType.APPLE;
+import static com.tnt.member.domain.SocialType.KAKAO;
 
 import java.time.LocalDate;
 
-import com.tnt.domain.member.Member;
+import com.tnt.member.domain.Member;
 
 public final class MemberFixture {
 
