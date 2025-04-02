@@ -1,4 +1,4 @@
-package com.tnt.trainee.dto;
+package com.tnt.pt.dto;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class TraineeProjection {
+public class PtTrainerTraineeProjection {
 
 	@QueryProjection
 	public record PtInfoDto(

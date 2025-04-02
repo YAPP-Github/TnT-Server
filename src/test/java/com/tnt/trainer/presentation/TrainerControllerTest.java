@@ -40,10 +40,10 @@ import com.tnt.fixture.TrainerFixture;
 import com.tnt.gateway.filter.CustomUserDetails;
 import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
+import com.tnt.pt.application.repository.PtLessonRepository;
+import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.pt.infrastructure.PtLessonRepository;
-import com.tnt.pt.infrastructure.PtTrainerTraineeRepository;
 import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
@@ -1121,7 +1121,7 @@ class TrainerControllerTest {
 		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/complete", ptLesson1.getId()))
 			.andExpect(status().isOk());
 		//noinspection OptionalGetWithoutIsPresent
-		assertThat(ptLessonRepository.findById(ptLesson1.getId()).get().getIsCompleted()).isTrue();
+		assertThat(ptLessonRepository.findById(ptLesson1.getId()).getIsCompleted()).isTrue();
 	}
 
 	@Test

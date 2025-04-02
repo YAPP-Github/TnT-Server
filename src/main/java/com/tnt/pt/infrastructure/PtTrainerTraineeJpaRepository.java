@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.tnt.pt.domain.PtTrainerTrainee;
 
-public interface PtTrainerTraineeRepository extends JpaRepository<PtTrainerTrainee, Long> {
+public interface PtTrainerTraineeJpaRepository extends JpaRepository<PtTrainerTrainee, Long> {
 
 	Optional<PtTrainerTrainee> findByTrainerIdAndDeletedAtIsNull(Long trainerId);
 

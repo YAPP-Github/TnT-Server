@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,11 +24,10 @@ import com.tnt.fixture.PtTrainerTraineeFixture;
 import com.tnt.fixture.TraineeFixture;
 import com.tnt.fixture.TrainerFixture;
 import com.tnt.member.domain.Member;
+import com.tnt.pt.application.repository.PtLessonRepository;
+import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.pt.infrastructure.PtLessonRepository;
-import com.tnt.pt.infrastructure.PtLessonSearchRepository;
-import com.tnt.pt.infrastructure.PtTrainerTraineeRepository;
 import com.tnt.trainee.application.TraineeService;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainee.dto.request.ConnectWithTrainerRequest;
@@ -57,9 +55,6 @@ class PtServiceTest {
 	@Mock
 	private PtLessonRepository ptLessonRepository;
 
-	@Mock
-	private PtLessonSearchRepository ptLessonSearchRepository;
-
 	@Test
 	@DisplayName("트레이너와 연결 성공")
 	void connectWithTrainer_success() {
@@ -82,9 +77,8 @@ class PtServiceTest {
 
 		given(trainerService.getByInvitationCode(request.invitationCode())).willReturn(trainer);
 		given(traineeService.getByMemberId(traineeMemberId)).willReturn(trainee);
-		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(false);
-		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
-			trainee.getId()))
+		given(ptTrainerTraineeRepository.existsByTraineeId(trainee.getId())).willReturn(false);
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeId(trainer.getId(), trainee.getId()))
 			.willReturn(false);
 
 		// when
@@ -114,7 +108,7 @@ class PtServiceTest {
 
 		given(trainerService.getByInvitationCode(request.invitationCode())).willReturn(trainer);
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
-		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(true);
+		given(ptTrainerTraineeRepository.existsByTraineeId(trainee.getId())).willReturn(true);
 
 		// when & then
 		assertThatThrownBy(() -> ptService.connectWithTrainer(traineeMember.getId(), request))
@@ -143,9 +137,8 @@ class PtServiceTest {
 
 		given(trainerService.getByInvitationCode(request.invitationCode())).willReturn(trainer);
 		given(traineeService.getByMemberId(traineeMemberId)).willReturn(trainee);
-		given(ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(false);
-		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
-			trainee.getId()))
+		given(ptTrainerTraineeRepository.existsByTraineeId(trainee.getId())).willReturn(false);
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeId(trainer.getId(), trainee.getId()))
 			.willReturn(true);
 
 		// when & then
@@ -165,8 +158,8 @@ class PtServiceTest {
 		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
-		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainer.getId(),
-			trainee.getId())).willReturn(false);
+		given(ptTrainerTraineeRepository.existsByTrainerIdAndTraineeId(trainer.getId(), trainee.getId()))
+			.willReturn(false);
 
 		// when & then
 		assertThatThrownBy(
@@ -198,7 +191,7 @@ class PtServiceTest {
 			.build();
 
 		given(trainerService.getByMemberId(memberId)).willReturn(trainer);
-		given(ptLessonSearchRepository.findAllByTrainerIdAndDate(trainer.getId(), date)).willReturn(List.of(ptLesson));
+		given(ptLessonRepository.findAllByTrainerIdAndDate(trainer.getId(), date)).willReturn(List.of(ptLesson));
 
 		// when
 		GetPtLessonsOnDateResponse result = ptService.getPtLessonsOnDate(memberId, date);
@@ -220,8 +213,7 @@ class PtServiceTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		given(ptTrainerTraineeRepository.findByTrainerIdAndDeletedAtIsNull(trainer.getId())).willReturn(
-			Optional.ofNullable(ptTrainerTrainee));
+		given(ptTrainerTraineeRepository.findByTrainerId(trainer.getId())).willReturn(ptTrainerTrainee);
 
 		// when
 		PtTrainerTrainee result = ptService.getPtTrainerTraineeWithTrainerId(trainer.getId());
@@ -242,8 +234,7 @@ class PtServiceTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		given(ptTrainerTraineeRepository.findByTraineeIdAndDeletedAtIsNull(trainee.getId())).willReturn(
-			Optional.ofNullable(ptTrainerTrainee));
+		given(ptTrainerTraineeRepository.findByTraineeId(trainee.getId())).willReturn(ptTrainerTrainee);
 
 		// when
 		PtTrainerTrainee result = ptService.getPtTrainerTraineeWithTraineeId(trainee.getId());
@@ -266,7 +257,7 @@ class PtServiceTest {
 
 		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessonsWithId1(ptTrainerTrainee);
 
-		given(ptLessonRepository.findAllByPtTrainerTraineeAndDeletedAtIsNull(ptTrainerTrainee)).willReturn(ptLessons);
+		given(ptLessonRepository.findAllByPtTrainerTrainee(ptTrainerTrainee)).willReturn(ptLessons);
 
 		// when
 		List<PtLesson> result = ptService.getPtLessonWithPtTrainerTrainee(ptTrainerTrainee);
@@ -314,7 +305,7 @@ class PtServiceTest {
 				.build());
 
 		given(trainerService.getByMemberId(trainer.getId())).willReturn(trainer);
-		given(ptLessonSearchRepository.findAllByTraineeIdForTrainerCalendar(trainer.getId(), year, month))
+		given(ptLessonRepository.findAllByTraineeIdForTrainerCalendar(trainer.getId(), year, month))
 			.willReturn(ptLessons);
 
 		// when

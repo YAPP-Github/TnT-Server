@@ -4,12 +4,10 @@ import static com.tnt.common.error.model.ErrorMessage.DIET_DUPLICATE_TIME;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_CREATE_BEFORE_START;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_DUPLICATE_TIME;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_MORE_THAN_ONE_A_DAY;
-import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_NOT_FOUND;
 import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_OVERFLOW;
 import static com.tnt.common.error.model.ErrorMessage.PT_TRAINEE_ALREADY_EXIST;
 import static com.tnt.common.error.model.ErrorMessage.PT_TRAINER_TRAINEE_ALREADY_EXIST;
 import static com.tnt.common.error.model.ErrorMessage.PT_TRAINER_TRAINEE_NOT_FOUND;
-import static com.tnt.common.error.model.ErrorMessage.TRAINEE_NOT_FOUND;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.time.LocalDate;
@@ -26,19 +24,17 @@ import com.tnt.common.error.exception.BadRequestException;
 import com.tnt.common.error.exception.ConflictException;
 import com.tnt.common.error.exception.NotFoundException;
 import com.tnt.member.domain.Member;
+import com.tnt.pt.application.repository.PtLessonRepository;
+import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.pt.infrastructure.PtLessonRepository;
-import com.tnt.pt.infrastructure.PtLessonSearchRepository;
-import com.tnt.pt.infrastructure.PtTrainerTraineeRepository;
-import com.tnt.pt.infrastructure.PtTrainerTraineeSearchRepository;
+import com.tnt.pt.dto.PtTrainerTraineeProjection;
 import com.tnt.trainee.application.DietService;
 import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
-import com.tnt.trainee.dto.TraineeProjection;
 import com.tnt.trainee.dto.request.ConnectWithTrainerRequest;
 import com.tnt.trainee.dto.response.GetTraineeCalendarPtLessonCountResponse;
 import com.tnt.trainee.dto.response.GetTraineeDailyRecordsResponse;
@@ -68,9 +64,7 @@ public class PtService {
 	private final DietService dietService;
 
 	private final PtTrainerTraineeRepository ptTrainerTraineeRepository;
-	private final PtTrainerTraineeSearchRepository ptTrainerTraineeSearchRepository;
 	private final PtLessonRepository ptLessonRepository;
-	private final PtLessonSearchRepository ptLessonSearchRepository;
 
 	@Transactional
 	public ConnectWithTrainerDto connectWithTrainer(Long memberId, ConnectWithTrainerRequest request) {
@@ -120,7 +114,7 @@ public class PtService {
 	public GetPtLessonsOnDateResponse getPtLessonsOnDate(Long memberId, LocalDate date) {
 		Trainer trainer = trainerService.getByMemberId(memberId);
 
-		List<PtLesson> ptLessons = ptLessonSearchRepository.findAllByTrainerIdAndDate(trainer.getId(), date);
+		List<PtLesson> ptLessons = ptLessonRepository.findAllByTrainerIdAndDate(trainer.getId(), date);
 
 		List<Lesson> lessons = ptLessons.stream().map(ptLesson -> {
 			PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
@@ -139,7 +133,7 @@ public class PtService {
 	public GetCalendarPtLessonCountResponse getCalendarPtLessonCount(Long memberId, Integer year, Integer month) {
 		Trainer trainer = trainerService.getByMemberId(memberId);
 
-		List<PtLesson> ptLessons = ptLessonSearchRepository.findAllByTraineeIdForTrainerCalendar(trainer.getId(), year,
+		List<PtLesson> ptLessons = ptLessonRepository.findAllByTraineeIdForTrainerCalendar(trainer.getId(), year,
 			month);
 
 		List<CalendarPtLessonCount> counts = ptLessons.stream()
@@ -159,12 +153,10 @@ public class PtService {
 	public GetActiveTraineesResponse getActiveTrainees(Long memberId) {
 		Trainer trainer = trainerService.getByMemberId(memberId);
 
-		List<Trainee> trainees = ptTrainerTraineeSearchRepository.findAllTrainees(trainer.getId());
+		List<Trainee> trainees = ptTrainerTraineeRepository.findAllTrainees(trainer.getId());
 
 		List<ActiveTraineeInfo> activeTraineeInfo = trainees.stream().map(trainee -> {
-			PtTrainerTrainee ptTrainerTrainee = ptTrainerTraineeRepository.findByTraineeIdAndDeletedAtIsNull(
-					trainee.getId())
-				.orElseThrow(() -> new NotFoundException(TRAINEE_NOT_FOUND));
+			PtTrainerTrainee ptTrainerTrainee = ptTrainerTraineeRepository.findByTraineeId(trainee.getId());
 
 			List<String> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId())
 				.stream()
@@ -213,7 +205,7 @@ public class PtService {
 		ptLesson.complete(ptTrainerTrainee.getFinishedPtCount());
 
 		List<PtLesson> lessonsNotCompleted =
-			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(ptTrainerTrainee);
+			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalse(ptTrainerTrainee);
 
 		lessonsNotCompleted.forEach(lesson -> {
 			if (!lesson.getId().equals(ptLessonId)) {
@@ -230,7 +222,7 @@ public class PtService {
 		PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
 
 		List<PtLesson> lessonsNotCompleted =
-			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(ptTrainerTrainee);
+			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalse(ptTrainerTrainee);
 
 		lessonsNotCompleted.forEach(lesson -> {
 			if (!lesson.getId().equals(ptLessonId) && lesson.getSession() > ptLesson.getSession()) {
@@ -248,7 +240,7 @@ public class PtService {
 		Trainee trainee = traineeService.getByMemberId(memberId);
 
 		// 기간 내 PT 수업 조회
-		List<PtLesson> ptLessons = ptLessonSearchRepository.findAllByTraineeIdForTraineeCalendar(trainee.getId(),
+		List<PtLesson> ptLessons = ptLessonRepository.findAllByTraineeIdForTraineeCalendar(trainee.getId(),
 			startDate, endDate);
 
 		// 기간 내 식단 조회
@@ -275,8 +267,9 @@ public class PtService {
 		Trainee trainee = traineeService.getByMemberIdNoFetch(memberId);
 
 		// PT 정보 조회
-		TraineeProjection.PtInfoDto ptResult = ptLessonSearchRepository.findPtInfoByTraineeIdForDaily(trainee.getId(),
-			date).orElse(new TraineeProjection.PtInfoDto(null, null, null, null, null));
+		PtTrainerTraineeProjection.PtInfoDto ptResult = ptLessonRepository.findPtInfoByTraineeIdForDaily(
+			trainee.getId(),
+			date).orElse(new PtTrainerTraineeProjection.PtInfoDto(null, null, null, null, null));
 
 		// PT 정보 Mapping to PtInfo
 		GetTraineeDailyRecordsResponse.PtInfo ptInfo =
@@ -307,52 +300,49 @@ public class PtService {
 	}
 
 	public boolean isPtTrainerTraineeExistWithTrainerId(Long trainerId) {
-		return ptTrainerTraineeRepository.existsByTrainerIdAndDeletedAtIsNull(trainerId);
+		return ptTrainerTraineeRepository.existsByTrainerId(trainerId);
 	}
 
 	public boolean isPtTrainerTraineeExistWithTraineeId(Long traineeId) {
-		return ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(traineeId);
+		return ptTrainerTraineeRepository.existsByTraineeId(traineeId);
 	}
 
 	public List<PtTrainerTrainee> getAllPtTrainerTraineeWithTrainerId(Long trainerId) {
-		return ptTrainerTraineeRepository.findAllByTrainerIdAndDeletedAtIsNull(trainerId);
-	}
-
-	public List<PtTrainerTrainee> getAllPtTrainerTraineeWithTrainerIdWithDeleted(Long trainerId) {
 		return ptTrainerTraineeRepository.findAllByTrainerId(trainerId);
 	}
 
+	public List<PtTrainerTrainee> getAllPtTrainerTraineeWithTrainerIdWithDeleted(Long trainerId) {
+		return ptTrainerTraineeRepository.findAllByTrainerIdWithDeleted(trainerId);
+	}
+
 	public PtTrainerTrainee getPtTrainerTraineeWithTrainerId(Long trainerId) {
-		return ptTrainerTraineeRepository.findByTrainerIdAndDeletedAtIsNull(trainerId)
-			.orElseThrow(() -> new NotFoundException(PT_TRAINER_TRAINEE_NOT_FOUND));
+		return ptTrainerTraineeRepository.findByTrainerId(trainerId);
 	}
 
 	public PtTrainerTrainee getPtTrainerTraineeWithTraineeId(Long traineeId) {
-		return ptTrainerTraineeRepository.findByTraineeIdAndDeletedAtIsNull(traineeId)
-			.orElseThrow(() -> new NotFoundException(PT_TRAINER_TRAINEE_NOT_FOUND));
+		return ptTrainerTraineeRepository.findByTraineeId(traineeId);
 	}
 
 	public List<PtLesson> getPtLessonWithPtTrainerTrainee(PtTrainerTrainee ptTrainerTrainee) {
-		return ptLessonRepository.findAllByPtTrainerTraineeAndDeletedAtIsNull(ptTrainerTrainee);
+		return ptLessonRepository.findAllByPtTrainerTrainee(ptTrainerTrainee);
 	}
 
 	public PtLesson getPtLessonWithId(Long ptLessonId) {
-		return ptLessonSearchRepository.findById(ptLessonId)
-			.orElseThrow(() -> new NotFoundException(PT_LESSON_NOT_FOUND));
+		return ptLessonRepository.findById(ptLessonId);
 	}
 
 	private void validateNotAlreadyConnected(Long trainerId, Long traineeId) {
-		if (ptTrainerTraineeRepository.existsByTraineeIdAndDeletedAtIsNull(traineeId)) {
+		if (ptTrainerTraineeRepository.existsByTraineeId(traineeId)) {
 			throw new ConflictException(PT_TRAINEE_ALREADY_EXIST);
 		}
 
-		if (ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainerId, traineeId)) {
+		if (ptTrainerTraineeRepository.existsByTrainerIdAndTraineeId(trainerId, traineeId)) {
 			throw new ConflictException(PT_TRAINER_TRAINEE_ALREADY_EXIST);
 		}
 	}
 
 	private void validateIfNotConnected(Long trainerId, Long traineeId) {
-		if (!ptTrainerTraineeRepository.existsByTrainerIdAndTraineeIdAndDeletedAtIsNull(trainerId, traineeId)) {
+		if (!ptTrainerTraineeRepository.existsByTrainerIdAndTraineeId(trainerId, traineeId)) {
 			throw new NotFoundException(PT_TRAINER_TRAINEE_NOT_FOUND);
 		}
 	}
@@ -362,18 +352,18 @@ public class PtService {
 			throw new BadRequestException(PT_LESSON_CREATE_BEFORE_START);
 		}
 
-		if (ptLessonSearchRepository.existsByStartAndEnd(ptTrainerTrainee, start, end)) {
+		if (ptLessonRepository.existsByStartAndEnd(ptTrainerTrainee, start, end)) {
 			throw new ConflictException(PT_LESSON_DUPLICATE_TIME);
 		}
 
-		if (ptLessonSearchRepository.existsByStart(ptTrainerTrainee, start)) {
+		if (ptLessonRepository.existsByStart(ptTrainerTrainee, start)) {
 			throw new ConflictException(PT_LESSON_MORE_THAN_ONE_A_DAY);
 		}
 	}
 
 	private int validateAndGetNextSession(PtTrainerTrainee ptTrainerTrainee) {
 		List<PtLesson> lessonsForTrainee =
-			ptLessonRepository.findAllByPtTrainerTraineeAndDeletedAtIsNull(ptTrainerTrainee);
+			ptLessonRepository.findAllByPtTrainerTrainee(ptTrainerTrainee);
 
 		if (lessonsForTrainee.size() >= ptTrainerTrainee.getTotalPtCount()) {
 			throw new BadRequestException(PT_LESSON_OVERFLOW);

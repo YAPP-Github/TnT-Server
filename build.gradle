@@ -126,7 +126,8 @@ jacocoTestCoverageVerification {
                     '*.*SearchRepository',
                     '*.*.CustomUserDetails',
                     'scouter.*',
-                    'reactor.*'
+                    'reactor.*',
+                    '*.*RepositoryImpl'
             ]
         }
     }
