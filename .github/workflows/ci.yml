@@ -45,10 +45,6 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
-      - name: MySQL Docker container for tests
-        run: |
-          sudo docker run -d -p 3306:3306 --env MYSQL_DATABASE=tnt_dev --env MYSQL_ROOT_PASSWORD=root mysql:latest
-
       - name: Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
