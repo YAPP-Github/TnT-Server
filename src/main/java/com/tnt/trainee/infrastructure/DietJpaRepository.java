@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.tnt.trainee.domain.Diet;
 
-public interface DietRepository extends JpaRepository<Diet, Long> {
+public interface DietJpaRepository extends JpaRepository<Diet, Long> {
 
 	Optional<Diet> findByIdAndTraineeIdAndDeletedAtIsNull(Long id, Long traineeId);
 

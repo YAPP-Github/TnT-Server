@@ -1,7 +1,5 @@
 package com.tnt.trainee.application;
 
-import static com.tnt.common.error.model.ErrorMessage.DIET_NOT_FOUND;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,14 +7,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tnt.common.error.exception.NotFoundException;
+import com.tnt.trainee.application.repository.DietRepository;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainee.dto.request.CreateDietRequest;
 import com.tnt.trainee.dto.response.CreateDietResponse;
 import com.tnt.trainee.dto.response.GetDietResponse;
-import com.tnt.trainee.infrastructure.DietRepository;
-import com.tnt.trainee.infrastructure.DietSearchRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +23,6 @@ public class DietService {
 	private final TraineeService traineeService;
 
 	private final DietRepository dietRepository;
-	private final DietSearchRepository dietSearchRepository;
 
 	@Transactional
 	public CreateDietResponse addDiet(Long traineeId, CreateDietRequest request, String dietImageUrl) {
@@ -49,30 +44,25 @@ public class DietService {
 	public GetDietResponse getDiet(Long memberId, Long dietId) {
 		Trainee trainee = traineeService.getByMemberId(memberId);
 
-		Diet diet = getByDietIdAndTraineeId(dietId, trainee.getId());
+		Diet diet = dietRepository.findByIdAndTraineeId(dietId, trainee.getId());
 
 		return new GetDietResponse(diet.getId(), diet.getDate(), diet.getDietImageUrl(), diet.getDietType(),
 			diet.getMemo());
 	}
 
-	public Diet getByDietIdAndTraineeId(Long dietId, Long traineeId) {
-		return dietRepository.findByIdAndTraineeIdAndDeletedAtIsNull(dietId, traineeId)
-			.orElseThrow(() -> new NotFoundException(DIET_NOT_FOUND));
-	}
-
 	public List<Diet> getAllByTraineeId(Long traineeId) {
-		return dietRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId);
+		return dietRepository.findAllByTraineeId(traineeId);
 	}
 
 	public List<Diet> getAllByTraineeIdForDaily(Long traineeId, LocalDate date) {
-		return dietSearchRepository.findAllByTraineeIdForDaily(traineeId, date);
+		return dietRepository.findAllByTraineeIdForDaily(traineeId, date);
 	}
 
 	public List<Diet> getAllByTraineeIdForTraineeCalendar(Long traineeId, LocalDate startDate, LocalDate endDate) {
-		return dietSearchRepository.findAllByTraineeIdForTraineeCalendar(traineeId, startDate, endDate);
+		return dietRepository.findAllByTraineeIdForTraineeCalendar(traineeId, startDate, endDate);
 	}
 
 	public boolean isDietExistByTraineeIdAndDate(Long traineeId, LocalDateTime date) {
-		return dietRepository.existsByTraineeIdAndDateAndDeletedAtIsNull(traineeId, date);
+		return dietRepository.existsByTraineeIdAndDate(traineeId, date);
 	}
 }

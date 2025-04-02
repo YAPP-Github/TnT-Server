@@ -48,12 +48,12 @@ import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.pt.infrastructure.PtLessonRepository;
 import com.tnt.pt.infrastructure.PtTrainerTraineeRepository;
+import com.tnt.trainee.application.repository.DietRepository;
+import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainee.dto.request.ConnectWithTrainerRequest;
 import com.tnt.trainee.dto.request.CreateDietRequest;
-import com.tnt.trainee.infrastructure.DietRepository;
-import com.tnt.trainee.infrastructure.TraineeRepository;
 import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
 

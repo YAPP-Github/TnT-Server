@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tnt.pt.infrastructure.PtGoalRepository;
+import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.domain.PtGoal;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +41,7 @@ class PtGoalServiceTest {
 				.build()
 		);
 
-		given(ptGoalRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId))
+		given(ptGoalRepository.findAllByTraineeId(traineeId))
 			.willReturn(ptGoals);
 
 		// when
@@ -49,7 +49,7 @@ class PtGoalServiceTest {
 
 		// then
 		assertThat(result).isNotNull().hasSize(2).isEqualTo(ptGoals);
-		verify(ptGoalRepository).findAllByTraineeIdAndDeletedAtIsNull(traineeId);
+		verify(ptGoalRepository).findAllByTraineeId(traineeId);
 	}
 
 	@Test

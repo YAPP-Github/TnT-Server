@@ -17,10 +17,10 @@ import com.tnt.member.domain.Member;
 import com.tnt.member.domain.MemberType;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.response.SignUpResponse;
-import com.tnt.pt.infrastructure.PtGoalRepository;
+import com.tnt.trainee.application.repository.PtGoalRepository;
+import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
-import com.tnt.trainee.infrastructure.TraineeRepository;
 import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
 

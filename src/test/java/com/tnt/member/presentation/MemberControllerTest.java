@@ -53,11 +53,11 @@ import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.pt.infrastructure.PtGoalRepository;
 import com.tnt.pt.infrastructure.PtTrainerTraineeRepository;
+import com.tnt.trainee.application.repository.PtGoalRepository;
+import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
-import com.tnt.trainee.infrastructure.TraineeRepository;
 import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
 
