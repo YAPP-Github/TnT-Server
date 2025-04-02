@@ -30,18 +30,18 @@ public class MemberRepositoryImpl implements MemberRepository {
 	}
 
 	@Override
-	public Member findBySocialIdAndSocialTypeAndDeletedAtIsNull(String socialId, SocialType socialType) {
+	public Member findBySocialIdAndSocialType(String socialId, SocialType socialType) {
 		return memberJpaRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
 	}
 
 	@Override
-	public boolean existsBySocialIdAndSocialTypeAndDeletedAtIsNull(String socialId, SocialType socialType) {
+	public boolean existsBySocialIdAndSocialType(String socialId, SocialType socialType) {
 		return memberJpaRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType);
 	}
 
 	@Override
-	public Member findByIdAndDeletedAtIsNull(Long memberId) {
+	public Member findById(Long memberId) {
 		return memberJpaRepository.findByIdAndDeletedAtIsNull(memberId)
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
 	}

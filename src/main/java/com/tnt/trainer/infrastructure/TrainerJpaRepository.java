@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.tnt.trainer.domain.Trainer;
 
-public interface TrainerRepository extends JpaRepository<Trainer, Long> {
+public interface TrainerJpaRepository extends JpaRepository<Trainer, Long> {
 
 	Optional<Trainer> findByMemberIdAndDeletedAtIsNull(Long memberId);
 

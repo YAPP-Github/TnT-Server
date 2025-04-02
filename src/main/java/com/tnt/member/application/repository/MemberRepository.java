@@ -8,11 +8,11 @@ public interface MemberRepository {
 
 	Member save(Member member);
 
-	Member findBySocialIdAndSocialTypeAndDeletedAtIsNull(String socialId, SocialType socialType);
+	Member findBySocialIdAndSocialType(String socialId, SocialType socialType);
 
-	boolean existsBySocialIdAndSocialTypeAndDeletedAtIsNull(String socialId, SocialType socialType);
+	boolean existsBySocialIdAndSocialType(String socialId, SocialType socialType);
 
-	Member findByIdAndDeletedAtIsNull(Long memberId);
+	Member findById(Long memberId);
 
 	MemberProjection.MemberTypeDto findMemberType(Long memberId);
 }

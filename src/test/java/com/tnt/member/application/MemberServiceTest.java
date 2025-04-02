@@ -49,14 +49,14 @@ class MemberServiceTest {
 		// given
 		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
 
-		given(memberRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(trainerMember);
+		given(memberRepository.findById(1L)).willReturn(trainerMember);
 
 		// when
 		Member result = memberService.getByMemberId(requireNonNull(trainerMember).getId());
 
 		// then
 		assertThat(result).isNotNull().isEqualTo(trainerMember);
-		verify(memberRepository).findByIdAndDeletedAtIsNull(1L);
+		verify(memberRepository).findById(1L);
 	}
 
 	@Test
@@ -65,11 +65,11 @@ class MemberServiceTest {
 		// given
 		Long memberId = 999L;
 
-		given(memberRepository.findByIdAndDeletedAtIsNull(999L)).willThrow(NotFoundException.class);
+		given(memberRepository.findById(999L)).willThrow(NotFoundException.class);
 
 		// when & then
 		assertThrows(NotFoundException.class, () -> memberService.getByMemberId(memberId));
-		verify(memberRepository).findByIdAndDeletedAtIsNull(999L);
+		verify(memberRepository).findById(999L);
 	}
 
 	@Test
@@ -80,14 +80,14 @@ class MemberServiceTest {
 		String socialId = member.getSocialId();
 		SocialType socialType = member.getSocialType();
 
-		given(memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(member);
+		given(memberRepository.findBySocialIdAndSocialType(socialId, socialType)).willReturn(member);
 
 		// when
 		Member result = memberService.getBySocialIdAndSocialType(socialId, socialType);
 
 		// then
 		assertThat(result).isNotNull().isEqualTo(member);
-		verify(memberRepository).findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType);
+		verify(memberRepository).findBySocialIdAndSocialType(socialId, socialType);
 	}
 
 	@Test
@@ -97,7 +97,7 @@ class MemberServiceTest {
 		String socialId = "user";
 		SocialType socialType = KAKAO;
 
-		given(memberRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(false);
+		given(memberRepository.existsBySocialIdAndSocialType(socialId, socialType)).willReturn(false);
 
 		// when & then
 		assertDoesNotThrow(() -> memberService.validateMemberNotExists(socialId, socialType));
@@ -111,7 +111,7 @@ class MemberServiceTest {
 		String socialId = existingMember.getSocialId();
 		SocialType socialType = existingMember.getSocialType();
 
-		given(memberRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)).willReturn(
+		given(memberRepository.existsBySocialIdAndSocialType(socialId, socialType)).willReturn(
 			true);
 
 		// when & then

@@ -93,16 +93,16 @@ public class MemberService {
 	}
 
 	public void validateMemberNotExists(String socialId, SocialType socialType) {
-		if (memberRepository.existsBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)) {
+		if (memberRepository.existsBySocialIdAndSocialType(socialId, socialType)) {
 			throw new ConflictException(MEMBER_CONFLICT);
 		}
 	}
 
 	public Member getByMemberId(Long memberId) {
-		return memberRepository.findByIdAndDeletedAtIsNull(memberId);
+		return memberRepository.findById(memberId);
 	}
 
 	public Member getBySocialIdAndSocialType(String socialId, SocialType socialType) {
-		return memberRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType);
+		return memberRepository.findBySocialIdAndSocialType(socialId, socialType);
 	}
 }

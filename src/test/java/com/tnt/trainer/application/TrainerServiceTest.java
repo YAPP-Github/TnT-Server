@@ -18,11 +18,10 @@ import com.tnt.fixture.MemberFixture;
 import com.tnt.fixture.TrainerFixture;
 import com.tnt.member.domain.Member;
 import com.tnt.member.domain.SocialType;
+import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
 import com.tnt.trainer.dto.response.InvitationCodeResponse;
 import com.tnt.trainer.dto.response.InvitationCodeVerifyResponse;
-import com.tnt.trainer.infrastructure.TrainerRepository;
-import com.tnt.trainer.infrastructure.TrainerSearchRepository;
 
 @ExtendWith(MockitoExtension.class)
 class TrainerServiceTest {
@@ -33,9 +32,6 @@ class TrainerServiceTest {
 	@Mock
 	private TrainerRepository trainerRepository;
 
-	@Mock
-	private TrainerSearchRepository trainerSearchRepository;
-
 	@Test
 	@DisplayName("트레이너 초대 코드 불러오기 성공")
 	void get_invitation_code_success() {
@@ -44,8 +40,7 @@ class TrainerServiceTest {
 
 		Trainer trainer = TrainerFixture.getTrainer1(member);
 
-		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(member.getId())).willReturn(
-			java.util.Optional.of(trainer));
+		given(trainerRepository.findByMemberId(member.getId())).willReturn(trainer);
 
 		// when
 		InvitationCodeResponse response = trainerService.getInvitationCode(member.getId());
@@ -61,7 +56,7 @@ class TrainerServiceTest {
 		// given
 		Long memberId = 99L;
 
-		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(memberId)).willReturn(java.util.Optional.empty());
+		given(trainerRepository.findByMemberId(memberId)).willThrow(NotFoundException.class);
 
 		// when & then
 		assertThatThrownBy(() -> trainerService.getInvitationCode(memberId)).isInstanceOf(
@@ -78,8 +73,7 @@ class TrainerServiceTest {
 
 		String invitationCodeBefore = trainer.getInvitationCode();
 
-		given(trainerRepository.findByMemberIdAndDeletedAtIsNull(member.getId())).willReturn(
-			java.util.Optional.of(trainer));
+		given(trainerRepository.findByMemberId(member.getId())).willReturn(trainer);
 
 		// when
 		InvitationCodeResponse response = trainerService.reissueInvitationCode(member.getId());
@@ -115,10 +109,8 @@ class TrainerServiceTest {
 			.memberType(TRAINER)
 			.build();
 
-		given(trainerRepository.existsByInvitationCodeAndDeletedAtIsNull(code))
-			.willReturn(true);
-		given(trainerSearchRepository.find(null, code))
-			.willReturn(java.util.Optional.of(Trainer.builder().member(member).build()));
+		given(trainerRepository.existsByInvitationCode(code)).willReturn(true);
+		given(trainerRepository.find(null, code)).willReturn(Trainer.builder().member(member).build());
 
 		// when
 		InvitationCodeVerifyResponse response = trainerService.verifyInvitationCode(code);

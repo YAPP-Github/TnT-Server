@@ -21,8 +21,8 @@ import com.tnt.pt.infrastructure.PtGoalRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainee.infrastructure.TraineeRepository;
+import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
-import com.tnt.trainer.infrastructure.TrainerRepository;
 
 import lombok.RequiredArgsConstructor;
 

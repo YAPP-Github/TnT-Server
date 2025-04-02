@@ -54,8 +54,8 @@ import com.tnt.trainee.dto.request.ConnectWithTrainerRequest;
 import com.tnt.trainee.dto.request.CreateDietRequest;
 import com.tnt.trainee.infrastructure.DietRepository;
 import com.tnt.trainee.infrastructure.TraineeRepository;
+import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
-import com.tnt.trainer.infrastructure.TrainerRepository;
 
 @Transactional
 @SpringBootTest
