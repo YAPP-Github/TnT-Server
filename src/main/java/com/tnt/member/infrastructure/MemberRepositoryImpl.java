@@ -1,7 +1,7 @@
 package com.tnt.member.infrastructure;
 
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_NOT_FOUND;
-import static com.tnt.member.domain.QMember.member;
+import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
 
 import java.util.Optional;
 
@@ -26,13 +26,13 @@ public class MemberRepositoryImpl implements MemberRepository {
 
 	@Override
 	public Member save(Member member) {
-		return memberJpaRepository.save(member);
+		return memberJpaRepository.save(MemberJpaEntity.from(member)).toModel();
 	}
 
 	@Override
 	public Member findBySocialIdAndSocialType(String socialId, SocialType socialType) {
 		return memberJpaRepository.findBySocialIdAndSocialTypeAndDeletedAtIsNull(socialId, socialType)
-			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND)).toModel();
 	}
 
 	@Override
@@ -43,17 +43,17 @@ public class MemberRepositoryImpl implements MemberRepository {
 	@Override
 	public Member findById(Long memberId) {
 		return memberJpaRepository.findByIdAndDeletedAtIsNull(memberId)
-			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND)).toModel();
 	}
 
 	@Override
 	public MemberProjection.MemberTypeDto findMemberType(Long memberId) {
 		return Optional.ofNullable(jpaQueryFactory
-				.select(new QMemberProjection_MemberTypeDto(member.memberType))
-				.from(member)
+				.select(new QMemberProjection_MemberTypeDto(memberJpaEntity.memberType))
+				.from(memberJpaEntity)
 				.where(
-					member.id.eq(memberId),
-					member.deletedAt.isNull()
+					memberJpaEntity.id.eq(memberId),
+					memberJpaEntity.deletedAt.isNull()
 				)
 				.fetchOne())
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));

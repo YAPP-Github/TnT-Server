@@ -1,9 +1,9 @@
 package com.tnt.pt.infrastructure;
 
-import static com.tnt.member.domain.QMember.member;
-import static com.tnt.pt.domain.QPtTrainerTrainee.ptTrainerTrainee;
-import static com.tnt.trainee.domain.QTrainee.trainee;
-import static com.tnt.trainer.domain.QTrainer.trainer;
+import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
+import static com.tnt.pt.infrastructure.QPtTrainerTraineeJpaEntity.ptTrainerTraineeJpaEntity;
+import static com.tnt.trainee.infrastructure.QTraineeJpaEntity.traineeJpaEntity;
+import static com.tnt.trainer.infrastructure.QTrainerJpaEntity.trainerJpaEntity;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ import com.tnt.common.error.model.ErrorMessage;
 import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.domain.Trainee;
+import com.tnt.trainee.infrastructure.TraineeJpaEntity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,34 +28,47 @@ public class PtTrainerTraineeRepositoryImpl implements PtTrainerTraineeRepositor
 
 	@Override
 	public PtTrainerTrainee save(PtTrainerTrainee ptTrainerTrainee) {
-		return ptTrainerTraineeJpaRepository.save(ptTrainerTrainee);
+		return ptTrainerTraineeJpaRepository.save(PtTrainerTraineeJpaEntity.from(ptTrainerTrainee)).toModel();
 	}
 
 	@Override
 	public void saveAll(List<PtTrainerTrainee> ptTrainerTrainees) {
-		ptTrainerTraineeJpaRepository.saveAll(ptTrainerTrainees);
+		List<PtTrainerTraineeJpaEntity> ptTrainerTraineeJpaEntities = ptTrainerTrainees.stream()
+			.map(PtTrainerTraineeJpaEntity::from)
+			.toList();
+
+		ptTrainerTraineeJpaRepository.saveAll(ptTrainerTraineeJpaEntities);
 	}
 
 	@Override
 	public PtTrainerTrainee findByTrainerId(Long trainerId) {
 		return ptTrainerTraineeJpaRepository.findByTrainerIdAndDeletedAtIsNull(trainerId)
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_TRAINER_TRAINEE_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_TRAINER_TRAINEE_NOT_FOUND)).toModel();
 	}
 
 	@Override
 	public PtTrainerTrainee findByTraineeId(Long traineeId) {
 		return ptTrainerTraineeJpaRepository.findByTraineeIdAndDeletedAtIsNull(traineeId)
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_TRAINER_TRAINEE_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_TRAINER_TRAINEE_NOT_FOUND)).toModel();
 	}
 
 	@Override
 	public List<PtTrainerTrainee> findAllByTrainerId(Long trainerId) {
-		return ptTrainerTraineeJpaRepository.findAllByTrainerIdAndDeletedAtIsNull(trainerId);
+		List<PtTrainerTraineeJpaEntity> jpaEntities =
+			ptTrainerTraineeJpaRepository.findAllByTrainerIdAndDeletedAtIsNull(trainerId);
+
+		return jpaEntities.stream()
+			.map(PtTrainerTraineeJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<PtTrainerTrainee> findAllByTrainerIdWithDeleted(Long trainerId) {
-		return ptTrainerTraineeJpaRepository.findAllByTrainerId(trainerId);
+		List<PtTrainerTraineeJpaEntity> jpaEntities = ptTrainerTraineeJpaRepository.findAllByTrainerId(trainerId);
+
+		return jpaEntities.stream()
+			.map(PtTrainerTraineeJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
@@ -74,19 +88,21 @@ public class PtTrainerTraineeRepositoryImpl implements PtTrainerTraineeRepositor
 
 	@Override
 	public List<Trainee> findAllTrainees(Long trainerId) {
-		return jpaQueryFactory
-			.select(ptTrainerTrainee.trainee)
-			.from(ptTrainerTrainee)
-			.join(ptTrainerTrainee.trainer, trainer)
-			.join(ptTrainerTrainee.trainee, trainee)
-			.join(trainee.member, member)
+		List<TraineeJpaEntity> traineeJpaEntities = jpaQueryFactory
+			.select(ptTrainerTraineeJpaEntity.trainee)
+			.from(ptTrainerTraineeJpaEntity)
+			.join(ptTrainerTraineeJpaEntity.trainer, trainerJpaEntity)
+			.join(ptTrainerTraineeJpaEntity.trainee, traineeJpaEntity)
+			.join(traineeJpaEntity.member, memberJpaEntity)
 			.where(
-				ptTrainerTrainee.trainer.id.eq(trainerId),
-				ptTrainerTrainee.deletedAt.isNull(),
-				member.deletedAt.isNull(),
-				trainee.deletedAt.isNull(),
-				trainer.deletedAt.isNull()
+				ptTrainerTraineeJpaEntity.trainer.id.eq(trainerId),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull(),
+				memberJpaEntity.deletedAt.isNull(),
+				traineeJpaEntity.deletedAt.isNull(),
+				trainerJpaEntity.deletedAt.isNull()
 			)
 			.fetch();
+
+		return traineeJpaEntities.stream().map(TraineeJpaEntity::toModel).toList();
 	}
 }

@@ -101,8 +101,4 @@ public class MemberService {
 	public Member getByMemberId(Long memberId) {
 		return memberRepository.findById(memberId);
 	}
-
-	public Member getBySocialIdAndSocialType(String socialId, SocialType socialType) {
-		return memberRepository.findBySocialIdAndSocialType(socialId, socialType);
-	}
 }

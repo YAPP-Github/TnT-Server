@@ -4,11 +4,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tnt.trainer.domain.Trainer;
+public interface TrainerJpaRepository extends JpaRepository<TrainerJpaEntity, Long> {
 
-public interface TrainerJpaRepository extends JpaRepository<Trainer, Long> {
-
-	Optional<Trainer> findByMemberIdAndDeletedAtIsNull(Long memberId);
+	Optional<TrainerJpaEntity> findByMemberIdAndDeletedAtIsNull(Long memberId);
 
 	boolean existsByMemberIdAndDeletedAtIsNull(Long memberId);
 

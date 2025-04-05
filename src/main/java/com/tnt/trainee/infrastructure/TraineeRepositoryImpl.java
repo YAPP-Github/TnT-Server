@@ -1,7 +1,7 @@
 package com.tnt.trainee.infrastructure;
 
-import static com.tnt.member.domain.QMember.member;
-import static com.tnt.trainee.domain.QTrainee.trainee;
+import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
+import static com.tnt.trainee.infrastructure.QTraineeJpaEntity.traineeJpaEntity;
 
 import java.util.Optional;
 
@@ -26,27 +26,28 @@ public class TraineeRepositoryImpl implements TraineeRepository {
 
 	@Override
 	public Trainee save(Trainee trainee) {
-		return traineeJpaRepository.save(trainee);
+		return traineeJpaRepository.save(TraineeJpaEntity.from(trainee)).toModel();
 	}
 
 	@Override
 	public Trainee findByMemberId(Long memberId) {
 		return traineeJpaRepository.findByMemberIdAndDeletedAtIsNull(memberId)
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.TRAINEE_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.TRAINEE_NOT_FOUND)).toModel();
 	}
 
 	@Override
 	public Trainee find(@Nullable Long memberId, @Nullable Long traineeId) {
 		return Optional.ofNullable(jpaQueryFactory
-				.selectFrom(trainee)
-				.join(trainee.member, member).fetchJoin()
+				.selectFrom(traineeJpaEntity)
+				.join(traineeJpaEntity.member, memberJpaEntity).fetchJoin()
 				.where(
-					DynamicQuery.generateEq(memberId, member.id::eq),
-					DynamicQuery.generateEq(traineeId, trainee.id::eq),
-					member.deletedAt.isNull(),
-					trainee.deletedAt.isNull()
+					DynamicQuery.generateEq(memberId, memberJpaEntity.id::eq),
+					DynamicQuery.generateEq(traineeId, traineeJpaEntity.id::eq),
+					memberJpaEntity.deletedAt.isNull(),
+					traineeJpaEntity.deletedAt.isNull()
 				)
 				.fetchOne())
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.TRAINEE_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.TRAINEE_NOT_FOUND))
+			.toModel();
 	}
 }

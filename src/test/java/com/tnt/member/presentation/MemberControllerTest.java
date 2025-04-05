@@ -167,10 +167,10 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		// given
 		Member trainerMember = MemberFixture.getTrainerMember1();
 
-		Member member = memberRepository.save(trainerMember);
+		trainerMember = memberRepository.save(trainerMember);
 
-		CustomUserDetails traineeUserDetails = new CustomUserDetails(member.getId(),
-			String.valueOf(member.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
 			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
@@ -193,10 +193,10 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		// given
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		Member member = memberRepository.save(traineeMember);
+		traineeMember = memberRepository.save(traineeMember);
 
-		CustomUserDetails traineeUserDetails = new CustomUserDetails(member.getId(),
-			String.valueOf(member.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(traineeMember.getId(),
+			String.valueOf(traineeMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
 			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
@@ -223,9 +223,9 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		Member traineeMember3 = MemberFixture.getTraineeMember4();
 
 		trainerMember = memberRepository.save(trainerMember);
-		memberRepository.save(traineeMember1);
-		memberRepository.save(traineeMember2);
-		memberRepository.save(traineeMember3);
+		traineeMember1 = memberRepository.save(traineeMember1);
+		traineeMember2 = memberRepository.save(traineeMember2);
+		traineeMember3 = memberRepository.save(traineeMember3);
 
 		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
 			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -240,10 +240,10 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		Trainee trainee2 = TraineeFixture.getTrainee2(traineeMember2);
 		Trainee trainee3 = TraineeFixture.getTrainee2(traineeMember3);
 
-		trainerRepository.save(trainer);
-		traineeRepository.save(trainee1);
-		traineeRepository.save(trainee2);
-		traineeRepository.save(trainee3);
+		trainer = trainerRepository.save(trainer);
+		trainee1 = traineeRepository.save(trainee1);
+		trainee2 = traineeRepository.save(trainee2);
+		trainee3 = traineeRepository.save(trainee3);
 
 		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee1.getId());
 
@@ -280,7 +280,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		Member trainerMember = MemberFixture.getTrainerMember1();
 		Member traineeMember = MemberFixture.getTraineeMember1();
 
-		memberRepository.save(trainerMember);
+		trainerMember = memberRepository.save(trainerMember);
 		traineeMember = memberRepository.save(traineeMember);
 
 		CustomUserDetails traineeUserDetails = new CustomUserDetails(traineeMember.getId(),
@@ -294,8 +294,8 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee2(traineeMember);
 
-		trainerRepository.save(trainer);
-		traineeRepository.save(trainee);
+		trainer = trainerRepository.save(trainer);
+		trainee = traineeRepository.save(trainee);
 
 		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee.getId());
 

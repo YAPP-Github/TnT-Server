@@ -4,9 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tnt.trainee.domain.Trainee;
+public interface TraineeJpaRepository extends JpaRepository<TraineeJpaEntity, Long> {
 
-public interface TraineeJpaRepository extends JpaRepository<Trainee, Long> {
-
-	Optional<Trainee> findByMemberIdAndDeletedAtIsNull(Long memberId);
+	Optional<TraineeJpaEntity> findByMemberIdAndDeletedAtIsNull(Long memberId);
 }

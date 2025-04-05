@@ -84,8 +84,10 @@ class WithdrawServiceTest {
 		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
-		List<PtGoal> ptGoals = List.of(PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
-		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
+		List<PtGoal> ptGoals = List.of(
+			PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
+		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()),
+			DietFixture.getDiet2(trainee.getId()));
 
 		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
@@ -138,8 +140,10 @@ class WithdrawServiceTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		List<PtGoal> ptGoals = List.of(PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
-		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
+		List<PtGoal> ptGoals = List.of(
+			PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
+		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()),
+			DietFixture.getDiet2(trainee.getId()));
 
 		List<PtLesson> ptLessons = PtLessonsFixture.getPtLessonsWithId1(ptTrainerTrainee);
 
@@ -185,8 +189,10 @@ class WithdrawServiceTest {
 
 		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
-		List<PtGoal> ptGoals = List.of(PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
-		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
+		List<PtGoal> ptGoals = List.of(
+			PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
+		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()),
+			DietFixture.getDiet2(trainee.getId()));
 
 		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);

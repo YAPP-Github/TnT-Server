@@ -2,6 +2,7 @@ package com.tnt.gateway.application;
 
 import static com.tnt.common.error.model.ErrorMessage.APPLE_AUTH_ERROR;
 import static com.tnt.common.error.model.ErrorMessage.KAKAO_SERVER_ERROR;
+import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.SocialType.APPLE;
 import static com.tnt.member.domain.SocialType.KAKAO;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.tnt.common.error.exception.OAuthException;
 import com.tnt.gateway.dto.request.OAuthLoginRequest;
 import com.tnt.gateway.dto.response.OAuthLoginResponse;
-import com.tnt.member.application.MemberService;
+import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.dto.response.LogoutResponse;
 
@@ -56,7 +56,7 @@ class OAuthServiceTest {
 	private SessionService sessionService;
 
 	@Mock
-	private MemberService memberService;
+	private MemberRepository memberRepository;
 
 	@InjectMocks
 	private OAuthService oAuthService;
@@ -75,7 +75,7 @@ class OAuthServiceTest {
 			.baseUrl(baseUrl)
 			.build();
 
-		oAuthService = new OAuthService(webClient, sessionService, memberService);
+		oAuthService = new OAuthService(webClient, sessionService, memberRepository);
 
 		ReflectionTestUtils.setField(oAuthService, "kakaoApiUrl", baseUrl);
 		ReflectionTestUtils.setField(oAuthService, "appleApiUrl", appleApiUrl);
@@ -124,15 +124,26 @@ class OAuthServiceTest {
 	void kakao_login_success() {
 		// given
 		OAuthLoginRequest request = new OAuthLoginRequest(KAKAO, "fcm", "valid-token", null);
-		Member member = mock(Member.class);
-		given(member.getId()).willReturn(1L);
+		Member mockMember = Member.builder()
+			.id(1L)
+			.serviceAgreement(true)
+			.collectionAgreement(true)
+			.advertisementAgreement(true)
+			.fcmToken("fcm")
+			.socialId("abc")
+			.email("aaa")
+			.name("test")
+			.profileImageUrl("test")
+			.socialType(APPLE)
+			.memberType(TRAINEE)
+			.build();
 
 		mockWebServer.enqueue(new MockResponse()
 			.setResponseCode(200)
 			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 			.setBody("{\"id\": \"12345\"}"));
 
-		given(memberService.getBySocialIdAndSocialType("12345", KAKAO)).willReturn(member);
+		given(memberRepository.findBySocialIdAndSocialType("12345", KAKAO)).willReturn(mockMember);
 
 		// when
 		OAuthLoginResponse response = oAuthService.oauthLogin(request);
@@ -165,8 +176,19 @@ class OAuthServiceTest {
 			.sign(Algorithm.RSA256(rsaPublicKey, rsaPrivateKey));
 
 		OAuthLoginRequest request = new OAuthLoginRequest(APPLE, "fcm", null, mockIdToken);
-		Member mockMember = mock(Member.class);
-		given(mockMember.getId()).willReturn(1L);
+		Member mockMember = Member.builder()
+			.id(1L)
+			.serviceAgreement(true)
+			.collectionAgreement(true)
+			.advertisementAgreement(true)
+			.fcmToken("fcm")
+			.socialId("abc")
+			.email("aaa")
+			.name("test")
+			.profileImageUrl("test")
+			.socialType(APPLE)
+			.memberType(TRAINEE)
+			.build();
 
 		String mockN = Base64.getUrlEncoder().encodeToString(rsaPublicKey.getModulus().toByteArray());
 		String mockE = Base64.getUrlEncoder().encodeToString(rsaPublicKey.getPublicExponent().toByteArray());
@@ -178,7 +200,7 @@ class OAuthServiceTest {
 				"{\"keys\": [{\"kid\": \"test-kid\", \"kty\": \"RSA\", \"n\": \"" + mockN + "\", \"e\": \"" + mockE
 					+ "\"}]}"));
 
-		given(memberService.getBySocialIdAndSocialType("test-user-id", APPLE)).willReturn(mockMember);
+		given(memberRepository.findBySocialIdAndSocialType("test-user-id", APPLE)).willReturn(mockMember);
 
 		// when
 		OAuthLoginResponse response = oAuthService.oauthLogin(request);

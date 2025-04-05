@@ -1,7 +1,7 @@
 package com.tnt.trainee.infrastructure;
 
 import static com.tnt.common.error.model.ErrorMessage.DIET_NOT_FOUND;
-import static com.tnt.trainee.domain.QDiet.diet;
+import static com.tnt.trainee.infrastructure.QDietJpaEntity.dietJpaEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,49 +26,62 @@ public class DietRepositoryImpl implements DietRepository {
 
 	@Override
 	public Diet save(Diet diet) {
-		return dietJpaRepository.save(diet);
+		return dietJpaRepository.save(DietJpaEntity.from(diet)).toModel();
 	}
 
 	@Override
 	public void saveAll(List<Diet> diets) {
-		dietJpaRepository.saveAll(diets);
+		List<DietJpaEntity> dietJpaEntities = diets.stream()
+			.map(DietJpaEntity::from)
+			.toList();
+
+		dietJpaRepository.saveAll(dietJpaEntities);
 	}
 
 	@Override
 	public Diet findByIdAndTraineeId(Long id, Long traineeId) {
 		return dietJpaRepository.findByIdAndTraineeIdAndDeletedAtIsNull(id, traineeId)
-			.orElseThrow(() -> new NotFoundException(DIET_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(DIET_NOT_FOUND)).toModel();
 	}
 
 	@Override
 	public List<Diet> findAllByTraineeId(Long traineeId) {
-		return dietJpaRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId);
+		return dietJpaRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId).stream()
+			.map(DietJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<Diet> findAllByTraineeIdForDaily(Long traineeId, LocalDate date) {
 		return jpaQueryFactory
-			.selectFrom(diet)
+			.selectFrom(dietJpaEntity)
 			.where(
-				diet.traineeId.eq(traineeId),
-				diet.date.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
-				diet.deletedAt.isNull()
+				dietJpaEntity.traineeId.eq(traineeId),
+				dietJpaEntity.date.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
+				dietJpaEntity.deletedAt.isNull()
 			)
-			.orderBy(diet.date.asc())
-			.fetch();
+			.orderBy(dietJpaEntity.date.asc())
+			.fetch()
+			.stream()
+			.map(DietJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
-	public List<Diet> findAllByTraineeIdForTraineeCalendar(Long traineeId, LocalDate startDate, LocalDate endDate) {
+	public List<Diet> findAllByTraineeIdForTraineeCalendar(Long traineeId, LocalDate startDate,
+		LocalDate endDate) {
 		return jpaQueryFactory
-			.selectFrom(diet)
+			.selectFrom(dietJpaEntity)
 			.where(
-				diet.traineeId.eq(traineeId),
-				diet.date.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX)),
-				diet.deletedAt.isNull()
+				dietJpaEntity.traineeId.eq(traineeId),
+				dietJpaEntity.date.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX)),
+				dietJpaEntity.deletedAt.isNull()
 			)
-			.orderBy(diet.date.asc())
-			.fetch();
+			.orderBy(dietJpaEntity.date.asc())
+			.fetch()
+			.stream()
+			.map(DietJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override

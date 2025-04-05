@@ -1,8 +1,8 @@
 package com.tnt.trainer.infrastructure;
 
 import static com.tnt.common.error.model.ErrorMessage.TRAINER_NOT_FOUND;
-import static com.tnt.member.domain.QMember.member;
-import static com.tnt.trainer.domain.QTrainer.trainer;
+import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
+import static com.tnt.trainer.infrastructure.QTrainerJpaEntity.trainerJpaEntity;
 
 import java.util.Optional;
 
@@ -26,13 +26,13 @@ public class TrainerRepositoryImpl implements TrainerRepository {
 
 	@Override
 	public Trainer save(Trainer trainer) {
-		return trainerJpaRepository.save(trainer);
+		return trainerJpaRepository.save(TrainerJpaEntity.from(trainer)).toModel();
 	}
 
 	@Override
 	public Trainer findByMemberId(Long memberId) {
 		return trainerJpaRepository.findByMemberIdAndDeletedAtIsNull(memberId)
-			.orElseThrow(() -> new NotFoundException(TRAINER_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(TRAINER_NOT_FOUND)).toModel();
 	}
 
 	@Override
@@ -47,15 +47,16 @@ public class TrainerRepositoryImpl implements TrainerRepository {
 
 	public Trainer find(@Nullable Long memberId, @Nullable String invitationCode) {
 		return Optional.ofNullable(jpaQueryFactory
-				.selectFrom(trainer)
-				.join(trainer.member, member).fetchJoin()
+				.selectFrom(trainerJpaEntity)
+				.join(trainerJpaEntity.member, memberJpaEntity).fetchJoin()
 				.where(
-					DynamicQuery.generateEq(memberId, member.id::eq),
-					DynamicQuery.generateEq(invitationCode, trainer.invitationCode::eq),
-					member.deletedAt.isNull(),
-					trainer.deletedAt.isNull()
+					DynamicQuery.generateEq(memberId, memberJpaEntity.id::eq),
+					DynamicQuery.generateEq(invitationCode, trainerJpaEntity.invitationCode::eq),
+					memberJpaEntity.deletedAt.isNull(),
+					trainerJpaEntity.deletedAt.isNull()
 				)
 				.fetchOne())
-			.orElseThrow(() -> new NotFoundException(TRAINER_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(TRAINER_NOT_FOUND))
+			.toModel();
 	}
 }

@@ -7,62 +7,37 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDateTime;
 
-import com.tnt.common.jpa.BaseTimeEntity;
-
-import io.hypersistence.utils.hibernate.id.Tsid;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@Table(name = "diet")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Diet extends BaseTimeEntity {
+public class Diet {
 
 	public static final int DIET_IMAGE_URL_LENGTH = 255;
 	public static final int MEMO_LENGTH = 100;
-	public static final int DIET_TYPE_LENGTH = 20;
 
-	@Id
-	@Tsid
-	@Column(name = "id", nullable = false, unique = true)
-	private Long id;
-
-	@Column(name = "trainee_id", nullable = false)
-	private Long traineeId;
-
-	@Column(name = "date", nullable = false)
-	private LocalDateTime date;
-
-	@Column(name = "diet_image_url", nullable = true, length = DIET_IMAGE_URL_LENGTH)
-	private String dietImageUrl;
-
-	@Column(name = "memo", nullable = false, length = MEMO_LENGTH)
-	private String memo;
-
-	@Column(name = "deleted_at", nullable = true)
+	private final Long id;
+	private final Long traineeId;
+	private final LocalDateTime date;
+	private final String dietImageUrl;
+	private final String memo;
+	private final DietType dietType;
 	private LocalDateTime deletedAt;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "diet_type", nullable = false, length = DIET_TYPE_LENGTH)
-	private DietType dietType;
-
 	@Builder
-	public Diet(Long id, Long traineeId, LocalDateTime date, String dietImageUrl, String memo, DietType dietType) {
+	public Diet(Long id, Long traineeId, LocalDateTime date, String dietImageUrl, String memo,
+		DietType dietType, LocalDateTime deletedAt) {
 		this.id = id;
 		this.traineeId = requireNonNull(traineeId);
 		this.date = requireNonNull(date);
 		this.dietImageUrl = validateDietImageUrl(dietImageUrl);
 		this.memo = validateMemo(memo);
 		this.dietType = requireNonNull(dietType);
+		this.deletedAt = deletedAt;
+	}
+
+	public void softDelete() {
+		this.deletedAt = LocalDateTime.now();
 	}
 
 	private String validateDietImageUrl(String dietImageUrl) {
@@ -79,9 +54,5 @@ public class Diet extends BaseTimeEntity {
 		}
 
 		return memo;
-	}
-
-	public void softDelete() {
-		this.deletedAt = LocalDateTime.now();
 	}
 }

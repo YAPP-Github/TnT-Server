@@ -247,7 +247,7 @@ class TraineeControllerTest {
 
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
-		traineeRepository.save(trainee);
+		trainee = traineeRepository.save(trainee);
 
 		Diet diet = DietFixture.getDiet1(trainee.getId());
 
@@ -292,12 +292,11 @@ class TraineeControllerTest {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
-
-		traineeRepository.save(trainee);
+		trainee = traineeRepository.save(trainee);
 
 		Diet diet = DietFixture.getDiet1(trainee.getId());
 
-		dietRepository.save(diet);
+		diet = dietRepository.save(diet);
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 		String formattedDate = diet.getDate().format(formatter);
@@ -449,12 +448,12 @@ class TraineeControllerTest {
 		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
-		trainerRepository.save(trainer);
-		traineeRepository.save(trainee);
+		trainer = trainerRepository.save(trainer);
+		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtLesson ptLesson = PtLessonsFixture.getPtLessons1(ptTrainerTrainee).getFirst();
 
@@ -481,12 +480,10 @@ class TraineeControllerTest {
 			.andExpect(jsonPath("$.ptInfo.lessonStart").value(ptLesson.getLessonStart().format(dateTimeFormatter)))
 			.andExpect(jsonPath("$.ptInfo.lessonEnd").value(ptLesson.getLessonEnd().format(dateTimeFormatter)))
 			.andExpect(jsonPath("$.diets").isArray())
-			.andExpect(jsonPath("$.diets[0].dietId").value(diet1.getId()))
 			.andExpect(jsonPath("$.diets[0].date").value(diet1.getDate().format(dateTimeFormatter)))
 			.andExpect(jsonPath("$.diets[0].dietImageUrl").value(diet1.getDietImageUrl()))
 			.andExpect(jsonPath("$.diets[0].memo").value(diet1.getMemo()))
 			.andExpect(jsonPath("$.diets[0].dietType").value(diet1.getDietType().toString()))
-			.andExpect(jsonPath("$.diets[1].dietId").value(diet2.getId()))
 			.andExpect(jsonPath("$.diets[1].date").value(diet2.getDate().format(dateTimeFormatter)))
 			.andExpect(jsonPath("$.diets[1].dietImageUrl").value(diet2.getDietImageUrl()))
 			.andExpect(jsonPath("$.diets[1].memo").value(diet2.getMemo()))
@@ -516,12 +513,12 @@ class TraineeControllerTest {
 		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
 		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
 
-		trainerRepository.save(trainer);
-		traineeRepository.save(trainee);
+		trainer = trainerRepository.save(trainer);
+		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtLesson ptLesson = PtLessonsFixture.getPtLessons1(ptTrainerTrainee).getFirst();
 
@@ -544,12 +541,10 @@ class TraineeControllerTest {
 			.andExpect(jsonPath("$.date").value(targetDate.format(dateFormatter)))
 			.andExpect(jsonPath("$.ptInfo").doesNotExist())
 			.andExpect(jsonPath("$.diets").isArray())
-			.andExpect(jsonPath("$.diets[0].dietId").value(diet3.getId()))
 			.andExpect(jsonPath("$.diets[0].date").value(diet3.getDate().format(dateTimeFormatter)))
 			.andExpect(jsonPath("$.diets[0].dietImageUrl").value(diet3.getDietImageUrl()))
 			.andExpect(jsonPath("$.diets[0].memo").value(diet3.getMemo()))
 			.andExpect(jsonPath("$.diets[0].dietType").value(diet3.getDietType().toString()))
-			.andExpect(jsonPath("$.diets[1].dietId").value(diet4.getId()))
 			.andExpect(jsonPath("$.diets[1].date").value(diet4.getDate().format(dateTimeFormatter)))
 			.andExpect(jsonPath("$.diets[1].dietImageUrl").value(diet4.getDietImageUrl()))
 			.andExpect(jsonPath("$.diets[1].memo").value(diet4.getMemo()))

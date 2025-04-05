@@ -67,7 +67,8 @@ class SignUpServiceTest {
 		Member trainerMember = MemberFixture.getTrainerMemberWithId1();
 
 		given(memberRepository.save(any(Member.class))).willReturn(trainerMember);
-		given(trainerRepository.save(any(Trainer.class))).willReturn(Trainer.builder().member(trainerMember).build());
+		given(trainerRepository.save(any(Trainer.class))).willReturn(
+			Trainer.builder().member(trainerMember).build());
 
 		SignUpRequest request = new SignUpRequest(trainerMember.getFcmToken(), trainerMember.getMemberType(),
 			trainerMember.getSocialType(), trainerMember.getSocialId(), trainerMember.getEmail(),

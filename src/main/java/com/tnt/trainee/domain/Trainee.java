@@ -1,66 +1,34 @@
 package com.tnt.trainee.domain;
 
 import static com.tnt.common.error.model.ErrorMessage.TRAINEE_INVALID_CAUTION_NOTE;
-import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDateTime;
 
-import org.springframework.lang.Nullable;
-
-import com.tnt.common.jpa.BaseTimeEntity;
 import com.tnt.member.domain.Member;
 
-import io.hypersistence.utils.hibernate.id.Tsid;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@Table(name = "trainee")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Trainee extends BaseTimeEntity {
+public class Trainee {
 
 	public static final int CAUTION_NOTE_LENGTH = 100;
 
-	@Id
-	@Tsid
-	@Column(name = "id", nullable = false, unique = true)
-	private Long id;
-
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(NO_CONSTRAINT))
-	private Member member;
-
-	@Column(name = "height", nullable = true)
-	private Double height;
-
-	@Column(name = "weight", nullable = true)
-	private Double weight;
-
-	@Column(name = "caution_note", nullable = true, length = CAUTION_NOTE_LENGTH)
+	private final Long id;
+	private final Member member;
+	private final Double height;
+	private final Double weight;
 	private String cautionNote;
-
-	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
 	@Builder
-	public Trainee(Long id, Member member, Double height, Double weight, @Nullable String cautionNote) {
+	public Trainee(Long id, Member member, Double height, Double weight, String cautionNote, LocalDateTime deletedAt) {
 		this.id = id;
-		this.member = requireNonNull(member);
+		this.member = member;
 		this.height = height;
 		this.weight = weight;
+		this.deletedAt = deletedAt;
 		validateAndSetCautionNote(cautionNote);
 	}
 

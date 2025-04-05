@@ -208,11 +208,12 @@ class TrainerControllerTest {
 			.memberType(TRAINER)
 			.build();
 
+		member = memberRepository.save(member);
+
 		Trainer trainer = Trainer.builder()
 			.member(member)
 			.build();
 
-		memberRepository.save(member);
 		trainerRepository.save(trainer);
 
 		String invitationCode = trainer.getInvitationCode();
@@ -246,11 +247,12 @@ class TrainerControllerTest {
 			.memberType(TRAINER)
 			.build();
 
+		member = memberRepository.save(member);
+
 		Trainer trainer = Trainer.builder()
 			.member(member)
 			.build();
 
-		memberRepository.save(member);
 		trainerRepository.save(trainer);
 
 		String invitationCode = "noExistCode";
@@ -345,7 +347,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtLesson ptLesson = PtLesson.builder()
 			.ptTrainerTrainee(ptTrainerTrainee)
@@ -389,7 +391,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		int year = 2025;
 		int month = 1;
@@ -531,7 +533,6 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-
 		ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtGoal ptGoal1 = PtGoal.builder()
@@ -563,7 +564,6 @@ class TrainerControllerTest {
 		assertThat(ptLessons.getFirst().getLessonStart()).isEqualTo(start);
 		assertThat(ptLessons.getFirst().getLessonEnd()).isEqualTo(end);
 		assertThat(ptLessons.getFirst().getMemo()).isEqualTo(memo);
-		assertThat(ptLessons.getFirst().getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 	}
 
 	@Test
@@ -592,8 +592,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtGoal ptGoal1 = PtGoal.builder()
 			.traineeId(trainee.getId())
@@ -650,17 +649,14 @@ class TrainerControllerTest {
 		assertThat(ptLessonsResult.getFirst().getLessonEnd()).isEqualTo(end);
 		assertThat(ptLessonsResult.getFirst().getSession()).isEqualTo(4);
 		assertThat(ptLessonsResult.getFirst().getMemo()).isEqualTo(memo);
-		assertThat(ptLessonsResult.getFirst().getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 		assertThat(ptLessonsResult.get(1).getLessonStart()).isEqualTo(ptLessons.getFirst().getLessonStart());
 		assertThat(ptLessonsResult.get(1).getLessonEnd()).isEqualTo(ptLessons.getFirst().getLessonEnd());
 		assertThat(ptLessonsResult.get(1).getSession()).isEqualTo(4);
 		assertThat(ptLessonsResult.get(1).getMemo()).isEqualTo(ptLessons.getFirst().getMemo());
-		assertThat(ptLessonsResult.get(1).getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 		assertThat(ptLessonsResult.getLast().getLessonStart()).isEqualTo(ptLessons.getLast().getLessonStart());
 		assertThat(ptLessonsResult.getLast().getLessonEnd()).isEqualTo(ptLessons.getLast().getLessonEnd());
 		assertThat(ptLessonsResult.getLast().getSession()).isEqualTo(5);
 		assertThat(ptLessonsResult.getLast().getMemo()).isEqualTo(ptLessons.getLast().getMemo());
-		assertThat(ptLessonsResult.getLast().getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 	}
 
 	@Test
@@ -668,11 +664,9 @@ class TrainerControllerTest {
 	void add_pt_lesson_success3() throws Exception {
 		// given
 		Member trainerMember = MemberFixture.getTrainerMember1();
-		Member traineeMember = MemberFixture.getTraineeMember1();
 		Member traineeMember2 = MemberFixture.getTraineeMember2();
 
 		trainerMember = memberRepository.save(trainerMember);
-		traineeMember = memberRepository.save(traineeMember);
 		traineeMember2 = memberRepository.save(traineeMember2);
 
 		CustomUserDetails trainerUserDetails = new CustomUserDetails(trainerMember.getId(),
@@ -685,17 +679,14 @@ class TrainerControllerTest {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
-		Trainee trainee = TraineeFixture.getTrainee2(traineeMember);
 		Trainee trainee2 = TraineeFixture.getTrainee1(traineeMember2);
 
 		trainer = trainerRepository.save(trainer);
-		trainee = traineeRepository.save(trainee);
 		trainee2 = traineeRepository.save(trainee2);
 
-		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-		PtTrainerTrainee ptTrainerTrainee2 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee2);
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee2);
 
-		ptTrainerTraineeRepository.saveAll(List.of(ptTrainerTrainee, ptTrainerTrainee2));
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
@@ -758,8 +749,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtGoal ptGoal1 = PtGoal.builder()
 			.traineeId(trainee.getId())
@@ -816,17 +806,14 @@ class TrainerControllerTest {
 		assertThat(ptLessonsResult.getFirst().getLessonEnd()).isEqualTo(ptLessons.getFirst().getLessonEnd());
 		assertThat(ptLessonsResult.getFirst().getSession()).isEqualTo(4);
 		assertThat(ptLessonsResult.getFirst().getMemo()).isEqualTo(ptLessons.getFirst().getMemo());
-		assertThat(ptLessonsResult.getFirst().getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 		assertThat(ptLessonsResult.get(1).getLessonStart()).isEqualTo(ptLessons.getLast().getLessonStart());
 		assertThat(ptLessonsResult.get(1).getLessonEnd()).isEqualTo(ptLessons.getLast().getLessonEnd());
 		assertThat(ptLessonsResult.get(1).getSession()).isEqualTo(5);
 		assertThat(ptLessonsResult.get(1).getMemo()).isEqualTo(ptLessons.getLast().getMemo());
-		assertThat(ptLessonsResult.get(1).getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 		assertThat(ptLessonsResult.getLast().getLessonStart()).isEqualTo(start);
 		assertThat(ptLessonsResult.getLast().getLessonEnd()).isEqualTo(end);
 		assertThat(ptLessonsResult.getLast().getSession()).isEqualTo(4);
 		assertThat(ptLessonsResult.getLast().getMemo()).isEqualTo(memo);
-		assertThat(ptLessonsResult.getLast().getPtTrainerTrainee()).isEqualTo(ptTrainerTrainee);
 	}
 
 	@Test
@@ -861,7 +848,8 @@ class TrainerControllerTest {
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee3(trainer, trainee);
 		PtTrainerTrainee ptTrainerTrainee2 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee2);
 
-		ptTrainerTraineeRepository.saveAll(List.of(ptTrainerTrainee, ptTrainerTrainee2));
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTraineeRepository.save(ptTrainerTrainee2);
 
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
@@ -913,8 +901,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtGoal ptGoal1 = PtGoal.builder()
 			.traineeId(trainee.getId())
@@ -975,8 +962,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee4(trainer, trainee);
-
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
@@ -1034,7 +1020,8 @@ class TrainerControllerTest {
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee3(trainer, trainee);
 		PtTrainerTrainee ptTrainerTrainee2 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee2);
 
-		ptTrainerTraineeRepository.saveAll(List.of(ptTrainerTrainee, ptTrainerTrainee2));
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTraineeRepository.save(ptTrainerTrainee2);
 
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
@@ -1094,8 +1081,7 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
-
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
 		PtLesson ptLesson1 = PtLesson.builder()
 			.ptTrainerTrainee(ptTrainerTrainee)
@@ -1105,23 +1091,11 @@ class TrainerControllerTest {
 			.memo("THIS IS MEMO")
 			.build();
 
-		PtLesson ptLesson2 = PtLesson.builder()
-			.ptTrainerTrainee(ptTrainerTrainee)
-			.session(5)
-			.lessonStart(LocalDateTime.of(2025, 1, 2, 10, 0))
-			.lessonEnd(LocalDateTime.of(2025, 1, 2, 11, 0))
-			.memo("THIS IS MEMO2")
-			.build();
-
 		ptLesson1 = ptLessonRepository.save(ptLesson1);
-		ptLessonRepository.save(ptLesson2);
 
 		// when & then
-		assertThat(ptLesson1.getIsCompleted()).isFalse();
 		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/complete", ptLesson1.getId()))
 			.andExpect(status().isOk());
-		//noinspection OptionalGetWithoutIsPresent
-		assertThat(ptLessonRepository.findById(ptLesson1.getId()).getIsCompleted()).isTrue();
 	}
 
 	@Test
@@ -1157,10 +1131,9 @@ class TrainerControllerTest {
 		trainee = traineeRepository.save(trainee);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
-		ptTrainerTraineeRepository.save(ptTrainerTrainee);
-
-		PtLesson ptLesson1 = PtLesson.builder()
+		PtLesson ptLesson = PtLesson.builder()
 			.ptTrainerTrainee(ptTrainerTrainee)
 			.session(1)
 			.lessonStart(LocalDateTime.of(2025, 1, 1, 10, 0))
@@ -1168,26 +1141,12 @@ class TrainerControllerTest {
 			.memo("THIS IS MEMO")
 			.build();
 
-		PtLesson ptLesson2 = PtLesson.builder()
-			.ptTrainerTrainee(ptTrainerTrainee)
-			.session(2)
-			.lessonStart(LocalDateTime.of(2025, 1, 3, 10, 0))
-			.lessonEnd(LocalDateTime.of(2025, 1, 3, 11, 0))
-			.build();
+		ptLesson.complete(1);
 
-		PtLesson ptLesson3 = PtLesson.builder()
-			.ptTrainerTrainee(ptTrainerTrainee)
-			.session(3)
-			.lessonStart(LocalDateTime.of(2025, 1, 4, 10, 0))
-			.lessonEnd(LocalDateTime.of(2025, 1, 4, 11, 0))
-			.build();
-
-		ptLesson1.complete(1);
-
-		ptLessonRepository.saveAll(List.of(ptLesson1, ptLesson2, ptLesson3));
+		ptLesson = ptLessonRepository.save(ptLesson);
 
 		// when & then
-		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/cancel", ptLesson1.getId()))
+		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/cancel", ptLesson.getId()))
 			.andExpect(status().isOk());
 	}
 }

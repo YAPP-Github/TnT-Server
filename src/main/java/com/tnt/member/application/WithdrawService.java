@@ -57,7 +57,8 @@ public class WithdrawService {
 				List<PtTrainerTrainee> ptTrainerTrainee = ptService.getAllPtTrainerTraineeWithTrainerId(
 					trainer.getId());
 
-				List<PtLesson> ptLessons = ptTrainerTrainee.stream().map(ptService::getPtLessonWithPtTrainerTrainee)
+				List<PtLesson> ptLessons = ptTrainerTrainee.stream()
+					.map(ptService::getPtLessonWithPtTrainerTrainee)
 					.flatMap(List::stream)
 					.toList();
 

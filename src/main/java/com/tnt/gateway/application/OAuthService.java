@@ -39,7 +39,7 @@ import com.tnt.gateway.dto.KakaoUserInfo;
 import com.tnt.gateway.dto.OAuthUserInfo;
 import com.tnt.gateway.dto.request.OAuthLoginRequest;
 import com.tnt.gateway.dto.response.OAuthLoginResponse;
-import com.tnt.member.application.MemberService;
+import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.dto.response.LogoutResponse;
 
@@ -55,7 +55,8 @@ public class OAuthService {
 
 	private final WebClient webClient;
 	private final SessionService sessionService;
-	private final MemberService memberService;
+
+	private final MemberRepository memberRepository;
 
 	@Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
 	private String kakaoApiUrl;
@@ -71,7 +72,7 @@ public class OAuthService {
 		Member member;
 
 		try {
-			member = memberService.getBySocialIdAndSocialType(socialId, request.socialType());
+			member = memberRepository.findBySocialIdAndSocialType(socialId, request.socialType());
 		} catch (NotFoundException e) {
 			return new OAuthLoginResponse(null, socialId, socialEmail, request.socialType(), false, UNREGISTERED);
 		}

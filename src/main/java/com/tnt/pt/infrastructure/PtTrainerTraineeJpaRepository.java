@@ -5,17 +5,15 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tnt.pt.domain.PtTrainerTrainee;
+public interface PtTrainerTraineeJpaRepository extends JpaRepository<PtTrainerTraineeJpaEntity, Long> {
 
-public interface PtTrainerTraineeJpaRepository extends JpaRepository<PtTrainerTrainee, Long> {
+	Optional<PtTrainerTraineeJpaEntity> findByTrainerIdAndDeletedAtIsNull(Long trainerId);
 
-	Optional<PtTrainerTrainee> findByTrainerIdAndDeletedAtIsNull(Long trainerId);
+	Optional<PtTrainerTraineeJpaEntity> findByTraineeIdAndDeletedAtIsNull(Long traineeId);
 
-	Optional<PtTrainerTrainee> findByTraineeIdAndDeletedAtIsNull(Long traineeId);
+	List<PtTrainerTraineeJpaEntity> findAllByTrainerId(Long trainerId);
 
-	List<PtTrainerTrainee> findAllByTrainerId(Long trainerId);
-
-	List<PtTrainerTrainee> findAllByTrainerIdAndDeletedAtIsNull(Long trainerId);
+	List<PtTrainerTraineeJpaEntity> findAllByTrainerIdAndDeletedAtIsNull(Long trainerId);
 
 	boolean existsByTrainerIdAndDeletedAtIsNull(Long trainerId);
 

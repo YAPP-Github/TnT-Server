@@ -1,10 +1,10 @@
 package com.tnt.pt.infrastructure;
 
-import static com.tnt.member.domain.QMember.member;
-import static com.tnt.pt.domain.QPtLesson.ptLesson;
-import static com.tnt.pt.domain.QPtTrainerTrainee.ptTrainerTrainee;
-import static com.tnt.trainee.domain.QTrainee.trainee;
-import static com.tnt.trainer.domain.QTrainer.trainer;
+import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
+import static com.tnt.pt.infrastructure.QPtLessonJpaEntity.ptLessonJpaEntity;
+import static com.tnt.pt.infrastructure.QPtTrainerTraineeJpaEntity.ptTrainerTraineeJpaEntity;
+import static com.tnt.trainee.infrastructure.QTraineeJpaEntity.traineeJpaEntity;
+import static com.tnt.trainer.infrastructure.QTrainerJpaEntity.trainerJpaEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,47 +34,64 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 
 	@Override
 	public PtLesson save(PtLesson ptLesson) {
-		return ptLessonJpaRepository.save(ptLesson);
+		return ptLessonJpaRepository.save(PtLessonJpaEntity.from(ptLesson)).toModel();
 	}
 
 	@Override
 	public void saveAll(List<PtLesson> ptLessons) {
-		ptLessonJpaRepository.saveAll(ptLessons);
+		List<PtLessonJpaEntity> ptLessonJpaEntities = ptLessons.stream()
+			.map(PtLessonJpaEntity::from)
+			.toList();
+
+		ptLessonJpaRepository.saveAll(ptLessonJpaEntities);
 	}
 
 	@Override
 	public List<PtLesson> findAll() {
-		return ptLessonJpaRepository.findAll();
+		return ptLessonJpaRepository.findAll().stream()
+			.map(PtLessonJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<PtLesson> findAllByPtTrainerTrainee(PtTrainerTrainee ptTrainerTrainee) {
-		return ptLessonJpaRepository.findAllByPtTrainerTraineeAndDeletedAtIsNull(ptTrainerTrainee);
+		return ptLessonJpaRepository.findAllByPtTrainerTraineeAndDeletedAtIsNull(
+				PtTrainerTraineeJpaEntity.from(ptTrainerTrainee))
+			.stream()
+			.map(PtLessonJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalse(PtTrainerTrainee ptTrainerTrainee) {
-		return ptLessonJpaRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(ptTrainerTrainee);
+		return ptLessonJpaRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(
+				PtTrainerTraineeJpaEntity.from(ptTrainerTrainee))
+			.stream()
+			.map(PtLessonJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<PtLesson> findAllByTrainerIdAndDate(Long trainerId, LocalDate date) {
 		return jpaQueryFactory
-			.selectFrom(ptLesson)
-			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee).fetchJoin()
-			.join(ptTrainerTrainee.trainer, trainer).fetchJoin()
-			.join(ptTrainerTrainee.trainee, trainee).fetchJoin()
-			.join(trainee.member, member).fetchJoin()
+			.selectFrom(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity)
+			.join(ptTrainerTraineeJpaEntity.trainer, trainerJpaEntity)
+			.join(ptTrainerTraineeJpaEntity.trainee, traineeJpaEntity)
+			.join(trainerJpaEntity.member, memberJpaEntity)
 			.where(
-				trainer.id.eq(trainerId),
-				ptLesson.lessonStart.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
-				ptTrainerTrainee.deletedAt.isNull(),
-				trainer.deletedAt.isNull(),
-				ptLesson.deletedAt.isNull(),
-				member.deletedAt.isNull()
+				trainerJpaEntity.id.eq(trainerId),
+				ptLessonJpaEntity.lessonStart.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull(),
+				trainerJpaEntity.deletedAt.isNull(),
+				ptLessonJpaEntity.deletedAt.isNull(),
+				memberJpaEntity.deletedAt.isNull()
 			)
-			.orderBy(ptLesson.lessonStart.asc())
-			.fetch();
+			.orderBy(ptLessonJpaEntity.lessonStart.asc())
+			.fetch()
+			.stream()
+			.map(PtLessonJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
@@ -83,35 +100,41 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 		LocalDateTime endDate = startDate.plusMonths(1).minusNanos(1);
 
 		return jpaQueryFactory
-			.selectFrom(ptLesson)
-			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee).fetchJoin()
-			.join(ptTrainerTrainee.trainer, trainer).fetchJoin()
+			.selectFrom(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity).fetchJoin()
+			.join(ptTrainerTraineeJpaEntity.trainer, trainerJpaEntity)
 			.where(
-				trainer.id.eq(traineeId),
-				ptLesson.lessonStart.between(startDate, endDate),
-				ptTrainerTrainee.deletedAt.isNull(),
-				trainer.deletedAt.isNull(),
-				ptLesson.deletedAt.isNull()
+				trainerJpaEntity.id.eq(traineeId),
+				ptLessonJpaEntity.lessonStart.between(startDate, endDate),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull(),
+				trainerJpaEntity.deletedAt.isNull(),
+				ptLessonJpaEntity.deletedAt.isNull()
 			)
-			.orderBy(ptLesson.lessonStart.asc())
-			.fetch();
+			.orderBy(ptLessonJpaEntity.lessonStart.asc())
+			.fetch()
+			.stream()
+			.map(PtLessonJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<PtLesson> findAllByTraineeIdForTraineeCalendar(Long traineeId, LocalDate startDate, LocalDate endDate) {
 		return jpaQueryFactory
-			.selectFrom(ptLesson)
-			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee).fetchJoin()
-			.join(ptTrainerTrainee.trainee, trainee).fetchJoin()
+			.selectFrom(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity).fetchJoin()
+			.join(ptTrainerTraineeJpaEntity.trainee, traineeJpaEntity)
 			.where(
-				trainee.id.eq(traineeId),
-				ptLesson.lessonStart.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX)),
-				trainee.deletedAt.isNull(),
-				ptLesson.deletedAt.isNull(),
-				ptTrainerTrainee.deletedAt.isNull()
+				traineeJpaEntity.id.eq(traineeId),
+				ptLessonJpaEntity.lessonStart.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX)),
+				traineeJpaEntity.deletedAt.isNull(),
+				ptLessonJpaEntity.deletedAt.isNull(),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull()
 			)
-			.orderBy(ptLesson.lessonStart.asc())
-			.fetch();
+			.orderBy(ptLessonJpaEntity.lessonStart.asc())
+			.fetch()
+			.stream()
+			.map(PtLessonJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
@@ -119,47 +142,49 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 		LocalDate date) {
 		return Optional.ofNullable(
 			jpaQueryFactory
-				.select(new QPtTrainerTraineeProjection_PtInfoDto(trainer.member.name, trainer.member.profileImageUrl,
-					ptLesson.session, ptLesson.lessonStart, ptLesson.lessonEnd))
-				.from(ptLesson)
-				.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee)
-				.join(ptTrainerTrainee.trainer, trainer)
-				.join(trainer.member, member)
-				.where(ptTrainerTrainee.trainee.id.eq(traineeId),
-					ptLesson.lessonStart.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
-					ptLesson.deletedAt.isNull(),
-					ptTrainerTrainee.deletedAt.isNull(),
-					trainer.deletedAt.isNull(),
-					member.deletedAt.isNull())
+				.select(new QPtTrainerTraineeProjection_PtInfoDto(trainerJpaEntity.member.name,
+					trainerJpaEntity.member.profileImageUrl,
+					ptLessonJpaEntity.session, ptLessonJpaEntity.lessonStart, ptLessonJpaEntity.lessonEnd))
+				.from(ptLessonJpaEntity)
+				.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity)
+				.join(ptTrainerTraineeJpaEntity.trainer, trainerJpaEntity)
+				.join(trainerJpaEntity.member, memberJpaEntity)
+				.where(ptTrainerTraineeJpaEntity.trainee.id.eq(traineeId),
+					ptLessonJpaEntity.lessonStart.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)),
+					ptLessonJpaEntity.deletedAt.isNull(),
+					ptTrainerTraineeJpaEntity.deletedAt.isNull(),
+					trainerJpaEntity.deletedAt.isNull(),
+					memberJpaEntity.deletedAt.isNull())
 				.fetchOne());
 	}
 
 	@Override
 	public PtLesson findById(Long id) {
 		return Optional.ofNullable(jpaQueryFactory
-				.selectFrom(ptLesson)
-				.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee).fetchJoin()
+				.selectFrom(ptLessonJpaEntity)
+				.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity).fetchJoin()
 				.where(
-					ptLesson.id.eq(id),
-					ptLesson.deletedAt.isNull(),
-					ptTrainerTrainee.deletedAt.isNull()
+					ptLessonJpaEntity.id.eq(id),
+					ptLessonJpaEntity.deletedAt.isNull(),
+					ptTrainerTraineeJpaEntity.deletedAt.isNull()
 				)
 				.fetchOne())
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_LESSON_NOT_FOUND));
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_LESSON_NOT_FOUND))
+			.toModel();
 	}
 
 	@Override
 	public boolean existsByStartAndEnd(PtTrainerTrainee pt, LocalDateTime start, LocalDateTime end) {
 		return jpaQueryFactory
 			.selectOne()
-			.from(ptLesson)
-			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee)
+			.from(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity)
 			.where(
-				ptTrainerTrainee.trainer.id.eq(pt.getTrainer().getId()),
-				ptLesson.lessonStart.lt(end),
-				ptLesson.lessonEnd.gt(start),
-				ptLesson.deletedAt.isNull(),
-				ptTrainerTrainee.deletedAt.isNull()
+				ptTrainerTraineeJpaEntity.trainer.id.eq(pt.getTrainer().getId()),
+				ptLessonJpaEntity.lessonStart.lt(end),
+				ptLessonJpaEntity.lessonEnd.gt(start),
+				ptLessonJpaEntity.deletedAt.isNull(),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull()
 			)
 			.fetchFirst() != null;
 	}
@@ -168,16 +193,16 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 	public boolean existsByStart(PtTrainerTrainee pt, LocalDateTime start) {
 		return jpaQueryFactory
 			.selectOne()
-			.from(ptLesson)
-			.join(ptLesson.ptTrainerTrainee, ptTrainerTrainee)
+			.from(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity)
 			.where(
-				ptTrainerTrainee.trainer.id.eq(pt.getTrainer().getId()),
-				ptTrainerTrainee.trainee.id.eq(pt.getTrainee().getId()),
-				ptLesson.lessonStart.year().eq(start.getYear())
-					.and(ptLesson.lessonStart.month().eq(start.getMonthValue()))
-					.and(ptLesson.lessonStart.dayOfMonth().eq(start.getDayOfMonth())),
-				ptLesson.deletedAt.isNull(),
-				ptTrainerTrainee.deletedAt.isNull()
+				ptTrainerTraineeJpaEntity.trainer.id.eq(pt.getTrainer().getId()),
+				ptTrainerTraineeJpaEntity.trainee.id.eq(pt.getTrainee().getId()),
+				ptLessonJpaEntity.lessonStart.year().eq(start.getYear())
+					.and(ptLessonJpaEntity.lessonStart.month().eq(start.getMonthValue()))
+					.and(ptLessonJpaEntity.lessonStart.dayOfMonth().eq(start.getDayOfMonth())),
+				ptLessonJpaEntity.deletedAt.isNull(),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull()
 			)
 			.fetchFirst() != null;
 	}

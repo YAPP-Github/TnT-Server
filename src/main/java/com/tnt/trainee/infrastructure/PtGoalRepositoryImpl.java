@@ -17,11 +17,21 @@ public class PtGoalRepositoryImpl implements PtGoalRepository {
 
 	@Override
 	public List<PtGoal> saveAll(List<PtGoal> ptGoals) {
-		return ptGoalJpaRepository.saveAll(ptGoals);
+		List<PtGoalJpaEntity> ptGoalJpaEntities = ptGoals.stream()
+			.map(PtGoalJpaEntity::from)
+			.toList();
+
+		return ptGoalJpaRepository.saveAll(ptGoalJpaEntities).stream()
+			.map(PtGoalJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override
 	public List<PtGoal> findAllByTraineeId(Long traineeId) {
-		return ptGoalJpaRepository.findAllByTraineeIdAndDeletedAtIsNull(traineeId);
+		return ptGoalJpaRepository.findAllByTraineeIdAndDeletedAtIsNull(
+				traineeId)
+			.stream()
+			.map(PtGoalJpaEntity::toModel)
+			.toList();
 	}
 }

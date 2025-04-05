@@ -6,13 +6,11 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tnt.trainee.domain.Diet;
+public interface DietJpaRepository extends JpaRepository<DietJpaEntity, Long> {
 
-public interface DietJpaRepository extends JpaRepository<Diet, Long> {
+	Optional<DietJpaEntity> findByIdAndTraineeIdAndDeletedAtIsNull(Long id, Long traineeId);
 
-	Optional<Diet> findByIdAndTraineeIdAndDeletedAtIsNull(Long id, Long traineeId);
-
-	List<Diet> findAllByTraineeIdAndDeletedAtIsNull(Long traineeId);
+	List<DietJpaEntity> findAllByTraineeIdAndDeletedAtIsNull(Long traineeId);
 
 	boolean existsByTraineeIdAndDateAndDeletedAtIsNull(Long traineeId, LocalDateTime date);
 }

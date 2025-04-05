@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tnt.pt.domain.PtLesson;
-import com.tnt.pt.domain.PtTrainerTrainee;
+public interface PtLessonJpaRepository extends JpaRepository<PtLessonJpaEntity, Long> {
 
-public interface PtLessonJpaRepository extends JpaRepository<PtLesson, Long> {
+	List<PtLessonJpaEntity> findAllByPtTrainerTraineeAndDeletedAtIsNull(
+		PtTrainerTraineeJpaEntity ptTrainerTraineeJpaEntity);
 
-	List<PtLesson> findAllByPtTrainerTraineeAndDeletedAtIsNull(PtTrainerTrainee ptTrainerTrainee);
-
-	List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(PtTrainerTrainee ptTrainerTrainee);
+	List<PtLessonJpaEntity> findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(
+		PtTrainerTraineeJpaEntity ptTrainerTraineeJpaEntity);
 }
