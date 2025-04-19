@@ -3,8 +3,8 @@ package com.tnt.fixture;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.tnt.domain.pt.PtLesson;
-import com.tnt.domain.pt.PtTrainerTrainee;
+import com.tnt.pt.domain.PtLesson;
+import com.tnt.pt.domain.PtTrainerTrainee;
 
 public class PtLessonsFixture {
 

@@ -1,7 +1,7 @@
 package com.tnt.fixture;
 
-import com.tnt.domain.member.Member;
-import com.tnt.domain.trainee.Trainee;
+import com.tnt.member.domain.Member;
+import com.tnt.trainee.domain.Trainee;
 
 public final class TraineeFixture {
 

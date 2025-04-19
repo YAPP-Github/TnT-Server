@@ -1,7 +1,7 @@
 package com.tnt.gateway.dto.response;
 
-import com.tnt.domain.member.MemberType;
-import com.tnt.domain.member.SocialType;
+import com.tnt.member.domain.MemberType;
+import com.tnt.member.domain.SocialType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tnt.gateway.service.SessionService;
+import com.tnt.gateway.application.SessionService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
