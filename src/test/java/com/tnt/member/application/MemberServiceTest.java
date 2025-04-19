@@ -1,6 +1,7 @@
 package com.tnt.member.application;
 
 import static com.tnt.member.domain.SocialType.KAKAO;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
@@ -16,11 +17,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tnt.common.error.exception.ConflictException;
 import com.tnt.common.error.exception.NotFoundException;
 import com.tnt.fixture.MemberFixture;
+import com.tnt.fixture.TrainerFixture;
+import com.tnt.gateway.dto.response.CheckSessionResponse;
 import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.domain.SocialType;
+import com.tnt.member.dto.MemberProjection;
 import com.tnt.pt.application.PtService;
 import com.tnt.trainer.application.TrainerService;
+import com.tnt.trainer.domain.Trainer;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
@@ -78,25 +83,24 @@ class MemberServiceTest {
 		assertThrows(ConflictException.class, () -> memberService.validateMemberNotExists(socialId, socialType));
 	}
 
-	// TODO: UPDATE
-	// @Test
-	// @DisplayName("memberId로 회원 타입 조회 성공")
-	// void get_member_type_success() {
-	// 	// given
-	// 	Member member = MemberFixture.getTrainerMemberWithId1();
-	// 	Long memberId = member.getId();
-	//
-	// 	Trainer trainer = TrainerFixture.getTrainer1(member);
-	//
-	// 	given(memberRepository.findMemberType(memberId)).willReturn(
-	// 		new MemberProjection.MemberTypeDto(member.getMemberType()));
-	// 	given(trainerService.getByMemberId(memberId)).willReturn(trainer);
-	// 	given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
-	//
-	// 	// when
-	// 	CheckSessionResponse checkSessionResponse = memberService.getMemberType(memberId);
-	//
-	// 	// then
-	// 	assertThat(checkSessionResponse.memberType()).isEqualTo(member.getMemberType());
-	// }
+	@Test
+	@DisplayName("memberId로 회원 타입 조회 성공")
+	void get_member_type_success() {
+		// given
+		Member member = MemberFixture.getTrainerMemberWithId1();
+		Long memberId = member.getId();
+
+		Trainer trainer = TrainerFixture.getTrainer1(member);
+
+		given(memberRepository.findMemberType(memberId)).willReturn(
+			new MemberProjection.MemberTypeDto(member.getMemberType()));
+		given(trainerService.getByMemberId(memberId)).willReturn(trainer);
+		given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
+
+		// when
+		CheckSessionResponse checkSessionResponse = memberService.getMemberType(memberId);
+
+		// then
+		assertThat(checkSessionResponse.memberType()).isEqualTo(member.getMemberType());
+	}
 }

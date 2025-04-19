@@ -23,8 +23,7 @@ public record SignUpRequest(
 	@NotNull(message = "회원 타입은 필수입니다.")
 	MemberType memberType,
 
-	@Schema(description = "소셜 로그인 타입", example = "KAKAO", allowableValues = {"KAKAO", "APPLE"},
-		nullable = false)
+	@Schema(description = "소셜 로그인 타입", example = "KAKAO", allowableValues = {"KAKAO", "APPLE"}, nullable = false)
 	@NotNull(message = "소셜 로그인 타입은 필수입니다.")
 	SocialType socialType,
 

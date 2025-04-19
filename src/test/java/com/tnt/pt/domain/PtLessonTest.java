@@ -1,5 +1,6 @@
 package com.tnt.pt.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDateTime;
@@ -40,5 +41,57 @@ class PtLessonTest {
 			.memo(failMemo)
 			.build()
 		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	@DisplayName("회차 증가 성공")
+	void increase_session_success() {
+		// given
+		String memo = "메모";
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
+
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+
+		PtLesson ptLesson = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(1)
+			.lessonStart(LocalDateTime.of(2021, 1, 1, 10, 0))
+			.lessonEnd(LocalDateTime.of(2021, 1, 1, 11, 0))
+			.memo(memo)
+			.build();
+
+		ptLesson.increaseSession();
+
+		assertThat(ptLesson.getSession()).isEqualTo(2);
+	}
+
+	@Test
+	@DisplayName("회차 감소 성공")
+	void decrease_session_success() {
+		// given
+		String memo = "메모";
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		Trainer trainer = TrainerFixture.getTrainerWithId1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
+
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+
+		PtLesson ptLesson = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(2)
+			.lessonStart(LocalDateTime.of(2021, 1, 1, 10, 0))
+			.lessonEnd(LocalDateTime.of(2021, 1, 1, 11, 0))
+			.memo(memo)
+			.build();
+
+		ptLesson.decreaseSession();
+
+		assertThat(ptLesson.getSession()).isEqualTo(1);
 	}
 }
