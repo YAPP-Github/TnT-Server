@@ -41,7 +41,7 @@ sonar {
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.exclusions", "**/*Application*.java, **/*Config*.java, **/*GlobalExceptionHandler.java, **/Q*.java, **/DynamicQuery.java, " +
-                "**/*Exception.java, **/*Adapter.java, **/CustomOAuth2UserService.java, **/*SearchRepository.java, **/*Filter.java"
+                "**/*Exception.java, **/*Adapter.java, **/CustomOAuth2UserService.java, **/*Filter.java"
         property "sonar.java.coveragePlugin", "jacoco"
     }
 }
@@ -123,10 +123,10 @@ jacocoTestCoverageVerification {
                     '*.Q*',
                     '*.DynamicQuery',
                     '*.*Adapter',
-                    '*.*SearchRepository',
                     '*.*.CustomUserDetails',
                     'scouter.*',
-                    'reactor.*'
+                    'reactor.*',
+                    '*.*RepositoryImpl'
             ]
         }
     }
@@ -176,6 +176,9 @@ dependencies {
 
     // MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // H2 for Test
+    runtimeOnly 'com.h2database:h2'
 
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'

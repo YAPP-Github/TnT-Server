@@ -18,9 +18,9 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnt.common.error.model.ErrorResponse;
+import com.tnt.gateway.application.CustomOAuth2UserService;
+import com.tnt.gateway.application.SessionService;
 import com.tnt.gateway.filter.SessionAuthenticationFilter;
-import com.tnt.gateway.service.CustomOAuth2UserService;
-import com.tnt.gateway.service.SessionService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

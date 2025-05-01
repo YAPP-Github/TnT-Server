@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnt.common.error.exception.UnauthorizedException;
 import com.tnt.common.error.model.ErrorResponse;
-import com.tnt.gateway.service.SessionService;
+import com.tnt.gateway.application.SessionService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

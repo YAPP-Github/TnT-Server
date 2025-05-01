@@ -2,7 +2,7 @@ package com.tnt.fixture;
 
 import java.util.List;
 
-import com.tnt.domain.trainee.PtGoal;
+import com.tnt.trainee.domain.PtGoal;
 
 public class PtGoalsFixture {
 

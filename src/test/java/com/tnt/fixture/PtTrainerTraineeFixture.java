@@ -2,9 +2,9 @@ package com.tnt.fixture;
 
 import java.time.LocalDate;
 
-import com.tnt.domain.pt.PtTrainerTrainee;
-import com.tnt.domain.trainee.Trainee;
-import com.tnt.domain.trainer.Trainer;
+import com.tnt.pt.domain.PtTrainerTrainee;
+import com.tnt.trainee.domain.Trainee;
+import com.tnt.trainer.domain.Trainer;
 
 public class PtTrainerTraineeFixture {
 
