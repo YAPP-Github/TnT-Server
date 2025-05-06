@@ -33,7 +33,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.tnt.common.error.exception.ImageException;
-import com.tnt.image.S3Adapter;
+import com.tnt.image.infrastructure.S3Adapter;
 
 @ExtendWith(MockitoExtension.class)
 class S3ServiceTest {

@@ -34,7 +34,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.tnt.common.error.exception.ImageException;
-import com.tnt.image.S3Adapter;
+import com.tnt.image.infrastructure.S3Adapter;
 import com.tnt.member.application.MemberService;
 import com.tnt.member.domain.MemberType;
 import com.tnt.member.dto.MemberInfo;
