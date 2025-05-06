@@ -83,6 +83,8 @@ public class OAuthService {
 
 		sessionService.createSession(sessionId, String.valueOf(member.getId()));
 
+		memberRepository.save(member);
+
 		return new OAuthLoginResponse(sessionId, member.getSocialId(), member.getEmail(), member.getSocialType(), true,
 			member.getMemberType());
 	}

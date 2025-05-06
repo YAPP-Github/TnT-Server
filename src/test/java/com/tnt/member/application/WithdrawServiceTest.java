@@ -1,6 +1,8 @@
 package com.tnt.member.application;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -20,17 +22,22 @@ import com.tnt.fixture.PtTrainerTraineeFixture;
 import com.tnt.fixture.TraineeFixture;
 import com.tnt.fixture.TrainerFixture;
 import com.tnt.gateway.application.SessionService;
+import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.pt.application.PtService;
+import com.tnt.pt.application.repository.PtLessonRepository;
+import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.DietService;
 import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
+import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainer.application.TrainerService;
+import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,6 +63,21 @@ class WithdrawServiceTest {
 
 	@Mock
 	private PtService ptService;
+
+	@Mock
+	private TraineeRepository traineeRepository;
+
+	@Mock
+	private TrainerRepository trainerRepository;
+
+	@Mock
+	private MemberRepository memberRepository;
+
+	@Mock
+	private PtTrainerTraineeRepository ptTrainerTraineeRepository;
+
+	@Mock
+	private PtLessonRepository ptLessonRepository;
 
 	@InjectMocks
 	private WithdrawService withdrawService;
@@ -173,6 +195,10 @@ class WithdrawServiceTest {
 		given(memberService.getByMemberId(trainerMember.getId())).willReturn(trainerMember);
 		given(trainerService.getByMemberId(trainerMember.getId())).willReturn(trainer);
 		given(ptService.isPtTrainerTraineeExistWithTrainerId(trainer.getId())).willReturn(true);
+		given(trainerRepository.save(trainer)).willReturn(trainer);
+
+		willDoNothing().given(ptTrainerTraineeRepository).saveAll(anyList());
+		willDoNothing().given(ptLessonRepository).saveAll(anyList());
 
 		// when
 		withdrawService.withdraw(trainerMember.getId());
@@ -200,6 +226,8 @@ class WithdrawServiceTest {
 		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willThrow(NotFoundException.class);
+		given(traineeRepository.save(trainee)).willReturn(trainee);
+		given(memberRepository.save(traineeMember)).willReturn(traineeMember);
 
 		// when
 		withdrawService.withdraw(traineeMember.getId());

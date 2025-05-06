@@ -8,7 +8,6 @@ import static com.tnt.common.error.model.ErrorMessage.MEMBER_INVALID_SERVICE_AGR
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_INVALID_SOCIAL_ID;
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_NULL_ADVERTISEMENT_AGREEMENT;
 import static io.micrometer.common.util.StringUtils.isBlank;
-import static java.lang.Boolean.FALSE;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
@@ -95,7 +94,7 @@ public class Member {
 	}
 
 	private String validateSocialId(String socialId) {
-		if (isBlank(socialId) || socialId.length() > SOCIAL_ID_LENGTH) {
+		if (socialId != null && socialId.length() > SOCIAL_ID_LENGTH) {
 			throw new IllegalArgumentException(MEMBER_INVALID_SOCIAL_ID.getMessage());
 		}
 
@@ -127,10 +126,10 @@ public class Member {
 	}
 
 	private void validateRequiredAgreements(Boolean serviceAgreement, Boolean collectionAgreement) {
-		if (serviceAgreement == null || FALSE.equals(serviceAgreement)) {
+		if (serviceAgreement == null || !serviceAgreement) {
 			throw new IllegalArgumentException(MEMBER_INVALID_SERVICE_AGREEMENT.getMessage());
 		}
-		if (collectionAgreement == null || FALSE.equals(collectionAgreement)) {
+		if (collectionAgreement == null || !collectionAgreement) {
 			throw new IllegalArgumentException(MEMBER_INVALID_COLLECTION_AGREEMENT.getMessage());
 		}
 	}
