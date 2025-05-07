@@ -157,30 +157,24 @@ class TrainerControllerTest {
 	@WithMockCustomUser(memberId = 3L)
 	void reissue_invitation_code_success() throws Exception {
 		// given
-		Long memberId = 3L;
-		String socialId = "1234567890";
-		String email = "abc@gmail.com";
-		String name = "김영명";
-		String profileImageUrl = "https://profile.com/1234567890";
+		Member member = MemberFixture.getTrainerMember1();
 
-		Member member = Member.builder()
-			.id(memberId)
-			.socialId(socialId)
-			.email(email)
-			.name(name)
-			.profileImageUrl(profileImageUrl)
-			.serviceAgreement(true)
-			.collectionAgreement(true)
-			.advertisementAgreement(true)
-			.socialType(KAKAO)
-			.memberType(TRAINER)
-			.build();
+		member = memberRepository.save(member);
 
 		Trainer trainer = Trainer.builder()
 			.member(member)
 			.build();
 
 		trainerRepository.save(trainer);
+
+		CustomUserDetails trainerUserDetails = new CustomUserDetails(member.getId(),
+			member.getId().toString(),
+			authoritiesMapper.mapAuthorities(List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(trainerUserDetails, null,
+			authoritiesMapper.mapAuthorities(trainerUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		// when & then
 		mockMvc.perform(put("/trainers/invitation-code/reissue")).andExpect(status().isCreated());

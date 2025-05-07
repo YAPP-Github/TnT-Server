@@ -24,6 +24,8 @@ public class TrainerService {
 		Trainer trainer = getByMemberId(memberId);
 		trainer.setNewInvitationCode();
 
+		trainerRepository.save(trainer);
+
 		return new InvitationCodeResponse(trainer.getInvitationCode());
 	}
 

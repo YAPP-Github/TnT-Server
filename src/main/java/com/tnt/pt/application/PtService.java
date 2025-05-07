@@ -212,6 +212,9 @@ public class PtService {
 				lesson.increaseSession();
 			}
 		});
+
+		ptLessonRepository.saveAll(lessonsNotCompleted);
+		ptTrainerTraineeRepository.save(ptTrainerTrainee);
 	}
 
 	@Transactional
@@ -232,6 +235,9 @@ public class PtService {
 
 		ptTrainerTrainee.cancelLesson();
 		ptLesson.cancel(ptTrainerTrainee.getCurrentPtSession());
+
+		ptLessonRepository.saveAll(lessonsNotCompleted);
+		ptTrainerTraineeRepository.save(ptTrainerTrainee);
 	}
 
 	@Transactional(readOnly = true)

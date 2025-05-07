@@ -100,7 +100,7 @@ public class Member {
 	}
 
 	private String validateSocialId(String socialId) {
-		if (isBlank(socialId) || socialId.length() > SOCIAL_ID_LENGTH) {
+		if (socialId != null && socialId.length() > SOCIAL_ID_LENGTH) {
 			throw new IllegalArgumentException(MEMBER_INVALID_SOCIAL_ID.getMessage());
 		}
 
