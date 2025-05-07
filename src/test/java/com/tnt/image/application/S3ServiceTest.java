@@ -123,7 +123,8 @@ class S3ServiceTest {
 		MockMultipartFile image = new MockMultipartFile("image", "test.jpg", IMAGE_JPEG_VALUE, createDummyImageData(3));
 
 		// when
-		BufferedImage rotatedImage = ReflectionTestUtils.invokeMethod(s3Service, "rotateImageIfRequired", originalImage,
+		BufferedImage rotatedImage = ReflectionTestUtils.invokeMethod(s3Service, "rotateImageIfRequired",
+			originalImage,
 			image);
 
 		// then
@@ -139,7 +140,8 @@ class S3ServiceTest {
 		MockMultipartFile image = new MockMultipartFile("image", "test.jpg", IMAGE_JPEG_VALUE, createDummyImageData(6));
 
 		// when
-		BufferedImage rotatedImage = ReflectionTestUtils.invokeMethod(s3Service, "rotateImageIfRequired", originalImage,
+		BufferedImage rotatedImage = ReflectionTestUtils.invokeMethod(s3Service, "rotateImageIfRequired",
+			originalImage,
 			image);
 
 		// then

@@ -1,24 +1,32 @@
 package com.tnt.member.application;
 
+import static com.tnt.common.constant.ImageConstant.TRAINEE_DEFAULT_IMAGE;
+import static com.tnt.common.constant.ImageConstant.TRAINER_DEFAULT_IMAGE;
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_CONFLICT;
 import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.dto.MemberProjection.MemberTypeDto;
+import static java.util.Objects.isNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tnt.common.error.exception.ConflictException;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
+import com.tnt.image.application.S3Service;
 import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
+import com.tnt.member.domain.MemberType;
 import com.tnt.member.domain.SocialType;
 import com.tnt.member.dto.MemberInfo;
+import com.tnt.member.dto.UpdateProfile;
 import com.tnt.member.dto.request.UpdateMemberInfoRequest;
 import com.tnt.pt.application.PtService;
 import com.tnt.pt.domain.PtTrainerTrainee;
@@ -41,6 +49,7 @@ public class MemberService {
 	private final TraineeService traineeService;
 	private final PtGoalService ptGoalService;
 	private final PtService ptService;
+	private final S3Service s3Service;
 
 	private final MemberRepository memberRepository;
 	private final TraineeRepository traineeRepository;
@@ -104,19 +113,49 @@ public class MemberService {
 	}
 
 	@Transactional
-	public void updateMemberProfileImage(Long memberId, String profileImageUrl) {
+	public UpdateProfile checkMemberProfileImage(Long memberId, boolean removeImage,
+		@Nullable MultipartFile profileImage) {
 		Member member = getByMemberId(memberId);
+		String currentProfileImageUrl = member.getProfileImageUrl();
+		String changeProfileImageUrl = "";
+		boolean removeCurrentImage = true;
+		boolean isCurrentImageDefault = isDefaultImage(currentProfileImageUrl);
+		boolean changeImageIsDefault = false;
 
-		member.updateProfileImageUrl(profileImageUrl);
+		// 새 이미지 없음
+		if (isNull(profileImage)) {
+			// 이미지 삭제 요청 - 현재 이미지가 기본 이미지가 아닌 경우
+			if (removeImage && !isCurrentImageDefault) {
+				changeProfileImageUrl = getDefaultImageUrl(member.getMemberType());
+				changeImageIsDefault = true;
+			} else if (!removeImage && isCurrentImageDefault) { // 이미지 유지 요청 - 현재 이미지가 기본 이미지인 경우
+				changeProfileImageUrl = currentProfileImageUrl;
+				removeCurrentImage = false;
+			} else { // 이미지 유지 요청 - 현재 이미지가 기본 이미지가 아닌 경우
+				removeCurrentImage = false;
+			}
+		} else { // 새 이미지 있음
+			// 이미지 수정 요청 - 현재 이미지가 기본 이미지인 경우
+			if (isCurrentImageDefault) {
+				removeCurrentImage = false;
+			}
+		}
 
-		memberRepository.save(member);
+		return new UpdateProfile(currentProfileImageUrl, changeProfileImageUrl, removeCurrentImage,
+			isCurrentImageDefault, changeImageIsDefault);
+	}
+
+	private boolean isDefaultImage(String imageUrl) {
+		return imageUrl.equals(TRAINER_DEFAULT_IMAGE) || imageUrl.equals(TRAINEE_DEFAULT_IMAGE);
+	}
+
+	private String getDefaultImageUrl(MemberType memberType) {
+		return memberType == TRAINER ? TRAINER_DEFAULT_IMAGE : TRAINEE_DEFAULT_IMAGE;
 	}
 
 	@Transactional
-	public void updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
+	public void updateMemberInfo(Long memberId, UpdateMemberInfoRequest request, String profileImageUrl) {
 		Member member = getByMemberId(memberId);
-
-		member.updateName(request.name());
 
 		if (member.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
@@ -127,6 +166,9 @@ public class MemberService {
 
 			traineeRepository.save(trainee);
 		}
+
+		member.updateName(request.name());
+		member.updateProfileImageUrl(profileImageUrl);
 
 		memberRepository.save(member);
 	}

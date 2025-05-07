@@ -4,9 +4,10 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,6 +20,7 @@ import com.tnt.member.application.MemberService;
 import com.tnt.member.application.SignUpService;
 import com.tnt.member.application.WithdrawService;
 import com.tnt.member.dto.MemberInfo;
+import com.tnt.member.dto.UpdateProfile;
 import com.tnt.member.dto.WithdrawDto;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.request.UpdateMemberInfoRequest;
@@ -44,7 +46,7 @@ public class MemberController {
 	@PostMapping(value = "/sign-up", consumes = MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(CREATED)
 	public SignUpResponse signUp(@RequestPart("request") @Valid SignUpRequest request,
-		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+		@RequestPart(value = "profileImage", required = false) @Nullable MultipartFile profileImage) {
 		Long memberId = signUpService.signUp(request);
 		String profileImageUrl = s3Service.uploadProfileImage(profileImage, request.memberType());
 
@@ -58,21 +60,18 @@ public class MemberController {
 		return memberService.getMemberInfo(memberId);
 	}
 
-	@Operation(summary = "프로필 사진 수정 API")
-	@PostMapping(value = "/update-profile", consumes = MULTIPART_FORM_DATA_VALUE)
-	@ResponseStatus(OK)
-	public void updateMemberProfileImage(@AuthMember Long memberId,
-		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
-		String currentProfileImageUrl = s3Service.updateProfileImage(memberId, profileImage);
-
-		memberService.updateMemberProfileImage(memberId, currentProfileImageUrl);
-	}
-
 	@Operation(summary = "회원 정보 수정 API")
 	@PostMapping
 	@ResponseStatus(OK)
-	public void updateMemberInfo(@AuthMember Long memberId, @RequestBody @Valid UpdateMemberInfoRequest request) {
-		memberService.updateMemberInfo(memberId, request);
+	public void updateMemberInfo(@AuthMember Long memberId,
+		@RequestPart("request") @Valid UpdateMemberInfoRequest request,
+		@RequestPart(value = "profileImage", required = false) @Nullable MultipartFile profileImage) {
+		UpdateProfile profileUpdate = memberService.checkMemberProfileImage(memberId, request.removeImage(),
+			profileImage);
+
+		String profileImageUrl = s3Service.handleProfileImage(profileUpdate, profileImage, request.memberType());
+
+		memberService.updateMemberInfo(memberId, request, profileImageUrl);
 	}
 
 	@Operation(summary = "회원 탈퇴 API")

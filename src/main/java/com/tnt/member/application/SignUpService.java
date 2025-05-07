@@ -58,6 +58,8 @@ public class SignUpService {
 
 		sessionService.createSession(sessionId, String.valueOf(member.getId()));
 
+		memberRepository.save(member);
+
 		return new SignUpResponse(memberType, sessionId, member.getName(), member.getProfileImageUrl());
 	}
 

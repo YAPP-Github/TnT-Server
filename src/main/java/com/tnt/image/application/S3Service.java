@@ -8,8 +8,6 @@ import static com.tnt.common.constant.ImageConstant.TRAINER_S3_PROFILE_IMAGE_PAT
 import static com.tnt.common.error.model.ErrorMessage.IMAGE_NOT_FOUND;
 import static com.tnt.common.error.model.ErrorMessage.IMAGE_NOT_SUPPORT;
 import static com.tnt.common.error.model.ErrorMessage.UNSUPPORTED_MEMBER_TYPE;
-import static com.tnt.member.domain.MemberType.TRAINEE;
-import static com.tnt.member.domain.MemberType.TRAINER;
 import static java.util.Objects.isNull;
 
 import java.awt.image.BufferedImage;
@@ -35,9 +33,8 @@ import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.tnt.common.error.exception.ImageException;
 import com.tnt.image.infrastructure.S3Adapter;
-import com.tnt.member.application.MemberService;
 import com.tnt.member.domain.MemberType;
-import com.tnt.member.dto.MemberInfo;
+import com.tnt.member.dto.UpdateProfile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +50,6 @@ public class S3Service {
 	private static final double IMAGE_QUALITY = 0.85;
 
 	private final S3Adapter s3Adapter;
-	private final MemberService memberService;
 
 	public String uploadProfileImage(@Nullable MultipartFile profileImage, MemberType memberType) {
 		String defaultImage;
@@ -93,30 +89,6 @@ public class S3Service {
 		} catch (Exception e) {
 			return defaultImage;
 		}
-	}
-
-	public String updateProfileImage(Long memberId, @Nullable MultipartFile profileImage) {
-		MemberInfo memberInfo = memberService.getMemberInfo(memberId);
-		String currentProfileImageUrl = memberInfo.profileImageUrl();
-
-		if (!currentProfileImageUrl.equals(TRAINER_DEFAULT_IMAGE) && !currentProfileImageUrl.equals(
-			TRAINEE_DEFAULT_IMAGE)) {
-			deleteProfileImage(currentProfileImageUrl);
-		}
-
-		if (isNull(profileImage)) {
-			if (memberInfo.memberType() == TRAINER) {
-				currentProfileImageUrl = TRAINER_DEFAULT_IMAGE;
-			}
-
-			if (memberInfo.memberType() == TRAINEE) {
-				currentProfileImageUrl = TRAINEE_DEFAULT_IMAGE;
-			}
-		} else {
-			currentProfileImageUrl = uploadProfileImage(profileImage, memberInfo.memberType());
-		}
-
-		return currentProfileImageUrl;
 	}
 
 	public void deleteProfileImage(String imageUrl) {
@@ -207,5 +179,27 @@ public class S3Service {
 		}
 
 		return image;
+	}
+
+	public String handleProfileImage(UpdateProfile profileUpdate, @Nullable MultipartFile profileImage,
+		MemberType memberType) {
+		// 새 이미지 없음
+		if (isNull(profileImage)) {
+			// 이미지 삭제 요청 - 현재 이미지가 기본 이미지가 아닌 경우
+			if (profileUpdate.removeCurrentImage() && !profileUpdate.isCurrentImageDefault()) {
+				deleteProfileImage(profileUpdate.currentImageUrl());
+
+				return profileUpdate.changeImageUrl();
+			} else { // 이미지 유지 요청
+				return profileUpdate.currentImageUrl();
+			}
+		} else { // 새 이미지 있음
+			// 이미지 수정 요청 - 현재 이미지가 기본 이미지가 아닌 경우
+			if (profileUpdate.removeCurrentImage() && !profileUpdate.isCurrentImageDefault()) {
+				deleteProfileImage(profileUpdate.currentImageUrl());
+			}
+
+			return uploadProfileImage(profileImage, memberType);
+		}
 	}
 }

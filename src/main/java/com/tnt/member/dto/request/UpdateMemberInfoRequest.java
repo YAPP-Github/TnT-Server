@@ -13,6 +13,9 @@ import jakarta.validation.constraints.Past;
 
 @Schema(description = "회원 정보 수정 API 요청")
 public record UpdateMemberInfoRequest(
+	@Schema(description = "기존 프로필 사진 삭제 여부", example = "true", nullable = false)
+	Boolean removeImage,
+
 	@Schema(description = "회원 타입", example = "TRAINER", nullable = false)
 	@NotNull(message = "회원 타입은 필수입니다.")
 	MemberType memberType,
