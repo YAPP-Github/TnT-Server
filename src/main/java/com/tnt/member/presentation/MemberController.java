@@ -61,7 +61,7 @@ public class MemberController {
 	}
 
 	@Operation(summary = "회원 정보 수정 API")
-	@PostMapping
+	@PutMapping(value = "/change", consumes = MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(OK)
 	public void updateMemberInfo(@AuthMember Long memberId,
 		@RequestPart("request") @Valid UpdateMemberInfoRequest request,
