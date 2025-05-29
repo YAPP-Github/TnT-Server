@@ -7,12 +7,11 @@ import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.dto.MemberProjection.MemberTypeDto;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toSet;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -118,20 +117,20 @@ public class MemberService {
 	public ProfileUpdate checkMemberProfileImage(Long memberId, boolean removeImage,
 		@Nullable MultipartFile profileImage) {
 		Member member = getByMemberId(memberId);
-		String currentProfileImageUrl = member.getProfileImageUrl();
-		String changeProfileImageUrl = "";
+		String currentImageUrl = member.getProfileImageUrl();
+		String changeImageUrl = "";
 		boolean removeCurrentImage = true;
-		boolean isCurrentImageDefault = currentProfileImageUrl.equals(TRAINER_DEFAULT_IMAGE) ||
-			currentProfileImageUrl.equals(TRAINEE_DEFAULT_IMAGE);
+		boolean isCurrentImageDefault =
+			currentImageUrl.equals(TRAINER_DEFAULT_IMAGE) || currentImageUrl.equals(TRAINEE_DEFAULT_IMAGE);
 
 		// 새 이미지 없음
 		if (isNull(profileImage)) {
 			// 이미지 삭제 요청 - 현재 이미지가 기본 이미지가 아닌 경우
 			if (removeImage && !isCurrentImageDefault) {
-				changeProfileImageUrl =
+				changeImageUrl =
 					member.getMemberType() == TRAINER ? TRAINER_DEFAULT_IMAGE : TRAINEE_DEFAULT_IMAGE;
 			} else if (!removeImage && isCurrentImageDefault) { // 이미지 유지 요청 - 현재 이미지가 기본 이미지인 경우
-				changeProfileImageUrl = currentProfileImageUrl;
+				changeImageUrl = currentImageUrl;
 				removeCurrentImage = false;
 			} else { // 이미지 유지 요청 - 현재 이미지가 기본 이미지가 아닌 경우
 				removeCurrentImage = false;
@@ -143,7 +142,7 @@ public class MemberService {
 			}
 		}
 
-		return new ProfileUpdate(currentProfileImageUrl, changeProfileImageUrl, removeCurrentImage,
+		return new ProfileUpdate(currentImageUrl, changeImageUrl, removeCurrentImage,
 			isCurrentImageDefault);
 	}
 
@@ -182,25 +181,18 @@ public class MemberService {
 		List<PtGoal> currentPtGoals = ptGoalService.getAllByTraineeId(trainee.getId());
 
 		// 기존 목표 중 더 이상 필요없는 목표 삭제
-		if (!currentPtGoals.isEmpty()) {
-			List<PtGoal> goalsToDelete = new ArrayList<>();
+		List<PtGoal> goalsToDelete = currentPtGoals.stream()
+			.filter(goal -> !newGoalContents.contains(goal.getContent()))
+			.toList();
 
-			for (PtGoal currentGoal : currentPtGoals) {
-				if (!newGoalContents.contains(currentGoal.getContent())) {
-					goalsToDelete.add(currentGoal);
-				}
-			}
-
-			if (!goalsToDelete.isEmpty()) {
-				ptGoalRepository.deleteAll(goalsToDelete);
-				currentPtGoals.removeAll(goalsToDelete);
-			}
+		if (!goalsToDelete.isEmpty()) {
+			ptGoalRepository.deleteAll(goalsToDelete);
 		}
 
 		// 새로운 목표 추가 (기존에 없는 것만)
 		Set<String> existingContents = currentPtGoals.stream()
 			.map(PtGoal::getContent)
-			.collect(Collectors.toSet());
+			.collect(toSet());
 
 		List<PtGoal> newPtGoals = newGoalContents.stream()
 			.filter(content -> !existingContents.contains(content))

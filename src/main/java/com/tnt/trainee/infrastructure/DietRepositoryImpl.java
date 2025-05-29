@@ -30,12 +30,12 @@ public class DietRepositoryImpl implements DietRepository {
 	}
 
 	@Override
-	public void saveAll(List<Diet> diets) {
+	public List<Diet> saveAll(List<Diet> diets) {
 		List<DietJpaEntity> dietJpaEntities = diets.stream()
 			.map(DietJpaEntity::from)
 			.toList();
 
-		dietJpaRepository.saveAll(dietJpaEntities);
+		return dietJpaRepository.saveAll(dietJpaEntities).stream().map(DietJpaEntity::toModel).toList();
 	}
 
 	@Override
