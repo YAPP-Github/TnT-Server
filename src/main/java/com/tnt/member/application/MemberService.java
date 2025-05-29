@@ -9,6 +9,7 @@ import static com.tnt.member.dto.MemberProjection.MemberTypeDto;
 import static java.util.Objects.isNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,14 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tnt.common.error.exception.ConflictException;
 import com.tnt.gateway.dto.response.CheckSessionResponse;
-import com.tnt.image.application.S3Service;
 import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
-import com.tnt.member.domain.MemberType;
 import com.tnt.member.domain.SocialType;
-import com.tnt.member.dto.MemberInfo;
-import com.tnt.member.dto.UpdateProfile;
+import com.tnt.member.dto.ProfileUpdate;
 import com.tnt.member.dto.request.UpdateMemberInfoRequest;
+import com.tnt.member.dto.response.MemberInfoResponse;
 import com.tnt.pt.application.PtService;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.PtGoalService;
@@ -49,16 +48,15 @@ public class MemberService {
 	private final TraineeService traineeService;
 	private final PtGoalService ptGoalService;
 	private final PtService ptService;
-	private final S3Service s3Service;
 
 	private final MemberRepository memberRepository;
 	private final TraineeRepository traineeRepository;
 	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional(readOnly = true)
-	public MemberInfo getMemberInfo(Long memberId) {
+	public MemberInfoResponse getMemberInfo(Long memberId) {
 		Member member = getByMemberId(memberId);
-		MemberInfo memberInfo = null;
+		MemberInfoResponse memberInfoResponse = null;
 
 		if (member.getMemberType() == TRAINER) {
 			Trainer trainer = trainerService.getByMemberId(memberId);
@@ -71,9 +69,11 @@ public class MemberService {
 
 			int totalTraineeCount = ptTrainerTrainees.size();
 
-			MemberInfo.TrainerInfo trainerInfo = new MemberInfo.TrainerInfo(activeTraineeCount, totalTraineeCount);
+			MemberInfoResponse.TrainerInfo trainerInfo = new MemberInfoResponse.TrainerInfo(activeTraineeCount,
+				totalTraineeCount);
 
-			memberInfo = new MemberInfo(member.getName(), member.getEmail(), member.getProfileImageUrl(),
+			memberInfoResponse = new MemberInfoResponse(member.getName(), member.getEmail(),
+				member.getProfileImageUrl(),
 				member.getMemberType(), member.getSocialType(), trainerInfo, null);
 		}
 
@@ -85,15 +85,17 @@ public class MemberService {
 				.toList();
 			boolean isConnected = ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId());
 
-			MemberInfo.TraineeInfo traineeInfo = new MemberInfo.TraineeInfo(isConnected, member.getBirthday(),
+			MemberInfoResponse.TraineeInfo traineeInfo = new MemberInfoResponse.TraineeInfo(isConnected,
+				member.getBirthday(),
 				member.getAge(),
 				trainee.getHeight(), trainee.getWeight(), trainee.getCautionNote(), ptGoals);
 
-			memberInfo = new MemberInfo(member.getName(), member.getEmail(), member.getProfileImageUrl(),
+			memberInfoResponse = new MemberInfoResponse(member.getName(), member.getEmail(),
+				member.getProfileImageUrl(),
 				member.getMemberType(), member.getSocialType(), null, traineeInfo);
 		}
 
-		return memberInfo;
+		return memberInfoResponse;
 	}
 
 	@Transactional(readOnly = true)
@@ -113,21 +115,21 @@ public class MemberService {
 	}
 
 	@Transactional
-	public UpdateProfile checkMemberProfileImage(Long memberId, boolean removeImage,
+	public ProfileUpdate checkMemberProfileImage(Long memberId, boolean removeImage,
 		@Nullable MultipartFile profileImage) {
 		Member member = getByMemberId(memberId);
 		String currentProfileImageUrl = member.getProfileImageUrl();
 		String changeProfileImageUrl = "";
 		boolean removeCurrentImage = true;
-		boolean isCurrentImageDefault = isDefaultImage(currentProfileImageUrl);
-		boolean changeImageIsDefault = false;
+		boolean isCurrentImageDefault = currentProfileImageUrl.equals(TRAINER_DEFAULT_IMAGE) ||
+			currentProfileImageUrl.equals(TRAINEE_DEFAULT_IMAGE);
 
 		// 새 이미지 없음
 		if (isNull(profileImage)) {
 			// 이미지 삭제 요청 - 현재 이미지가 기본 이미지가 아닌 경우
 			if (removeImage && !isCurrentImageDefault) {
-				changeProfileImageUrl = getDefaultImageUrl(member.getMemberType());
-				changeImageIsDefault = true;
+				changeProfileImageUrl =
+					member.getMemberType() == TRAINER ? TRAINER_DEFAULT_IMAGE : TRAINEE_DEFAULT_IMAGE;
 			} else if (!removeImage && isCurrentImageDefault) { // 이미지 유지 요청 - 현재 이미지가 기본 이미지인 경우
 				changeProfileImageUrl = currentProfileImageUrl;
 				removeCurrentImage = false;
@@ -141,16 +143,8 @@ public class MemberService {
 			}
 		}
 
-		return new UpdateProfile(currentProfileImageUrl, changeProfileImageUrl, removeCurrentImage,
-			isCurrentImageDefault, changeImageIsDefault);
-	}
-
-	private boolean isDefaultImage(String imageUrl) {
-		return imageUrl.equals(TRAINER_DEFAULT_IMAGE) || imageUrl.equals(TRAINEE_DEFAULT_IMAGE);
-	}
-
-	private String getDefaultImageUrl(MemberType memberType) {
-		return memberType == TRAINER ? TRAINER_DEFAULT_IMAGE : TRAINEE_DEFAULT_IMAGE;
+		return new ProfileUpdate(currentProfileImageUrl, changeProfileImageUrl, removeCurrentImage,
+			isCurrentImageDefault);
 	}
 
 	@Transactional
@@ -162,7 +156,7 @@ public class MemberService {
 
 			member.updateBirthday(request.birthday());
 			trainee.updateTraineeInfo(request.height(), request.weight(), request.cautionNote());
-			updatePtGoals(trainee, request.goalContents());
+			updatePtGoals(trainee, new HashSet<>(request.goalContents()));
 
 			traineeRepository.save(trainee);
 		}
@@ -183,9 +177,9 @@ public class MemberService {
 		return memberRepository.findById(memberId);
 	}
 
-	private void updatePtGoals(Trainee trainee, List<String> newGoalContents) {
+	private void updatePtGoals(Trainee trainee, HashSet<String> newGoalContents) {
 		// 기존 PT 목표들 조회
-		List<PtGoal> currentPtGoals = new ArrayList<>(ptGoalService.getAllByTraineeId(trainee.getId()));
+		List<PtGoal> currentPtGoals = ptGoalService.getAllByTraineeId(trainee.getId());
 
 		// 기존 목표 중 더 이상 필요없는 목표 삭제
 		if (!currentPtGoals.isEmpty()) {
@@ -210,10 +204,7 @@ public class MemberService {
 
 		List<PtGoal> newPtGoals = newGoalContents.stream()
 			.filter(content -> !existingContents.contains(content))
-			.map(content -> PtGoal.builder()
-				.traineeId(trainee.getId())
-				.content(content)
-				.build())
+			.map(content -> PtGoal.builder().traineeId(trainee.getId()).content(content).build())
 			.toList();
 
 		if (!newPtGoals.isEmpty()) {

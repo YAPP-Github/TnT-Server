@@ -351,7 +351,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
 			objectMapper.writeValueAsString(request).getBytes());
 
-		mockMvc.perform(multipart(PUT, "/members/change")
+		mockMvc.perform(multipart(PUT, "/members")
 				.file(jsonRequest)
 				.file(profileImage)
 				.contentType(MULTIPART_FORM_DATA_VALUE))
@@ -391,7 +391,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
 			objectMapper.writeValueAsString(request).getBytes());
 
-		mockMvc.perform(multipart(PUT, "/members/change")
+		mockMvc.perform(multipart(PUT, "/members")
 				.file(jsonRequest)
 				.contentType(MULTIPART_FORM_DATA_VALUE))
 			.andExpect(status().isOk())
@@ -430,7 +430,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
 			objectMapper.writeValueAsString(request).getBytes());
 
-		mockMvc.perform(multipart(PUT, "/members/change")
+		mockMvc.perform(multipart(PUT, "/members")
 				.file(jsonRequest)
 				.contentType(MULTIPART_FORM_DATA_VALUE))
 			.andExpect(status().isOk())
@@ -469,7 +469,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
 			objectMapper.writeValueAsString(request).getBytes());
 
-		mockMvc.perform(multipart(PUT, "/members/change")
+		mockMvc.perform(multipart(PUT, "/members")
 				.file(jsonRequest)
 				.file(profileImage)
 				.contentType(MULTIPART_FORM_DATA_VALUE))
@@ -512,7 +512,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
 			objectMapper.writeValueAsString(request).getBytes());
 
-		mockMvc.perform(multipart(PUT, "/members/change")
+		mockMvc.perform(multipart(PUT, "/members")
 				.file(jsonRequest)
 				.file(profileImage)
 				.contentType(MULTIPART_FORM_DATA_VALUE))

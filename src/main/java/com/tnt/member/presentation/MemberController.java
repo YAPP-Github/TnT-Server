@@ -19,11 +19,11 @@ import com.tnt.image.application.S3Service;
 import com.tnt.member.application.MemberService;
 import com.tnt.member.application.SignUpService;
 import com.tnt.member.application.WithdrawService;
-import com.tnt.member.dto.MemberInfo;
-import com.tnt.member.dto.UpdateProfile;
+import com.tnt.member.dto.ProfileUpdate;
 import com.tnt.member.dto.WithdrawDto;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.request.UpdateMemberInfoRequest;
+import com.tnt.member.dto.response.MemberInfoResponse;
 import com.tnt.member.dto.response.SignUpResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,17 +56,17 @@ public class MemberController {
 	@Operation(summary = "회원 조회 API")
 	@GetMapping
 	@ResponseStatus(OK)
-	public MemberInfo getMemberInfo(@AuthMember Long memberId) {
+	public MemberInfoResponse getMemberInfo(@AuthMember Long memberId) {
 		return memberService.getMemberInfo(memberId);
 	}
 
 	@Operation(summary = "회원 정보 수정 API")
-	@PutMapping(value = "/change", consumes = MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(consumes = MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(OK)
 	public void updateMemberInfo(@AuthMember Long memberId,
 		@RequestPart("request") @Valid UpdateMemberInfoRequest request,
 		@RequestPart(value = "profileImage", required = false) @Nullable MultipartFile profileImage) {
-		UpdateProfile profileUpdate = memberService.checkMemberProfileImage(memberId, request.removeImage(),
+		ProfileUpdate profileUpdate = memberService.checkMemberProfileImage(memberId, request.removeImage(),
 			profileImage);
 
 		String profileImageUrl = s3Service.handleProfileImage(profileUpdate, profileImage, request.memberType());

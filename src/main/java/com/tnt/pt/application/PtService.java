@@ -213,6 +213,7 @@ public class PtService {
 			}
 		});
 
+		ptLessonRepository.save(ptLesson);
 		ptLessonRepository.saveAll(lessonsNotCompleted);
 		ptTrainerTraineeRepository.save(ptTrainerTrainee);
 	}
@@ -236,6 +237,7 @@ public class PtService {
 		ptTrainerTrainee.cancelLesson();
 		ptLesson.cancel(ptTrainerTrainee.getCurrentPtSession());
 
+		ptLessonRepository.save(ptLesson);
 		ptLessonRepository.saveAll(lessonsNotCompleted);
 		ptTrainerTraineeRepository.save(ptTrainerTrainee);
 	}

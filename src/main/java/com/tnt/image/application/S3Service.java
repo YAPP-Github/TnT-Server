@@ -34,7 +34,7 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import com.tnt.common.error.exception.ImageException;
 import com.tnt.image.infrastructure.S3Adapter;
 import com.tnt.member.domain.MemberType;
-import com.tnt.member.dto.UpdateProfile;
+import com.tnt.member.dto.ProfileUpdate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -181,7 +181,7 @@ public class S3Service {
 		return image;
 	}
 
-	public String handleProfileImage(UpdateProfile profileUpdate, @Nullable MultipartFile profileImage,
+	public String handleProfileImage(ProfileUpdate profileUpdate, @Nullable MultipartFile profileImage,
 		MemberType memberType) {
 		// 새 이미지 없음
 		if (isNull(profileImage)) {
