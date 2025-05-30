@@ -8,8 +8,8 @@ import com.tnt.member.domain.SocialType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "회원 조회 API 응답")
-public record GetMemberInfoResponse(
+@Schema(description = "회원 정보")
+public record MemberInfoResponse(
 	@Schema(description = "회원 이름", example = "홍길동", nullable = false)
 	String name,
 
@@ -67,3 +67,4 @@ public record GetMemberInfoResponse(
 
 	}
 }
+

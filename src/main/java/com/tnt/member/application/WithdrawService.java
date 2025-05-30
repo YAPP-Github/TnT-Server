@@ -21,6 +21,8 @@ import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.DietService;
 import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
+import com.tnt.trainee.application.repository.DietRepository;
+import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.PtGoal;
@@ -43,11 +45,13 @@ public class WithdrawService {
 	private final DietService dietService;
 	private final PtService ptService;
 
+	private final PtGoalRepository ptGoalRepository;
 	private final MemberRepository memberRepository;
 	private final TrainerRepository trainerRepository;
 	private final TraineeRepository traineeRepository;
 	private final PtLessonRepository ptLessonRepository;
 	private final PtTrainerTraineeRepository ptTrainerTraineeRepository;
+	private final DietRepository dietRepository;
 
 	@Transactional
 	public WithdrawDto withdraw(Long memberId) {
@@ -104,9 +108,10 @@ public class WithdrawService {
 				}
 			}
 
-			ptGoals.forEach(PtGoal::softDelete);
+			ptGoalRepository.deleteAll(ptGoals);
 
 			diets.forEach(Diet::softDelete);
+			dietRepository.saveAll(diets);
 
 			trainee.softDelete();
 			traineeRepository.save(trainee);

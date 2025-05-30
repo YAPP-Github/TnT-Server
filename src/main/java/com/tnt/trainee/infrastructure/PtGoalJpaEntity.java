@@ -1,7 +1,5 @@
 package com.tnt.trainee.infrastructure;
 
-import java.time.LocalDateTime;
-
 import com.tnt.common.jpa.BaseTimeEntity;
 import com.tnt.trainee.domain.PtGoal;
 
@@ -33,15 +31,11 @@ public class PtGoalJpaEntity extends BaseTimeEntity {
 	@Column(name = "content", nullable = false)
 	private String content;
 
-	@Column(name = "deleted_at", nullable = true)
-	private LocalDateTime deletedAt;
-
 	@Builder
-	public PtGoalJpaEntity(Long id, Long traineeId, String content, LocalDateTime deletedAt) {
+	public PtGoalJpaEntity(Long id, Long traineeId, String content) {
 		this.id = id;
 		this.traineeId = traineeId;
 		this.content = content;
-		this.deletedAt = deletedAt;
 	}
 
 	public static PtGoalJpaEntity from(PtGoal ptGoal) {
@@ -49,7 +43,6 @@ public class PtGoalJpaEntity extends BaseTimeEntity {
 			.id(ptGoal.getId())
 			.traineeId(ptGoal.getTraineeId())
 			.content(ptGoal.getContent())
-			.deletedAt(ptGoal.getDeletedAt())
 			.build();
 	}
 
@@ -58,7 +51,6 @@ public class PtGoalJpaEntity extends BaseTimeEntity {
 			.id(id)
 			.traineeId(traineeId)
 			.content(content)
-			.deletedAt(deletedAt)
 			.build();
 	}
 }

@@ -26,7 +26,7 @@ public class DynamicQuery {
 			return null;
 		}
 
-		if (Boolean.TRUE.equals(value)) {
+		if (value) {
 			return field.isNull();
 		}
 

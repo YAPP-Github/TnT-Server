@@ -26,13 +26,13 @@ public class Member {
 
 	private final Long id;
 	private final String email;
-	private final String name;
-	private final LocalDate birthday;
 	private final Boolean serviceAgreement;
 	private final Boolean collectionAgreement;
 	private final Boolean advertisementAgreement;
 	private final SocialType socialType;
 	private final MemberType memberType;
+	private String name;
+	private LocalDate birthday;
 	private String socialId;
 	private String fcmToken;
 	private String profileImageUrl;
@@ -60,15 +60,21 @@ public class Member {
 		this.deletedAt = deletedAt;
 	}
 
-	public void updateFcmTokenIfExpired(String fcmToken) {
-		if (!isBlank(fcmToken) && !this.fcmToken.equals(fcmToken)) {
-			this.fcmToken = fcmToken;
-		}
+	public void updateName(String name) {
+		this.name = validateName(name);
 	}
 
 	public void updateProfileImageUrl(String profileImageUrl) {
-		if (!isBlank(profileImageUrl) && !this.profileImageUrl.equals(profileImageUrl)) {
-			this.profileImageUrl = profileImageUrl;
+		this.profileImageUrl = validateProfileImageUrl(profileImageUrl);
+	}
+
+	public void updateBirthday(LocalDate birthday) {
+		this.birthday = birthday;
+	}
+
+	public void updateFcmTokenIfExpired(String fcmToken) {
+		if (!isBlank(fcmToken) && !this.fcmToken.equals(fcmToken)) {
+			this.fcmToken = fcmToken;
 		}
 	}
 

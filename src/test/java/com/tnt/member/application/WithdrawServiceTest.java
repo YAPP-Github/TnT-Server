@@ -32,6 +32,8 @@ import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.DietService;
 import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
+import com.tnt.trainee.application.repository.DietRepository;
+import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.PtGoal;
@@ -79,6 +81,12 @@ class WithdrawServiceTest {
 	@Mock
 	private PtLessonRepository ptLessonRepository;
 
+	@Mock
+	private PtGoalRepository ptGoalRepository;
+
+	@Mock
+	private DietRepository dietRepository;
+
 	@InjectMocks
 	private WithdrawService withdrawService;
 
@@ -115,6 +123,7 @@ class WithdrawServiceTest {
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
 		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
+		given(dietRepository.saveAll(diets)).willReturn(diets);
 
 		// when
 		withdrawService.withdraw(traineeMember.getId());
@@ -176,6 +185,7 @@ class WithdrawServiceTest {
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willReturn(ptTrainerTrainee);
 		given(ptService.getPtLessonWithPtTrainerTrainee(ptTrainerTrainee)).willReturn(ptLessons);
+		given(dietRepository.saveAll(diets)).willReturn(diets);
 
 		// when
 		withdrawService.withdraw(traineeMember.getId());
@@ -227,6 +237,7 @@ class WithdrawServiceTest {
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willThrow(NotFoundException.class);
 		given(traineeRepository.save(trainee)).willReturn(trainee);
+		given(dietRepository.saveAll(diets)).willReturn(diets);
 		given(memberRepository.save(traineeMember)).willReturn(traineeMember);
 
 		// when

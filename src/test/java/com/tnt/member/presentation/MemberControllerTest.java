@@ -5,6 +5,8 @@ import static com.tnt.common.constant.ImageConstant.TRAINER_DEFAULT_IMAGE;
 import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.domain.SocialType.KAKAO;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -52,6 +54,7 @@ import com.tnt.gateway.filter.CustomUserDetails;
 import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.dto.request.SignUpRequest;
+import com.tnt.member.dto.request.UpdateMemberInfoRequest;
 import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.repository.PtGoalRepository;
@@ -319,6 +322,211 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 			.andExpect(jsonPath("$.trainee.weight").value(trainee.getWeight()))
 			.andExpect(jsonPath("$.trainee.cautionNote").value(trainee.getCautionNote()))
 			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 회원 프로필 사진 수정 성공")
+	void update_member_profile_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+
+		trainerRepository.save(trainer);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINER, "홍길동", null, null, null, null,
+			null);
+
+		// when & then
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+
+		mockMvc.perform(multipart(PUT, "/members")
+				.file(jsonRequest)
+				.file(profileImage)
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findById(trainerMember.getId());
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getName()).isEqualTo(request.name());
+		assertThat(updateMember.getProfileImageUrl()).isEqualTo(TRAINER_DEFAULT_IMAGE);
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 회원 프로필 사진 유지 성공")
+	void maintain_member_profile_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+
+		trainerRepository.save(trainer);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(false, TRAINER, "홍길동", null, null, null, null,
+			null);
+
+		// when & then
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+
+		mockMvc.perform(multipart(PUT, "/members")
+				.file(jsonRequest)
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findById(trainerMember.getId());
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getName()).isEqualTo(request.name());
+		assertThat(updateMember.getProfileImageUrl()).isEqualTo(trainerMember.getProfileImageUrl());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 회원 프로필 사진 삭제 성공")
+	void delete_member_profile_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+
+		trainerRepository.save(trainer);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINER, "홍길동", null, null, null, null,
+			null);
+
+		// when & then
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+
+		mockMvc.perform(multipart(PUT, "/members")
+				.file(jsonRequest)
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findById(trainerMember.getId());
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getName()).isEqualTo(request.name());
+		assertThat(updateMember.getProfileImageUrl()).isEqualTo(TRAINER_DEFAULT_IMAGE);
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 트레이너 회원 정보 수정 성공")
+	void update_member_info_trainer_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(trainerMember.getId(),
+			String.valueOf(trainerMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+
+		trainerRepository.save(trainer);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINER, "홍길동", null, null, null, null,
+			null);
+
+		// when & then
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+
+		mockMvc.perform(multipart(PUT, "/members")
+				.file(jsonRequest)
+				.file(profileImage)
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findAll().getFirst();
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getName()).isEqualTo(request.name());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - 트레이니 회원 정보 수정 성공")
+	void update_member_info_trainee_success() throws Exception {
+		// given
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		traineeMember = memberRepository.save(traineeMember);
+
+		CustomUserDetails traineeUserDetails = new CustomUserDetails(traineeMember.getId(),
+			String.valueOf(traineeMember.getId()), List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(traineeUserDetails, null,
+			authoritiesMapper.mapAuthorities(traineeUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainee trainee = TraineeFixture.getTrainee2(traineeMember);
+
+		trainee = traineeRepository.save(trainee);
+
+		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee.getId());
+
+		ptGoalRepository.saveAll(ptGoals);
+
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINEE, "홍길동", LocalDate.of(1990, 1, 1),
+			175.0, 70.0, "테스트 주의사항", List.of("체중 감량", "건강 관리"));
+
+		// when & then
+		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
+			objectMapper.writeValueAsString(request).getBytes());
+
+		mockMvc.perform(multipart(PUT, "/members")
+				.file(jsonRequest)
+				.file(profileImage)
+				.contentType(MULTIPART_FORM_DATA_VALUE))
+			.andExpect(status().isOk())
+			.andDo(print());
+
+		Member updateMember = memberRepository.findById(traineeMember.getId());
+		Trainee updateTrainee = traineeRepository.find(null, trainee.getId());
+		assertThat(updateMember).isNotNull();
+		assertThat(updateMember.getName()).isEqualTo(request.name());
+		assertThat(updateMember.getBirthday()).isEqualTo(request.birthday());
+		assertThat(updateTrainee.getHeight()).isEqualTo(request.height());
+		assertThat(updateTrainee.getWeight()).isEqualTo(request.weight());
+		assertThat(updateTrainee.getCautionNote()).isEqualTo(request.cautionNote());
 	}
 
 	@TestConfiguration

@@ -1,5 +1,7 @@
 package com.tnt.member.application.repository;
 
+import java.util.List;
+
 import com.tnt.member.domain.Member;
 import com.tnt.member.domain.SocialType;
 import com.tnt.member.dto.MemberProjection;
@@ -15,4 +17,6 @@ public interface MemberRepository {
 	Member findById(Long memberId);
 
 	MemberProjection.MemberTypeDto findMemberType(Long memberId);
+
+	List<Member> findAll();
 }

@@ -32,8 +32,9 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.tnt.common.error.exception.ImageException;
-import com.tnt.image.S3Adapter;
+import com.tnt.image.infrastructure.S3Adapter;
 import com.tnt.member.domain.MemberType;
+import com.tnt.member.dto.ProfileUpdate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -178,5 +179,27 @@ public class S3Service {
 		}
 
 		return image;
+	}
+
+	public String handleProfileImage(ProfileUpdate profileUpdate, @Nullable MultipartFile profileImage,
+		MemberType memberType) {
+		// 새 이미지 없음
+		if (isNull(profileImage)) {
+			// 이미지 삭제 요청 - 현재 이미지가 기본 이미지가 아닌 경우
+			if (profileUpdate.removeCurrentImage() && !profileUpdate.isCurrentImageDefault()) {
+				deleteProfileImage(profileUpdate.currentImageUrl());
+
+				return profileUpdate.changeImageUrl();
+			} else { // 이미지 유지 요청
+				return profileUpdate.currentImageUrl();
+			}
+		} else { // 새 이미지 있음
+			// 이미지 수정 요청 - 현재 이미지가 기본 이미지가 아닌 경우
+			if (profileUpdate.removeCurrentImage() && !profileUpdate.isCurrentImageDefault()) {
+				deleteProfileImage(profileUpdate.currentImageUrl());
+			}
+
+			return uploadProfileImage(profileImage, memberType);
+		}
 	}
 }

@@ -28,10 +28,17 @@ public class PtGoalRepositoryImpl implements PtGoalRepository {
 
 	@Override
 	public List<PtGoal> findAllByTraineeId(Long traineeId) {
-		return ptGoalJpaRepository.findAllByTraineeIdAndDeletedAtIsNull(
-				traineeId)
-			.stream()
+		return ptGoalJpaRepository.findAllByTraineeId(traineeId).stream()
 			.map(PtGoalJpaEntity::toModel)
 			.toList();
+	}
+
+	@Override
+	public void deleteAll(List<PtGoal> goalsToDelete) {
+		List<PtGoalJpaEntity> ptGoalJpaEntities = goalsToDelete.stream()
+			.map(PtGoalJpaEntity::from)
+			.toList();
+
+		ptGoalJpaRepository.deleteAll(ptGoalJpaEntities);
 	}
 }

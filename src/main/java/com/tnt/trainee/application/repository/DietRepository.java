@@ -10,7 +10,7 @@ public interface DietRepository {
 
 	Diet save(Diet diet);
 
-	void saveAll(List<Diet> diets);
+	List<Diet> saveAll(List<Diet> diets);
 
 	Diet findByIdAndTraineeId(Long id, Long traineeId);
 

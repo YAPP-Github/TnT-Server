@@ -3,6 +3,7 @@ package com.tnt.member.infrastructure;
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_NOT_FOUND;
 import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -57,5 +58,12 @@ public class MemberRepositoryImpl implements MemberRepository {
 				)
 				.fetchOne())
 			.orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+	}
+
+	@Override
+	public List<Member> findAll() {
+		return memberJpaRepository.findAll().stream()
+			.map(MemberJpaEntity::toModel)
+			.toList();
 	}
 }

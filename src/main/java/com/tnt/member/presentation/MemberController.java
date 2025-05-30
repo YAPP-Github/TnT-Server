@@ -4,8 +4,10 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,9 +19,11 @@ import com.tnt.image.application.S3Service;
 import com.tnt.member.application.MemberService;
 import com.tnt.member.application.SignUpService;
 import com.tnt.member.application.WithdrawService;
+import com.tnt.member.dto.ProfileUpdate;
 import com.tnt.member.dto.WithdrawDto;
 import com.tnt.member.dto.request.SignUpRequest;
-import com.tnt.member.dto.response.GetMemberInfoResponse;
+import com.tnt.member.dto.request.UpdateMemberInfoRequest;
+import com.tnt.member.dto.response.MemberInfoResponse;
 import com.tnt.member.dto.response.SignUpResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,7 +46,7 @@ public class MemberController {
 	@PostMapping(value = "/sign-up", consumes = MULTIPART_FORM_DATA_VALUE)
 	@ResponseStatus(CREATED)
 	public SignUpResponse signUp(@RequestPart("request") @Valid SignUpRequest request,
-		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+		@RequestPart(value = "profileImage", required = false) @Nullable MultipartFile profileImage) {
 		Long memberId = signUpService.signUp(request);
 		String profileImageUrl = s3Service.uploadProfileImage(profileImage, request.memberType());
 
@@ -52,8 +56,22 @@ public class MemberController {
 	@Operation(summary = "회원 조회 API")
 	@GetMapping
 	@ResponseStatus(OK)
-	public GetMemberInfoResponse getMemberInfo(@AuthMember Long memberId) {
+	public MemberInfoResponse getMemberInfo(@AuthMember Long memberId) {
 		return memberService.getMemberInfo(memberId);
+	}
+
+	@Operation(summary = "회원 정보 수정 API")
+	@PutMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+	@ResponseStatus(OK)
+	public void updateMemberInfo(@AuthMember Long memberId,
+		@RequestPart("request") @Valid UpdateMemberInfoRequest request,
+		@RequestPart(value = "profileImage", required = false) @Nullable MultipartFile profileImage) {
+		ProfileUpdate profileUpdate = memberService.checkMemberProfileImage(memberId, request.removeImage(),
+			profileImage);
+
+		String profileImageUrl = s3Service.handleProfileImage(profileUpdate, profileImage, request.memberType());
+
+		memberService.updateMemberInfo(memberId, request, profileImageUrl);
 	}
 
 	@Operation(summary = "회원 탈퇴 API")

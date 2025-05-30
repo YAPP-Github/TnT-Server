@@ -1,4 +1,4 @@
-package com.tnt.image;
+package com.tnt.image.infrastructure;
 
 import static com.tnt.common.error.model.ErrorMessage.S3_DELETE_ERROR;
 import static com.tnt.common.error.model.ErrorMessage.S3_UPLOAD_ERROR;

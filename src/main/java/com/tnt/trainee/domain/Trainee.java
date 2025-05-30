@@ -17,8 +17,8 @@ public class Trainee {
 
 	private final Long id;
 	private final Member member;
-	private final Double height;
-	private final Double weight;
+	private Double height;
+	private Double weight;
 	private String cautionNote;
 	private LocalDateTime deletedAt;
 
@@ -29,6 +29,12 @@ public class Trainee {
 		this.height = height;
 		this.weight = weight;
 		this.deletedAt = deletedAt;
+		validateAndSetCautionNote(cautionNote);
+	}
+
+	public void updateTraineeInfo(Double height, Double weight, String cautionNote) {
+		this.height = height;
+		this.weight = weight;
 		validateAndSetCautionNote(cautionNote);
 	}
 

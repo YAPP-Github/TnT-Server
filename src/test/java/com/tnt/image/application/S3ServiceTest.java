@@ -33,7 +33,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.tnt.common.error.exception.ImageException;
-import com.tnt.image.S3Adapter;
+import com.tnt.image.infrastructure.S3Adapter;
 
 @ExtendWith(MockitoExtension.class)
 class S3ServiceTest {
@@ -139,8 +139,8 @@ class S3ServiceTest {
 		MockMultipartFile image = new MockMultipartFile("image", "test.jpg", IMAGE_JPEG_VALUE, createDummyImageData(6));
 
 		// when
-		BufferedImage rotatedImage = ReflectionTestUtils.invokeMethod(s3Service, "rotateImageIfRequired", originalImage,
-			image);
+		BufferedImage rotatedImage = ReflectionTestUtils.invokeMethod(s3Service, "rotateImageIfRequired",
+			originalImage, image);
 
 		// then
 		assertThat(requireNonNull(rotatedImage).getRGB(25, 50)).isEqualTo(Color.BLACK.getRGB());

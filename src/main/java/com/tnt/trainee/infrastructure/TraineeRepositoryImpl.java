@@ -3,6 +3,7 @@ package com.tnt.trainee.infrastructure;
 import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
 import static com.tnt.trainee.infrastructure.QTraineeJpaEntity.traineeJpaEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.lang.Nullable;
@@ -33,6 +34,13 @@ public class TraineeRepositoryImpl implements TraineeRepository {
 	public Trainee findByMemberId(Long memberId) {
 		return traineeJpaRepository.findByMemberIdAndDeletedAtIsNull(memberId)
 			.orElseThrow(() -> new NotFoundException(ErrorMessage.TRAINEE_NOT_FOUND)).toModel();
+	}
+
+	@Override
+	public List<Trainee> findAll() {
+		return traineeJpaRepository.findAll().stream()
+			.map(TraineeJpaEntity::toModel)
+			.toList();
 	}
 
 	@Override

@@ -9,4 +9,6 @@ public interface PtGoalRepository {
 	List<PtGoal> saveAll(List<PtGoal> ptGoals);
 
 	List<PtGoal> findAllByTraineeId(Long traineeId);
+
+	void deleteAll(List<PtGoal> goalsToDelete);
 }
