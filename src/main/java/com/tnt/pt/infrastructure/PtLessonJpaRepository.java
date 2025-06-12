@@ -9,6 +9,6 @@ public interface PtLessonJpaRepository extends JpaRepository<PtLessonJpaEntity, 
 	List<PtLessonJpaEntity> findAllByPtTrainerTraineeAndDeletedAtIsNull(
 		PtTrainerTraineeJpaEntity ptTrainerTraineeJpaEntity);
 
-	List<PtLessonJpaEntity> findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(
-		PtTrainerTraineeJpaEntity ptTrainerTraineeJpaEntity);
+	List<PtLessonJpaEntity> findAllByPtTrainerTraineeAndIsCompletedIsFalseAndIdIsNotAndDeletedAtIsNull(
+		PtTrainerTraineeJpaEntity ptTrainerTraineeJpaEntity, Long id);
 }

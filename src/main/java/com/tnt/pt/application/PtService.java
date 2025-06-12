@@ -205,7 +205,7 @@ public class PtService {
 		ptLesson.complete(ptTrainerTrainee.getFinishedPtCount());
 
 		List<PtLesson> lessonsNotCompleted =
-			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalse(ptTrainerTrainee);
+			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseWithout(ptTrainerTrainee, ptLessonId);
 
 		lessonsNotCompleted.forEach(lesson -> {
 			if (!lesson.getId().equals(ptLessonId)) {
@@ -226,7 +226,7 @@ public class PtService {
 		PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
 
 		List<PtLesson> lessonsNotCompleted =
-			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalse(ptTrainerTrainee);
+			ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseWithout(ptTrainerTrainee, ptLessonId);
 
 		lessonsNotCompleted.forEach(lesson -> {
 			if (!lesson.getId().equals(ptLessonId) && lesson.getSession() > ptLesson.getSession()) {

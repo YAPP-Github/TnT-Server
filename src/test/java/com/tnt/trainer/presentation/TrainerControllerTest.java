@@ -1090,6 +1090,10 @@ class TrainerControllerTest {
 		// when & then
 		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/complete", ptLesson1.getId()))
 			.andExpect(status().isOk());
+
+		PtLesson result = ptLessonRepository.findById(ptLesson1.getId());
+
+		assertThat(result.getIsCompleted()).isTrue();
 	}
 
 	@Test

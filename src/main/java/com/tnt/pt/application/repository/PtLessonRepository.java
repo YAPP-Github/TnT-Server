@@ -19,7 +19,7 @@ public interface PtLessonRepository {
 
 	List<PtLesson> findAllByPtTrainerTrainee(PtTrainerTrainee ptTrainerTrainee);
 
-	List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalse(PtTrainerTrainee ptTrainerTrainee);
+	List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalseWithout(PtTrainerTrainee ptTrainerTrainee, Long id);
 
 	List<PtLesson> findAllByTrainerIdAndDate(Long trainerId, LocalDate date);
 

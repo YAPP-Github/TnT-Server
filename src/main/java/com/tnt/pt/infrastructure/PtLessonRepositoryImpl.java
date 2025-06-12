@@ -63,9 +63,10 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 	}
 
 	@Override
-	public List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalse(PtTrainerTrainee ptTrainerTrainee) {
-		return ptLessonJpaRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndDeletedAtIsNull(
-				PtTrainerTraineeJpaEntity.from(ptTrainerTrainee))
+	public List<PtLesson> findAllByPtTrainerTraineeAndIsCompletedIsFalseWithout(PtTrainerTrainee ptTrainerTrainee,
+		Long id) {
+		return ptLessonJpaRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseAndIdIsNotAndDeletedAtIsNull(
+				PtTrainerTraineeJpaEntity.from(ptTrainerTrainee), id)
 			.stream()
 			.map(PtLessonJpaEntity::toModel)
 			.toList();
