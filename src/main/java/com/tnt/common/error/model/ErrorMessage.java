@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorMessage {
 
 	SERVER_ERROR("서버 에러가 발생했습니다."),
+	FAILED_TO_CONVERT_JSON("JSON 직렬화에 실패했습니다."),
 	FCM_FAILED("FCM 전송에 실패했습니다."),
 	S3_UPLOAD_ERROR("S3로 이미지 업로드 중 오류가 발생했습니다."),
 	S3_DELETE_ERROR("S3 이미지 삭제 중 오류가 발생했습니다."),
@@ -48,7 +49,7 @@ public enum ErrorMessage {
 	TRAINEE_INVALID_CAUTION_NOTE("주의사항이 올바르지 않습니다."),
 	TRAINEE_NOT_FOUND("존재하지 않는 트레이니입니다."),
 
-	PT_GOAL_INVALID_CONTENT("목적 내용이 올바르지 않습니다."),
+	UNSUPPORTED_PT_GOAL("지원하지 않는 PT 목적입니다."),
 
 	PT_TRAINER_TRAINEE_ALREADY_EXIST("이미 연결된 트레이너-트레이니입니다."),
 	PT_TRAINEE_ALREADY_EXIST("이미 다른 트레이너와 연결되어 있습니다."),

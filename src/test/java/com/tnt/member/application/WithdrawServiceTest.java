@@ -30,13 +30,10 @@ import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.DietService;
-import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
 import com.tnt.trainee.application.repository.DietRepository;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.Diet;
-import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainer.application.TrainerService;
 import com.tnt.trainer.application.repository.TrainerRepository;
@@ -58,9 +55,6 @@ class WithdrawServiceTest {
 	private TraineeService traineeService;
 
 	@Mock
-	private PtGoalService ptGoalService;
-
-	@Mock
 	private DietService dietService;
 
 	@Mock
@@ -80,9 +74,6 @@ class WithdrawServiceTest {
 
 	@Mock
 	private PtLessonRepository ptLessonRepository;
-
-	@Mock
-	private PtGoalRepository ptGoalRepository;
 
 	@Mock
 	private DietRepository dietRepository;
@@ -113,15 +104,10 @@ class WithdrawServiceTest {
 		// given
 		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
-
-		List<PtGoal> ptGoals = List.of(
-			PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
-		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()),
-			DietFixture.getDiet2(trainee.getId()));
+		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()), DietFixture.getDiet2(trainee.getId()));
 
 		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
-		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(dietRepository.saveAll(diets)).willReturn(diets);
 
@@ -171,8 +157,6 @@ class WithdrawServiceTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
-		List<PtGoal> ptGoals = List.of(
-			PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
 		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()),
 			DietFixture.getDiet2(trainee.getId()));
 
@@ -181,7 +165,6 @@ class WithdrawServiceTest {
 		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
 		given(ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId())).willReturn(true);
-		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willReturn(ptTrainerTrainee);
 		given(ptService.getPtLessonWithPtTrainerTrainee(ptTrainerTrainee)).willReturn(ptLessons);
@@ -225,15 +208,12 @@ class WithdrawServiceTest {
 
 		Trainee trainee = TraineeFixture.getTrainee1WithId(traineeMember);
 
-		List<PtGoal> ptGoals = List.of(
-			PtGoal.builder().id(1L).traineeId(trainee.getId()).content("test").build());
 		List<Diet> diets = List.of(DietFixture.getDiet1(trainee.getId()),
 			DietFixture.getDiet2(trainee.getId()));
 
 		given(memberService.getByMemberId(traineeMember.getId())).willReturn(traineeMember);
 		given(traineeService.getByMemberId(traineeMember.getId())).willReturn(trainee);
 		given(ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId())).willReturn(true);
-		given(ptGoalService.getAllByTraineeId(trainee.getId())).willReturn(ptGoals);
 		given(dietService.getAllByTraineeId(trainee.getId())).willReturn(diets);
 		given(ptService.getPtTrainerTraineeWithTraineeId(trainee.getId())).willThrow(NotFoundException.class);
 		given(traineeRepository.save(trainee)).willReturn(trainee);

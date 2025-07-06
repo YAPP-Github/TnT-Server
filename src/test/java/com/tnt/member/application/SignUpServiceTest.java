@@ -3,17 +3,18 @@ package com.tnt.member.application;
 import static com.tnt.common.constant.ImageConstant.TRAINER_DEFAULT_IMAGE;
 import static com.tnt.common.error.model.ErrorMessage.MEMBER_CONFLICT;
 import static com.tnt.member.domain.MemberType.TRAINER;
+import static com.tnt.trainee.domain.PtGoal.STRENGTH_ENHANCE;
+import static com.tnt.trainee.domain.PtGoal.WEIGHT_LOSS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,6 @@ import com.tnt.member.application.repository.MemberRepository;
 import com.tnt.member.domain.Member;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.response.SignUpResponse;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
@@ -56,9 +56,6 @@ class SignUpServiceTest {
 
 	@Mock
 	private TraineeRepository traineeRepository;
-
-	@Mock
-	private PtGoalRepository ptGoalRepository;
 
 	@Test
 	@DisplayName("트레이너 회원가입 성공")
@@ -90,19 +87,17 @@ class SignUpServiceTest {
 	void save_trainee_success() {
 		// given
 		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
+		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
 
 		given(memberRepository.save(any(Member.class))).willReturn(traineeMember);
 		given(traineeRepository.save(any(Trainee.class))).willReturn(
-			Trainee.builder().id(1L).member(traineeMember).height(180.0).weight(75.0).build());
-		given(ptGoalRepository.saveAll(anyList())).willReturn(Stream.of("목표1", "목표2")
-			.map(content -> PtGoal.builder().traineeId(traineeMember.getId()).content(content).build())
-			.toList());
+			Trainee.builder().id(1L).member(traineeMember).height(180.0).weight(75.0).ptGoals(ptGoals).build());
 
 		SignUpRequest request = new SignUpRequest(traineeMember.getFcmToken(), traineeMember.getMemberType(),
 			traineeMember.getSocialType(), traineeMember.getSocialId(), traineeMember.getEmail(),
 			traineeMember.getServiceAgreement(), traineeMember.getCollectionAgreement(),
 			traineeMember.getAdvertisementAgreement(), traineeMember.getName(), traineeMember.getBirthday(), 180.0,
-			75.0, "주의사항", List.of("목표1", "목표2"));
+			75.0, "주의사항", ptGoals);
 
 		// when
 		Long result = signUpService.signUp(request);
@@ -111,7 +106,6 @@ class SignUpServiceTest {
 		assertThat(result).isNotNull().isEqualTo(traineeMember.getId());
 		verify(memberRepository).save(any(Member.class));
 		verify(traineeRepository).save(any(Trainee.class));
-		verify(ptGoalRepository).saveAll(any());
 	}
 
 	@Test

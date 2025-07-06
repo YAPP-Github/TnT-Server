@@ -4,13 +4,18 @@ import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.tnt.common.jpa.BaseTimeEntity;
 import com.tnt.member.infrastructure.MemberJpaEntity;
+import com.tnt.trainee.domain.PtGoal;
+import com.tnt.trainee.domain.PtGoalListConverter;
 import com.tnt.trainee.domain.Trainee;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -50,14 +55,19 @@ public class TraineeJpaEntity extends BaseTimeEntity {
 	@Column(name = "deleted_at", nullable = true)
 	private LocalDateTime deletedAt;
 
+	@Convert(converter = PtGoalListConverter.class)
+	@Column(name = "pt_goals", columnDefinition = "TEXT", nullable = false)
+	private List<PtGoal> ptGoals;
+
 	@Builder
 	public TraineeJpaEntity(Long id, MemberJpaEntity member, Double height, Double weight, String cautionNote,
-		LocalDateTime deletedAt) {
+		List<PtGoal> ptGoals, LocalDateTime deletedAt) {
 		this.id = id;
 		this.member = requireNonNull(member);
 		this.height = height;
 		this.weight = weight;
 		this.cautionNote = cautionNote;
+		this.ptGoals = ptGoals != null ? new ArrayList<>(ptGoals) : new ArrayList<>();
 		this.deletedAt = deletedAt;
 	}
 
@@ -68,6 +78,7 @@ public class TraineeJpaEntity extends BaseTimeEntity {
 			.height(trainee.getHeight())
 			.weight(trainee.getWeight())
 			.cautionNote(trainee.getCautionNote())
+			.ptGoals(trainee.getPtGoals())
 			.deletedAt(trainee.getDeletedAt())
 			.build();
 	}
@@ -79,6 +90,7 @@ public class TraineeJpaEntity extends BaseTimeEntity {
 			.height(height)
 			.weight(weight)
 			.cautionNote(cautionNote)
+			.ptGoals(ptGoals)
 			.deletedAt(deletedAt)
 			.build();
 	}

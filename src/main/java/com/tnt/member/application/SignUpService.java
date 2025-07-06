@@ -6,8 +6,6 @@ import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static io.hypersistence.tsid.TSID.Factory.getTsid;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +15,7 @@ import com.tnt.member.domain.Member;
 import com.tnt.member.domain.MemberType;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.response.SignUpResponse;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
-import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
@@ -32,11 +28,9 @@ public class SignUpService {
 
 	private final SessionService sessionService;
 	private final MemberService memberService;
-
 	private final MemberRepository memberRepository;
 	private final TrainerRepository trainerRepository;
 	private final TraineeRepository traineeRepository;
-	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional
 	public Long signUp(SignUpRequest request) {
@@ -81,11 +75,10 @@ public class SignUpService {
 			.height(request.height())
 			.weight(request.weight())
 			.cautionNote(request.cautionNote())
+			.ptGoals(request.ptGoals())
 			.build();
 
-		trainee = traineeRepository.save(trainee);
-
-		createPtGoals(trainee, request.goalContents());
+		traineeRepository.save(trainee);
 
 		return member.getId();
 	}
@@ -106,16 +99,5 @@ public class SignUpService {
 			.build();
 
 		return memberRepository.save(member);
-	}
-
-	private void createPtGoals(Trainee trainee, List<String> goalContents) {
-		List<PtGoal> ptGoals = goalContents.stream()
-			.map(content -> PtGoal.builder()
-				.traineeId(trainee.getId())
-				.content(content)
-				.build())
-			.toList();
-
-		ptGoalRepository.saveAll(ptGoals);
 	}
 }

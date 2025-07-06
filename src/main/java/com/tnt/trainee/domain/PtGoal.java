@@ -1,33 +1,25 @@
 package com.tnt.trainee.domain;
 
-import static com.tnt.common.error.model.ErrorMessage.PT_GOAL_INVALID_CONTENT;
-import static io.micrometer.common.util.StringUtils.isBlank;
-import static java.util.Objects.requireNonNull;
+import static com.tnt.common.error.model.ErrorMessage.UNSUPPORTED_PT_GOAL;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.tnt.common.error.exception.TnTException;
 
-@Getter
-public class PtGoal {
+public enum PtGoal {
+	WEIGHT_LOSS,
+	STRENGTH_ENHANCE,
+	HEALTH_MANAGE,
+	FLEXIBILITY_ENHANCE,
+	BODY_PROFILE,
+	POSTURE_CORRECTION;
 
-	public static final int CONTENT_LENGTH = 100;
-
-	private final Long id;
-	private final Long traineeId;
-	private final String content;
-
-	@Builder
-	public PtGoal(Long id, Long traineeId, String content) {
-		this.id = id;
-		this.traineeId = requireNonNull(traineeId);
-		this.content = validateContent(content);
-	}
-
-	private String validateContent(String content) {
-		if (isBlank(content) || content.length() > CONTENT_LENGTH) {
-			throw new IllegalArgumentException(PT_GOAL_INVALID_CONTENT.getMessage());
+	@JsonCreator
+	public static PtGoal of(String value) {
+		for (PtGoal type : PtGoal.values()) {
+			if (type.name().equalsIgnoreCase(value)) { // 대소문자 구분 없이 처리
+				return type;
+			}
 		}
-
-		return content;
+		throw new TnTException(UNSUPPORTED_PT_GOAL);
 	}
 }

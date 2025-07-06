@@ -2,6 +2,8 @@ package com.tnt.trainer.dto.response;
 
 import java.util.List;
 
+import com.tnt.trainee.domain.PtGoal;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "관리중인 트레이니 목록 응답")
@@ -32,8 +34,8 @@ public record GetActiveTraineesResponse(
 		@Schema(description = "메모", example = "건강하지 않음", nullable = true)
 		String memo,
 
-		@Schema(description = "PT 목적들", example = "[\"체중 감량\", \"근력 향상\"]", nullable = false)
-		List<String> ptGoals
+		@Schema(description = "PT 목적", example = "[\"WEIGHT_LOSS\", \"STRENGTH_ENHANCE\"]", nullable = false)
+		List<PtGoal> ptGoals
 	) {
 
 	}

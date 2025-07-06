@@ -5,6 +5,8 @@ import static com.tnt.common.constant.ImageConstant.TRAINER_DEFAULT_IMAGE;
 import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.domain.SocialType.KAKAO;
+import static com.tnt.trainee.domain.PtGoal.STRENGTH_ENHANCE;
+import static com.tnt.trainee.domain.PtGoal.WEIGHT_LOSS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -18,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +49,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnt.AbstractContainerBaseTest;
 import com.tnt.fixture.MemberFixture;
-import com.tnt.fixture.PtGoalsFixture;
 import com.tnt.fixture.PtTrainerTraineeFixture;
 import com.tnt.fixture.TraineeFixture;
 import com.tnt.fixture.TrainerFixture;
@@ -57,7 +59,6 @@ import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.request.UpdateMemberInfoRequest;
 import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
@@ -94,9 +95,6 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	private TraineeRepository traineeRepository;
 
 	@Autowired
-	private PtGoalRepository ptGoalRepository;
-
-	@Autowired
 	private PtTrainerTraineeRepository ptTrainerTraineeRepository;
 
 	@Test
@@ -104,7 +102,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	void sign_up_trainer_success() throws Exception {
 		// given
 		SignUpRequest request = new SignUpRequest("fcm-token-test", TRAINER, KAKAO, "12345", "test@kakao.com", true,
-			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", List.of("체중 감량", "근력 향상"));
+			true, true, "홍길동", LocalDate.of(1990, 1, 1), null, null, null, List.of());
 
 		// when
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
@@ -126,8 +124,10 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	@DisplayName("통합 테스트 - 트레이니 회원가입 성공")
 	void sign_up_trainee_success() throws Exception {
 		// given
+		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+
 		SignUpRequest request = new SignUpRequest("fcm-token-test", TRAINEE, KAKAO, "12345", "test@kakao.com", true,
-			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", List.of("체중 감량", "근력 향상"));
+			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", ptGoals);
 
 		// when
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
@@ -149,8 +149,10 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	@DisplayName("통합 테스트 - 필수 필드 누락으로 회원가입 실패")
 	void sign_up_missing_required_field_fail() throws Exception {
 		// given
+		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+
 		SignUpRequest request = new SignUpRequest("", TRAINER, KAKAO, "12345", "test@kakao.com", true,
-			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", List.of("체중 감량", "근력 향상"));
+			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", ptGoals);
 
 		// when
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
@@ -248,10 +250,6 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		trainee2 = traineeRepository.save(trainee2);
 		trainee3 = traineeRepository.save(trainee3);
 
-		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee1.getId());
-
-		ptGoalRepository.saveAll(ptGoals);
-
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee1);
 		PtTrainerTrainee ptTrainerTrainee2 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee2);
 		PtTrainerTrainee ptTrainerTrainee3 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee3);
@@ -299,10 +297,6 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		trainer = trainerRepository.save(trainer);
 		trainee = traineeRepository.save(trainee);
-
-		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee.getId());
-
-		ptGoalRepository.saveAll(ptGoals);
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
@@ -463,7 +457,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		trainerRepository.save(trainer);
 
 		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINER, "홍길동", null, null, null, null,
-			null);
+			List.of());
 
 		// when & then
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
@@ -501,12 +495,10 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		trainee = traineeRepository.save(trainee);
 
-		List<PtGoal> ptGoals = PtGoalsFixture.getPtGoals(trainee.getId());
-
-		ptGoalRepository.saveAll(ptGoals);
+		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
 
 		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINEE, "홍길동", LocalDate.of(1990, 1, 1),
-			175.0, 70.0, "테스트 주의사항", List.of("체중 감량", "건강 관리"));
+			175.0, 70.0, "테스트 주의사항", ptGoals);
 
 		// when & then
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
