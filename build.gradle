@@ -215,4 +215,8 @@ dependencies {
     // 이미지 메타데이터 관련 라이브러리
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
     implementation 'org.apache.commons:commons-imaging:1.0.0-alpha5'
+    
+    // Flyway
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
 }
