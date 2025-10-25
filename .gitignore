@@ -30,6 +30,7 @@ application-local.yml
 application-dev.yml
 application-prod.yml
 /src/main/generated/
+.claude
 
 ### NetBeans ###
 /nbproject/private/
@@ -47,3 +48,6 @@ application-prod.yml
 ./src/main/resources/config
 
 /logs
+
+# AI Tool Configuration
+CLAUDE.md
