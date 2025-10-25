@@ -124,7 +124,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	@DisplayName("통합 테스트 - 트레이니 회원가입 성공")
 	void sign_up_trainee_success() throws Exception {
 		// given
-		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+		List<String> ptGoals = Arrays.asList("체중 감량", "근력 향상");
 
 		SignUpRequest request = new SignUpRequest("fcm-token-test", TRAINEE, KAKAO, "12345", "test@kakao.com", true,
 			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", ptGoals);
@@ -149,7 +149,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 	@DisplayName("통합 테스트 - 필수 필드 누락으로 회원가입 실패")
 	void sign_up_missing_required_field_fail() throws Exception {
 		// given
-		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+		List<String> ptGoals = Arrays.asList("체중 감량", "근력 향상");
 
 		SignUpRequest request = new SignUpRequest("", TRAINER, KAKAO, "12345", "test@kakao.com", true,
 			true, true, "홍길동", LocalDate.of(1990, 1, 1), 175.0, 70.0, "테스트 주의사항", ptGoals);

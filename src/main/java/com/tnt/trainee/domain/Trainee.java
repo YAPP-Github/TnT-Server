@@ -36,6 +36,10 @@ public class Trainee {
 		validateAndSetCautionNote(cautionNote);
 	}
 
+	public void updatePtGoals(List<PtGoal> ptGoals) {
+		this.ptGoals = ptGoals;
+	}
+
 	public void updateTraineeInfo(Double height, Double weight, String cautionNote, List<PtGoal> ptGoals) {
 		this.height = height;
 		this.weight = weight;

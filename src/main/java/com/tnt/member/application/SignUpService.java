@@ -6,6 +6,8 @@ import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static io.hypersistence.tsid.TSID.Factory.getTsid;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import com.tnt.member.domain.MemberType;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.response.SignUpResponse;
 import com.tnt.trainee.application.repository.TraineeRepository;
+import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainer.application.repository.TrainerRepository;
 import com.tnt.trainer.domain.Trainer;
@@ -70,12 +73,15 @@ public class SignUpService {
 
 	private Long createTrainee(SignUpRequest request) {
 		Member member = createMember(request, TRAINEE_DEFAULT_IMAGE, TRAINEE);
+
+		List<PtGoal> ptGoals = request.ptGoals().stream().map(PtGoal::of).toList();
+
 		Trainee trainee = Trainee.builder()
 			.member(member)
 			.height(request.height())
 			.weight(request.weight())
 			.cautionNote(request.cautionNote())
-			.ptGoals(request.ptGoals())
+			.ptGoals(ptGoals)
 			.build();
 
 		traineeRepository.save(trainee);

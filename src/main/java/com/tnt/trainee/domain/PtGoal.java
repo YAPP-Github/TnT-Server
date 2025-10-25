@@ -6,20 +6,35 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.tnt.common.error.exception.TnTException;
 
 public enum PtGoal {
-	WEIGHT_LOSS,
-	STRENGTH_ENHANCE,
-	HEALTH_MANAGE,
-	FLEXIBILITY_ENHANCE,
-	BODY_PROFILE,
-	POSTURE_CORRECTION;
+	WEIGHT_LOSS("체중 감량"),
+	STRENGTH_ENHANCE("근력 향상"),
+	HEALTH_MANAGE("건강 관리"),
+	FLEXIBILITY_ENHANCE("유연성향상"),
+	BODY_PROFILE("바디프로필"),
+	POSTURE_CORRECTION("자세 교정");
+
+	private final String koreanName;
+
+	PtGoal(String koreanName) {
+		this.koreanName = koreanName;
+	}
 
 	@JsonCreator
 	public static PtGoal of(String value) {
-		for (PtGoal type : PtGoal.values()) {
-			if (type.name().equalsIgnoreCase(value)) { // 대소문자 구분 없이 처리
-				return type;
+		// 1. 영어 enum 이름으로 시도
+		for (PtGoal goal : PtGoal.values()) {
+			if (goal.name().equalsIgnoreCase(value)) {
+				return goal;
 			}
 		}
+
+		// 2. 한글 이름으로 시도
+		for (PtGoal goal : PtGoal.values()) {
+			if (goal.koreanName.equals(value)) {
+				return goal;
+			}
+		}
+
 		throw new TnTException(UNSUPPORTED_PT_GOAL);
 	}
 }

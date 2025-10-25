@@ -88,6 +88,7 @@ class SignUpServiceTest {
 		// given
 		Member traineeMember = MemberFixture.getTraineeMemberWithId1();
 		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+		List<String> ptGoalStrings = Arrays.asList("체중 감량", "근력 향상");
 
 		given(memberRepository.save(any(Member.class))).willReturn(traineeMember);
 		given(traineeRepository.save(any(Trainee.class))).willReturn(
@@ -97,7 +98,7 @@ class SignUpServiceTest {
 			traineeMember.getSocialType(), traineeMember.getSocialId(), traineeMember.getEmail(),
 			traineeMember.getServiceAgreement(), traineeMember.getCollectionAgreement(),
 			traineeMember.getAdvertisementAgreement(), traineeMember.getName(), traineeMember.getBirthday(), 180.0,
-			75.0, "주의사항", ptGoals);
+			75.0, "주의사항", ptGoalStrings);
 
 		// when
 		Long result = signUpService.signUp(request);
