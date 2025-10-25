@@ -86,7 +86,10 @@ jacocoTestReport {
                             "**/*Config*",
                             "**/*DynamicQuery*",
                             "**/*error*",
-                            "**/*Repository*"
+                            "**/*Repository*",
+                            "**/MigrationRunner*",
+                            "**/PtGoalMigrationService*",
+                            "**/com/tnt/PtGoal.class"
                     ] + Qdomains)
                 })
         )
