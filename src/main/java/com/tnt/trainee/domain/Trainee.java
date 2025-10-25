@@ -4,6 +4,7 @@ import static com.tnt.common.error.model.ErrorMessage.TRAINEE_INVALID_CAUTION_NO
 import static java.util.Objects.isNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.tnt.member.domain.Member;
 
@@ -20,22 +21,30 @@ public class Trainee {
 	private Double height;
 	private Double weight;
 	private String cautionNote;
+	private List<PtGoal> ptGoals;
 	private LocalDateTime deletedAt;
 
 	@Builder
-	public Trainee(Long id, Member member, Double height, Double weight, String cautionNote, LocalDateTime deletedAt) {
+	public Trainee(Long id, Member member, Double height, Double weight, String cautionNote, List<PtGoal> ptGoals,
+		LocalDateTime deletedAt) {
 		this.id = id;
 		this.member = member;
 		this.height = height;
 		this.weight = weight;
+		this.ptGoals = ptGoals;
 		this.deletedAt = deletedAt;
 		validateAndSetCautionNote(cautionNote);
 	}
 
-	public void updateTraineeInfo(Double height, Double weight, String cautionNote) {
+	public void updatePtGoals(List<PtGoal> ptGoals) {
+		this.ptGoals = ptGoals;
+	}
+
+	public void updateTraineeInfo(Double height, Double weight, String cautionNote, List<PtGoal> ptGoals) {
 		this.height = height;
 		this.weight = weight;
 		validateAndSetCautionNote(cautionNote);
+		this.ptGoals = ptGoals;
 	}
 
 	private void validateAndSetCautionNote(String cautionNote) {

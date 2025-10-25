@@ -19,13 +19,10 @@ import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.trainee.application.DietService;
-import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
 import com.tnt.trainee.application.repository.DietRepository;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.Diet;
-import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
 import com.tnt.trainer.application.TrainerService;
 import com.tnt.trainer.application.repository.TrainerRepository;
@@ -41,11 +38,8 @@ public class WithdrawService {
 	private final MemberService memberService;
 	private final TrainerService trainerService;
 	private final TraineeService traineeService;
-	private final PtGoalService ptGoalService;
 	private final DietService dietService;
 	private final PtService ptService;
-
-	private final PtGoalRepository ptGoalRepository;
 	private final MemberRepository memberRepository;
 	private final TrainerRepository trainerRepository;
 	private final TraineeRepository traineeRepository;
@@ -90,7 +84,6 @@ public class WithdrawService {
 
 		if (member.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(member.getId());
-			List<PtGoal> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId());
 			List<Diet> diets = dietService.getAllByTraineeId(trainee.getId());
 
 			if (ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId())) {
@@ -107,8 +100,6 @@ public class WithdrawService {
 					// Do nothing
 				}
 			}
-
-			ptGoalRepository.deleteAll(ptGoals);
 
 			diets.forEach(Diet::softDelete);
 			dietRepository.saveAll(diets);

@@ -17,7 +17,6 @@ import com.tnt.member.domain.Member;
 import com.tnt.member.domain.MemberType;
 import com.tnt.member.dto.request.SignUpRequest;
 import com.tnt.member.dto.response.SignUpResponse;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
@@ -32,11 +31,9 @@ public class SignUpService {
 
 	private final SessionService sessionService;
 	private final MemberService memberService;
-
 	private final MemberRepository memberRepository;
 	private final TrainerRepository trainerRepository;
 	private final TraineeRepository traineeRepository;
-	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional
 	public Long signUp(SignUpRequest request) {
@@ -76,16 +73,18 @@ public class SignUpService {
 
 	private Long createTrainee(SignUpRequest request) {
 		Member member = createMember(request, TRAINEE_DEFAULT_IMAGE, TRAINEE);
+
+		List<PtGoal> ptGoals = request.ptGoals().stream().map(PtGoal::of).toList();
+
 		Trainee trainee = Trainee.builder()
 			.member(member)
 			.height(request.height())
 			.weight(request.weight())
 			.cautionNote(request.cautionNote())
+			.ptGoals(ptGoals)
 			.build();
 
-		trainee = traineeRepository.save(trainee);
-
-		createPtGoals(trainee, request.goalContents());
+		traineeRepository.save(trainee);
 
 		return member.getId();
 	}
@@ -106,16 +105,5 @@ public class SignUpService {
 			.build();
 
 		return memberRepository.save(member);
-	}
-
-	private void createPtGoals(Trainee trainee, List<String> goalContents) {
-		List<PtGoal> ptGoals = goalContents.stream()
-			.map(content -> PtGoal.builder()
-				.traineeId(trainee.getId())
-				.content(content)
-				.build())
-			.toList();
-
-		ptGoalRepository.saveAll(ptGoals);
 	}
 }

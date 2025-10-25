@@ -30,7 +30,6 @@ import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
 import com.tnt.pt.dto.PtTrainerTraineeProjection;
 import com.tnt.trainee.application.DietService;
-import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
 import com.tnt.trainee.domain.Diet;
 import com.tnt.trainee.domain.PtGoal;
@@ -60,7 +59,6 @@ public class PtService {
 
 	private final TrainerService trainerService;
 	private final TraineeService traineeService;
-	private final PtGoalService ptGoalService;
 	private final DietService dietService;
 
 	private final PtTrainerTraineeRepository ptTrainerTraineeRepository;
@@ -100,13 +98,12 @@ public class PtService {
 		Member trainerMember = trainer.getMember(); // fetch join 으로 가져온 member
 		Member traineeMember = trainee.getMember(); // fetch join 으로 가져온 member
 
-		List<PtGoal> ptGoals = ptGoalService.getAllByTraineeId(traineeId);
-		String ptGoal = ptGoals.stream().map(PtGoal::getContent).collect(Collectors.joining(", "));
+		List<PtGoal> ptGoals = trainee.getPtGoals();
 
 		return new ConnectWithTraineeResponse(
 			new ConnectTrainerInfo(trainerMember.getName(), trainerMember.getProfileImageUrl()),
 			new ConnectTraineeInfo(traineeMember.getName(), traineeMember.getProfileImageUrl(),
-				traineeMember.getAge(), trainee.getHeight(), trainee.getWeight(), ptGoal, trainee.getCautionNote())
+				traineeMember.getAge(), trainee.getHeight(), trainee.getWeight(), ptGoals, trainee.getCautionNote())
 		);
 	}
 
@@ -158,10 +155,7 @@ public class PtService {
 		List<ActiveTraineeInfo> activeTraineeInfo = trainees.stream().map(trainee -> {
 			PtTrainerTrainee ptTrainerTrainee = ptTrainerTraineeRepository.findByTraineeId(trainee.getId());
 
-			List<String> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId())
-				.stream()
-				.map(PtGoal::getContent)
-				.toList();
+			List<PtGoal> ptGoals = ptTrainerTrainee.getTrainee().getPtGoals();
 
 			// Memo 추가 구현 필요
 			return new ActiveTraineeInfo(trainee.getId(), trainee.getMember().getName(),

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.tnt.member.domain.MemberType;
 import com.tnt.member.domain.SocialType;
+import com.tnt.trainee.domain.PtGoal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -61,8 +62,8 @@ public record MemberInfoResponse(
 		@Schema(description = "주의사항", example = "가냘퍼요", nullable = true)
 		String cautionNote,
 
-		@Schema(description = "PT 목적들", example = "[\"체중 감량\", \"근력 향상\"]", nullable = false)
-		List<String> ptGoals
+		@Schema(description = "PT 목적", example = "[\"WEIGHT_LOSS\", \"STRENGTH_ENHANCE\"]", nullable = false)
+		List<PtGoal> ptGoals
 	) {
 
 	}

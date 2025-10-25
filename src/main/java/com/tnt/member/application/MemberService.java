@@ -7,11 +7,8 @@ import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.dto.MemberProjection.MemberTypeDto;
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toSet;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -28,9 +25,7 @@ import com.tnt.member.dto.request.UpdateMemberInfoRequest;
 import com.tnt.member.dto.response.MemberInfoResponse;
 import com.tnt.pt.application.PtService;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.trainee.application.PtGoalService;
 import com.tnt.trainee.application.TraineeService;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
@@ -45,12 +40,10 @@ public class MemberService {
 
 	private final TrainerService trainerService;
 	private final TraineeService traineeService;
-	private final PtGoalService ptGoalService;
 	private final PtService ptService;
 
 	private final MemberRepository memberRepository;
 	private final TraineeRepository traineeRepository;
-	private final PtGoalRepository ptGoalRepository;
 
 	@Transactional(readOnly = true)
 	public MemberInfoResponse getMemberInfo(Long memberId) {
@@ -78,10 +71,7 @@ public class MemberService {
 
 		if (member.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
-			List<String> ptGoals = ptGoalService.getAllByTraineeId(trainee.getId())
-				.stream()
-				.map(PtGoal::getContent)
-				.toList();
+			List<PtGoal> ptGoals = trainee.getPtGoals();
 			boolean isConnected = ptService.isPtTrainerTraineeExistWithTraineeId(trainee.getId());
 
 			MemberInfoResponse.TraineeInfo traineeInfo = new MemberInfoResponse.TraineeInfo(isConnected,
@@ -154,8 +144,7 @@ public class MemberService {
 			Trainee trainee = traineeService.getByMemberId(memberId);
 
 			member.updateBirthday(request.birthday());
-			trainee.updateTraineeInfo(request.height(), request.weight(), request.cautionNote());
-			updatePtGoals(trainee, new HashSet<>(request.goalContents()));
+			trainee.updateTraineeInfo(request.height(), request.weight(), request.cautionNote(), request.ptGoals());
 
 			traineeRepository.save(trainee);
 		}
@@ -174,33 +163,5 @@ public class MemberService {
 
 	public Member getByMemberId(Long memberId) {
 		return memberRepository.findById(memberId);
-	}
-
-	private void updatePtGoals(Trainee trainee, HashSet<String> newGoalContents) {
-		// 기존 PT 목표들 조회
-		List<PtGoal> currentPtGoals = ptGoalService.getAllByTraineeId(trainee.getId());
-
-		// 기존 목표 중 더 이상 필요없는 목표 삭제
-		List<PtGoal> goalsToDelete = currentPtGoals.stream()
-			.filter(goal -> !newGoalContents.contains(goal.getContent()))
-			.toList();
-
-		if (!goalsToDelete.isEmpty()) {
-			ptGoalRepository.deleteAll(goalsToDelete);
-		}
-
-		// 새로운 목표 추가 (기존에 없는 것만)
-		Set<String> existingContents = currentPtGoals.stream()
-			.map(PtGoal::getContent)
-			.collect(toSet());
-
-		List<PtGoal> newPtGoals = newGoalContents.stream()
-			.filter(content -> !existingContents.contains(content))
-			.map(content -> PtGoal.builder().traineeId(trainee.getId()).content(content).build())
-			.toList();
-
-		if (!newPtGoals.isEmpty()) {
-			ptGoalRepository.saveAll(newPtGoals);
-		}
 	}
 }

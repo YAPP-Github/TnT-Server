@@ -1,33 +1,40 @@
 package com.tnt.trainee.domain;
 
-import static com.tnt.common.error.model.ErrorMessage.PT_GOAL_INVALID_CONTENT;
-import static io.micrometer.common.util.StringUtils.isBlank;
-import static java.util.Objects.requireNonNull;
+import static com.tnt.common.error.model.ErrorMessage.UNSUPPORTED_PT_GOAL;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.tnt.common.error.exception.TnTException;
 
-@Getter
-public class PtGoal {
+public enum PtGoal {
+	WEIGHT_LOSS("체중 감량"),
+	STRENGTH_ENHANCE("근력 향상"),
+	HEALTH_MANAGE("건강 관리"),
+	FLEXIBILITY_ENHANCE("유연성향상"),
+	BODY_PROFILE("바디프로필"),
+	POSTURE_CORRECTION("자세 교정");
 
-	public static final int CONTENT_LENGTH = 100;
+	private final String koreanName;
 
-	private final Long id;
-	private final Long traineeId;
-	private final String content;
-
-	@Builder
-	public PtGoal(Long id, Long traineeId, String content) {
-		this.id = id;
-		this.traineeId = requireNonNull(traineeId);
-		this.content = validateContent(content);
+	PtGoal(String koreanName) {
+		this.koreanName = koreanName;
 	}
 
-	private String validateContent(String content) {
-		if (isBlank(content) || content.length() > CONTENT_LENGTH) {
-			throw new IllegalArgumentException(PT_GOAL_INVALID_CONTENT.getMessage());
+	@JsonCreator
+	public static PtGoal of(String value) {
+		// 1. 영어 enum 이름으로 시도
+		for (PtGoal goal : PtGoal.values()) {
+			if (goal.name().equalsIgnoreCase(value)) {
+				return goal;
+			}
 		}
 
-		return content;
+		// 2. 한글 이름으로 시도
+		for (PtGoal goal : PtGoal.values()) {
+			if (goal.koreanName.equals(value)) {
+				return goal;
+			}
+		}
+
+		throw new TnTException(UNSUPPORTED_PT_GOAL);
 	}
 }

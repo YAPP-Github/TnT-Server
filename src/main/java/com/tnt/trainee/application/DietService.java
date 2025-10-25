@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class DietService {
 
 	private final TraineeService traineeService;
-
 	private final DietRepository dietRepository;
 
 	@Transactional

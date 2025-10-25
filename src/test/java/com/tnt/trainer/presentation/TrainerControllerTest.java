@@ -2,6 +2,8 @@ package com.tnt.trainer.presentation;
 
 import static com.tnt.member.domain.MemberType.TRAINER;
 import static com.tnt.member.domain.SocialType.KAKAO;
+import static com.tnt.trainee.domain.PtGoal.STRENGTH_ENHANCE;
+import static com.tnt.trainee.domain.PtGoal.WEIGHT_LOSS;
 import static java.util.Comparator.comparing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -13,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tnt.annotation.WithMockCustomUser;
 import com.tnt.fixture.MemberFixture;
-import com.tnt.fixture.PtGoalsFixture;
 import com.tnt.fixture.PtTrainerTraineeFixture;
 import com.tnt.fixture.TraineeFixture;
 import com.tnt.fixture.TrainerFixture;
@@ -44,7 +46,6 @@ import com.tnt.pt.application.repository.PtLessonRepository;
 import com.tnt.pt.application.repository.PtTrainerTraineeRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
-import com.tnt.trainee.application.repository.PtGoalRepository;
 import com.tnt.trainee.application.repository.TraineeRepository;
 import com.tnt.trainee.domain.PtGoal;
 import com.tnt.trainee.domain.Trainee;
@@ -77,9 +78,6 @@ class TrainerControllerTest {
 
 	@Autowired
 	private PtTrainerTraineeRepository ptTrainerTraineeRepository;
-
-	@Autowired
-	private PtGoalRepository ptGoalRepository;
 
 	@Autowired
 	private PtLessonRepository ptLessonRepository;
@@ -281,11 +279,14 @@ class TrainerControllerTest {
 			.member(trainerMember)
 			.build();
 
+		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+
 		Trainee trainee = Trainee.builder()
 			.member(traineeMember)
 			.height(180.5)
 			.weight(78.4)
 			.cautionNote("주의사항")
+			.ptGoals(ptGoals)
 			.build();
 
 		trainer = trainerRepository.save(trainer);
@@ -294,18 +295,6 @@ class TrainerControllerTest {
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 
 		ptTrainerTraineeRepository.save(ptTrainerTrainee);
-
-		PtGoal ptGoal1 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("다이어트")
-			.build();
-
-		PtGoal ptGoal2 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("체중 감량")
-			.build();
-
-		ptGoalRepository.saveAll(List.of(ptGoal1, ptGoal2));
 
 		// when & then
 		mockMvc.perform(get("/trainers/first-connected-trainee")
@@ -462,12 +451,6 @@ class TrainerControllerTest {
 		trainee1 = traineeRepository.save(trainee1);
 		trainee2 = traineeRepository.save(trainee2);
 
-		List<PtGoal> ptGoals1 = PtGoalsFixture.getPtGoals(trainee1.getId());
-		List<PtGoal> ptGoals2 = PtGoalsFixture.getPtGoals(trainee2.getId());
-
-		ptGoalRepository.saveAll(ptGoals1);
-		ptGoalRepository.saveAll(ptGoals2);
-
 		PtTrainerTrainee ptTrainerTrainee1 = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee1);
 		PtTrainerTrainee ptTrainerTrainee2 = PtTrainerTraineeFixture.getPtTrainerTrainee2(trainer, trainee2);
 
@@ -516,11 +499,14 @@ class TrainerControllerTest {
 			.member(trainerMember)
 			.build();
 
+		List<PtGoal> ptGoals = Arrays.asList(WEIGHT_LOSS, STRENGTH_ENHANCE);
+
 		Trainee trainee = Trainee.builder()
 			.member(traineeMember)
 			.height(180.5)
 			.weight(78.4)
 			.cautionNote("주의사항")
+			.ptGoals(ptGoals)
 			.build();
 
 		trainer = trainerRepository.save(trainer);
@@ -528,18 +514,6 @@ class TrainerControllerTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 		ptTrainerTraineeRepository.save(ptTrainerTrainee);
-
-		PtGoal ptGoal1 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("다이어트")
-			.build();
-
-		PtGoal ptGoal2 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("체중 감량")
-			.build();
-
-		ptGoalRepository.saveAll(List.of(ptGoal1, ptGoal2));
 
 		LocalDateTime start = LocalDateTime.of(2025, 1, 1, 10, 0);
 		LocalDateTime end = LocalDateTime.of(2025, 1, 1, 11, 0);
@@ -587,18 +561,6 @@ class TrainerControllerTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
-
-		PtGoal ptGoal1 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("다이어트")
-			.build();
-
-		PtGoal ptGoal2 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("체중 감량")
-			.build();
-
-		ptGoalRepository.saveAll(List.of(ptGoal1, ptGoal2));
 
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
@@ -745,18 +707,6 @@ class TrainerControllerTest {
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
 
-		PtGoal ptGoal1 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("다이어트")
-			.build();
-
-		PtGoal ptGoal2 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("체중 감량")
-			.build();
-
-		ptGoalRepository.saveAll(List.of(ptGoal1, ptGoal2));
-
 		LocalDateTime startDate1 = LocalDateTime.parse("2025-02-01T11:30");
 		LocalDateTime endDate1 = LocalDateTime.parse("2025-02-01T13:00");
 
@@ -896,18 +846,6 @@ class TrainerControllerTest {
 
 		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
 		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
-
-		PtGoal ptGoal1 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("다이어트")
-			.build();
-
-		PtGoal ptGoal2 = PtGoal.builder()
-			.traineeId(trainee.getId())
-			.content("체중 감량")
-			.build();
-
-		ptGoalRepository.saveAll(List.of(ptGoal1, ptGoal2));
 
 		LocalDateTime createdStart = LocalDateTime.of(2025, 1, 1, 10, 0);
 		LocalDateTime createdEnd = LocalDateTime.of(2025, 1, 1, 11, 0);

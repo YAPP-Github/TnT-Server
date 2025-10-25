@@ -1,5 +1,9 @@
 package com.tnt.trainer.dto.response;
 
+import java.util.List;
+
+import com.tnt.trainee.domain.PtGoal;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "트레이니와 연결 응답 - 트레이너의 화면")
@@ -37,8 +41,8 @@ public record ConnectWithTraineeResponse(
 		@Schema(description = "트레이니 몸무게", example = "70.2kg", nullable = true)
 		Double weight,
 
-		@Schema(description = "PT 목표", example = "체중 감량, 근력 향상, 건강 관리", nullable = false)
-		String ptGoal,
+		@Schema(description = "PT 목표", example = "[\"WEIGHT_LOSS\", \"STRENGTH_ENHANCE\"]", nullable = false)
+		List<PtGoal> ptGoals,
 
 		@Schema(description = "주의 사항", example = "왼쪽 발목 골절", nullable = true)
 		String cautionNote
