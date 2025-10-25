@@ -86,10 +86,7 @@ jacocoTestReport {
                             "**/*Config*",
                             "**/*DynamicQuery*",
                             "**/*error*",
-                            "**/*Repository*",
-                            "**/MigrationRunner*",
-                            "**/PtGoalMigrationService*",
-                            "**/com/tnt/PtGoal.class"
+                            "**/*Repository*"
                     ] + Qdomains)
                 })
         )
@@ -130,10 +127,7 @@ jacocoTestCoverageVerification {
                     'scouter.*',
                     'reactor.*',
                     '*.*RepositoryImpl',
-                    '*.*Converter',
-                    '*.tnt.MigrationRunner',
-                    '*.tnt.PtGoalMigrationService',
-                    '*.tnt.PtGoal'
+                    '*.*Converter'
             ]
         }
     }
