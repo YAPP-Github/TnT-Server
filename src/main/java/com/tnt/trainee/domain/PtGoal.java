@@ -9,7 +9,7 @@ public enum PtGoal {
 	WEIGHT_LOSS("체중 감량"),
 	STRENGTH_ENHANCE("근력 향상"),
 	HEALTH_MANAGE("건강 관리"),
-	FLEXIBILITY_ENHANCE("유연성향상"),
+	FLEXIBILITY_ENHANCE("유연성 향상"),
 	BODY_PROFILE("바디프로필"),
 	POSTURE_CORRECTION("자세 교정");
 
