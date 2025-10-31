@@ -3,6 +3,7 @@ package com.tnt.trainee.domain;
 import static com.tnt.common.error.model.ErrorMessage.UNSUPPORTED_PT_GOAL;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.tnt.common.error.exception.TnTException;
 
 public enum PtGoal {
@@ -13,10 +14,15 @@ public enum PtGoal {
 	BODY_PROFILE("바디프로필"),
 	POSTURE_CORRECTION("자세 교정");
 
-	private final String koreanName;
+	private final String korean;
 
-	PtGoal(String koreanName) {
-		this.koreanName = koreanName;
+	PtGoal(String korean) {
+		this.korean = korean;
+	}
+
+	@JsonValue
+	public String getKorean() {
+		return korean;
 	}
 
 	@JsonCreator
@@ -30,7 +36,7 @@ public enum PtGoal {
 
 		// 2. 한글 이름으로 시도
 		for (PtGoal goal : PtGoal.values()) {
-			if (goal.koreanName.equals(value)) {
+			if (goal.korean.equals(value)) {
 				return goal;
 			}
 		}

@@ -34,7 +34,7 @@ public record GetActiveTraineesResponse(
 		@Schema(description = "메모", example = "건강하지 않음", nullable = true)
 		String memo,
 
-		@Schema(description = "PT 목적", example = "[\"WEIGHT_LOSS\", \"STRENGTH_ENHANCE\"]", nullable = false)
+		@Schema(description = "PT 목적", example = "[\"체중 감량\", \"근력 향상\"]", nullable = false)
 		List<PtGoal> ptGoals
 	) {
 
