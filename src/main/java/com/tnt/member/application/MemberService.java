@@ -117,8 +117,7 @@ public class MemberService {
 		if (isNull(profileImage)) {
 			// 이미지 삭제 요청 - 현재 이미지가 기본 이미지가 아닌 경우
 			if (removeImage && !isCurrentImageDefault) {
-				changeImageUrl =
-					member.getMemberType() == TRAINER ? TRAINER_DEFAULT_IMAGE : TRAINEE_DEFAULT_IMAGE;
+				changeImageUrl = member.getMemberType() == TRAINER ? TRAINER_DEFAULT_IMAGE : TRAINEE_DEFAULT_IMAGE;
 			} else if (!removeImage && isCurrentImageDefault) { // 이미지 유지 요청 - 현재 이미지가 기본 이미지인 경우
 				changeImageUrl = currentImageUrl;
 				removeCurrentImage = false;
@@ -132,8 +131,7 @@ public class MemberService {
 			}
 		}
 
-		return new ProfileUpdate(currentImageUrl, changeImageUrl, removeCurrentImage,
-			isCurrentImageDefault);
+		return new ProfileUpdate(currentImageUrl, changeImageUrl, removeCurrentImage, isCurrentImageDefault);
 	}
 
 	@Transactional
@@ -143,13 +141,13 @@ public class MemberService {
 		if (member.getMemberType() == TRAINEE) {
 			Trainee trainee = traineeService.getByMemberId(memberId);
 
-			member.updateBirthday(request.birthday());
 			trainee.updateTraineeInfo(request.height(), request.weight(), request.cautionNote(), request.ptGoals());
 
 			traineeRepository.save(trainee);
 		}
 
 		member.updateName(request.name());
+		member.updateBirthday(request.birthday());
 		member.updateProfileImageUrl(profileImageUrl);
 
 		memberRepository.save(member);

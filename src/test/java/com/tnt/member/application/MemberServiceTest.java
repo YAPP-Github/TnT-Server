@@ -76,8 +76,7 @@ class MemberServiceTest {
 		String socialId = existingMember.getSocialId();
 		SocialType socialType = existingMember.getSocialType();
 
-		given(memberRepository.existsBySocialIdAndSocialType(socialId, socialType)).willReturn(
-			true);
+		given(memberRepository.existsBySocialIdAndSocialType(socialId, socialType)).willReturn(true);
 
 		// when & then
 		assertThrows(ConflictException.class, () -> memberService.validateMemberNotExists(socialId, socialType));

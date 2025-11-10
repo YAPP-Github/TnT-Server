@@ -458,8 +458,8 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 
 		trainerRepository.save(trainer);
 
-		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINER, "홍길동", null, null, null, null,
-			List.of());
+		UpdateMemberInfoRequest request = new UpdateMemberInfoRequest(true, TRAINER, "홍길동",
+			LocalDate.of(2025, 1, 1), null, null, null, List.of());
 
 		// when & then
 		var jsonRequest = new MockMultipartFile("request", "", APPLICATION_JSON_VALUE,
@@ -475,6 +475,7 @@ class MemberControllerTest extends AbstractContainerBaseTest {
 		Member updateMember = memberRepository.findAll().getFirst();
 		assertThat(updateMember).isNotNull();
 		assertThat(updateMember.getName()).isEqualTo(request.name());
+		assertThat(updateMember.getBirthday()).isEqualTo(request.birthday());
 	}
 
 	@Test
