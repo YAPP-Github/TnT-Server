@@ -8,6 +8,7 @@ import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_OVERFLOW;
 import static com.tnt.common.error.model.ErrorMessage.PT_TRAINEE_ALREADY_EXIST;
 import static com.tnt.common.error.model.ErrorMessage.PT_TRAINER_TRAINEE_ALREADY_EXIST;
 import static com.tnt.common.error.model.ErrorMessage.PT_TRAINER_TRAINEE_NOT_FOUND;
+import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.time.LocalDate;
@@ -41,6 +42,7 @@ import com.tnt.trainer.application.TrainerService;
 import com.tnt.trainer.domain.Trainer;
 import com.tnt.trainer.dto.ConnectWithTrainerDto;
 import com.tnt.trainer.dto.request.CreatePtLessonRequest;
+import com.tnt.trainer.dto.request.UpdatePtLessonRequest;
 import com.tnt.trainer.dto.response.ConnectWithTraineeResponse;
 import com.tnt.trainer.dto.response.ConnectWithTraineeResponse.ConnectTraineeInfo;
 import com.tnt.trainer.dto.response.ConnectWithTraineeResponse.ConnectTrainerInfo;
@@ -264,6 +266,51 @@ public class PtService {
 		return new GetTraineeCalendarPtLessonCountResponse(dates);
 	}
 
+	@Transactional
+	public void updatePtLesson(Long memberId, Long ptLessonId, UpdatePtLessonRequest request) {
+		trainerService.validateTrainerRegistration(memberId);
+
+		PtLesson ptLesson = getPtLessonWithId(ptLessonId);
+		PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
+
+		// 시간 변경 시 중복 검증
+		if (!ptLesson.getLessonStart().equals(request.lessonStart()) || !ptLesson.getLessonEnd()
+			.equals(request.lessonEnd())) {
+			validateLessonTimeForUpdate(ptTrainerTrainee, request.lessonStart(), request.lessonEnd(), ptLessonId);
+		}
+
+		ptLesson.update(request.lessonStart(), request.lessonEnd(), request.memo());
+
+		ptLessonRepository.save(ptLesson);
+	}
+
+	@Transactional
+	public void deletePtLesson(Long memberId, Long ptLessonId) {
+		trainerService.validateTrainerRegistration(memberId);
+
+		PtLesson ptLesson = getPtLessonWithId(ptLessonId);
+
+		// 완료된 수업 삭제 시 세션 카운트 조정
+		if (TRUE.equals(ptLesson.getIsCompleted())) {
+			PtTrainerTrainee ptTrainerTrainee = ptLesson.getPtTrainerTrainee();
+			ptTrainerTrainee.cancelLesson();
+
+			// 삭제되는 수업 이후의 미완료 수업들의 세션 번호 조정
+			List<PtLesson> lessonsNotCompleted =
+				ptLessonRepository.findAllByPtTrainerTraineeAndIsCompletedIsFalseWithout(ptTrainerTrainee, ptLessonId);
+
+			lessonsNotCompleted.forEach(lesson -> {
+				if (lesson.getSession() > ptLesson.getSession()) {
+					lesson.decreaseSession();
+				}
+			});
+		}
+
+		ptLesson.softDelete();
+
+		ptLessonRepository.save(ptLesson);
+	}
+
 	@Transactional(readOnly = true)
 	public GetTraineeDailyRecordsResponse getDailyRecords(Long memberId, LocalDate date) {
 		Trainee trainee = traineeService.getByMemberIdNoFetch(memberId);
@@ -359,6 +406,21 @@ public class PtService {
 		}
 
 		if (ptLessonRepository.existsByStart(ptTrainerTrainee, start)) {
+			throw new ConflictException(PT_LESSON_MORE_THAN_ONE_A_DAY);
+		}
+	}
+
+	private void validateLessonTimeForUpdate(PtTrainerTrainee ptTrainerTrainee, LocalDateTime start,
+		LocalDateTime end, Long excludeId) {
+		if (ptTrainerTrainee.getStartedAt().isAfter(start.toLocalDate())) {
+			throw new BadRequestException(PT_LESSON_CREATE_BEFORE_START);
+		}
+
+		if (ptLessonRepository.existsByStartAndEndExcludingId(ptTrainerTrainee, start, end, excludeId)) {
+			throw new ConflictException(PT_LESSON_DUPLICATE_TIME);
+		}
+
+		if (ptLessonRepository.existsByStartExcludingId(ptTrainerTrainee, start, excludeId)) {
 			throw new ConflictException(PT_LESSON_MORE_THAN_ONE_A_DAY);
 		}
 	}

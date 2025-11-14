@@ -1,10 +1,12 @@
 package com.tnt.trainer.presentation;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.time.LocalDate;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import com.tnt.gateway.config.AuthMember;
 import com.tnt.pt.application.PtService;
 import com.tnt.trainer.application.TrainerService;
 import com.tnt.trainer.dto.request.CreatePtLessonRequest;
+import com.tnt.trainer.dto.request.UpdatePtLessonRequest;
 import com.tnt.trainer.dto.response.ConnectWithTraineeResponse;
 import com.tnt.trainer.dto.response.GetActiveTraineesResponse;
 import com.tnt.trainer.dto.response.GetCalendarPtLessonCountResponse;
@@ -117,5 +120,20 @@ public class TrainerController {
 	public void cancelPtLesson(@AuthMember Long memberId,
 		@Parameter(description = "PT 수업 ID", example = "123456789") @PathVariable("ptLessonId") Long ptLessonId) {
 		ptService.cancelPtLesson(memberId, ptLessonId);
+	}
+
+	@Operation(summary = "PT 수업 수정 API")
+	@PutMapping("/lessons/{ptLessonId}/edit")
+	@ResponseStatus(NO_CONTENT)
+	public void updatePtLesson(@AuthMember Long memberId, @PathVariable("ptLessonId") Long ptLessonId,
+		@RequestBody @Valid UpdatePtLessonRequest request) {
+		ptService.updatePtLesson(memberId, ptLessonId, request);
+	}
+
+	@Operation(summary = "PT 수업 삭제 API")
+	@DeleteMapping("/lessons/{ptLessonId}/delete")
+	@ResponseStatus(NO_CONTENT)
+	public void deletePtLesson(@AuthMember Long memberId, @PathVariable("ptLessonId") Long ptLessonId) {
+		ptService.deletePtLesson(memberId, ptLessonId);
 	}
 }
