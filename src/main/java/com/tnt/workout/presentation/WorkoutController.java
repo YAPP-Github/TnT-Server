@@ -28,7 +28,7 @@ public class WorkoutController {
 
 	private final WorkoutService workoutService;
 
-	@Operation(summary = "운동 검색 API", description = "키워드, 부위, 기구로 운동을 검색합니다. 커서 기반 페이지네이션을 사용합니다.")
+	@Operation(summary = "운동 검색 API")
 	@ResponseStatus(OK)
 	@GetMapping("/search")
 	public SearchWorkoutResponse search(
