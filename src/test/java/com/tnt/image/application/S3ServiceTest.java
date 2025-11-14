@@ -3,6 +3,7 @@ package com.tnt.image.application;
 import static com.tnt.common.constant.ImageConstant.TRAINEE_DEFAULT_IMAGE;
 import static com.tnt.member.domain.MemberType.TRAINEE;
 import static com.tnt.member.domain.MemberType.TRAINER;
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants.TIFF_TAG_ORIENTATION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 
 import java.awt.Color;
@@ -17,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -45,7 +49,7 @@ class S3ServiceTest {
 	private S3Adapter s3Adapter;
 
 	private BufferedImage createTestImage() {
-		BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = new BufferedImage(100, 100, TYPE_INT_RGB);
 		Graphics2D graphics = image.createGraphics();
 
 		graphics.setColor(Color.WHITE);
@@ -145,5 +149,66 @@ class S3ServiceTest {
 		// then
 		assertThat(requireNonNull(rotatedImage).getRGB(25, 50)).isEqualTo(Color.BLACK.getRGB());
 		assertThat(requireNonNull(rotatedImage).getRGB(75, 50)).isEqualTo(Color.WHITE.getRGB());
+	}
+
+	@Test
+	@DisplayName("운동 기록 이미지 여러 개 업로드 성공")
+	void upload_workout_record_images_success() throws Exception {
+		// given
+		MockMultipartFile image1 = new MockMultipartFile("image1", "test1.jpg", IMAGE_JPEG_VALUE,
+			createDummyImageData(1));
+		MockMultipartFile image2 = new MockMultipartFile("image2", "test2.jpg", IMAGE_JPEG_VALUE,
+			createDummyImageData(1));
+		String expectedUrl1 = "https://bucket.s3.amazonaws.com/workout-record/123.jpg";
+		String expectedUrl2 = "https://bucket.s3.amazonaws.com/workout-record/456.jpg";
+
+		given(s3Adapter.uploadFile(any(byte[].class), anyString(), anyString())).willReturn(expectedUrl1)
+			.willReturn(expectedUrl2);
+
+		// when
+		var result = s3Service.uploadWorkoutRecordImages(List.of(image1, image2));
+
+		// then
+		assertThat(result).hasSize(2).contains(expectedUrl1, expectedUrl2);
+	}
+
+	@Test
+	@DisplayName("운동 기록 이미지 null일 경우 빈 리스트 반환")
+	void upload_workout_record_images_null_returns_empty_list() {
+		// when
+		var result = s3Service.uploadWorkoutRecordImages(null);
+
+		// then
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	@DisplayName("운동 기록 이미지 빈 리스트일 경우 빈 리스트 반환")
+	void upload_workout_record_images_empty_returns_empty_list() {
+		// when
+		var result = s3Service.uploadWorkoutRecordImages(List.of());
+
+		// then
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	@DisplayName("운동 기록 이미지 null일 경우 삭제하지 않음")
+	void delete_workout_record_image_null_does_nothing() {
+		// when
+		s3Service.deleteWorkoutRecordImage(null);
+
+		// then
+		verify(s3Adapter, never()).deleteFile(anyString());
+	}
+
+	@Test
+	@DisplayName("운동 기록 이미지 빈 문자열일 경우 삭제하지 않음")
+	void delete_workout_record_image_empty_does_nothing() {
+		// when
+		s3Service.deleteWorkoutRecordImage("");
+
+		// then
+		verify(s3Adapter, never()).deleteFile(anyString());
 	}
 }

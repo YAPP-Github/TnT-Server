@@ -65,7 +65,15 @@ public enum ErrorMessage {
 	DIET_INVALID_MEMO("식단 메모가 올바르지 않습니다."),
 	UNSUPPORTED_DIET_TYPE("지원하지 않는 식단 타입입니다."),
 	DIET_NOT_FOUND("존재하지 않는 식단입니다."),
-	DIET_DUPLICATE_TIME("이미 등록된 시간대입니다.");
+	DIET_DUPLICATE_TIME("이미 등록된 시간대입니다."),
+
+	WORKOUT_INVALID_NAME("운동 이름이 올바르지 않습니다."),
+	UNSUPPORTED_BODY_PART("지원하지 않는 부위입니다."),
+	UNSUPPORTED_MACHINE("지원하지 않는 기구입니다."),
+	UNSUPPORTED_WORKOUT_TYPE("지원하지 않는 운동 타입입니다."),
+	UNSUPPORTED_RECORD_TYPE("지원하지 않는 기록 타입입니다."),
+
+	WORKOUT_RECORD_NOT_FOUND("존재하지 않는 운동 기록입니다.");
 
 	private final String message;
 }

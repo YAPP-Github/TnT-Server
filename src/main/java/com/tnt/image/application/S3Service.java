@@ -5,9 +5,11 @@ import static com.tnt.common.constant.ImageConstant.TRAINEE_DEFAULT_IMAGE;
 import static com.tnt.common.constant.ImageConstant.TRAINEE_S3_PROFILE_IMAGE_PATH;
 import static com.tnt.common.constant.ImageConstant.TRAINER_DEFAULT_IMAGE;
 import static com.tnt.common.constant.ImageConstant.TRAINER_S3_PROFILE_IMAGE_PATH;
+import static com.tnt.common.constant.ImageConstant.WORKOUT_RECORD_S3_IMAGE_PATH;
 import static com.tnt.common.error.model.ErrorMessage.IMAGE_NOT_FOUND;
 import static com.tnt.common.error.model.ErrorMessage.IMAGE_NOT_SUPPORT;
 import static com.tnt.common.error.model.ErrorMessage.UNSUPPORTED_MEMBER_TYPE;
+import static com.tnt.image.infrastructure.S3Adapter.IMAGE_BASE_URL;
 import static java.util.Objects.isNull;
 
 import java.awt.image.BufferedImage;
@@ -70,6 +72,17 @@ public class S3Service {
 		return uploadImage(defaultImage, folderPath, profileImage);
 	}
 
+	public List<String> uploadWorkoutRecordImages(@Nullable List<MultipartFile> images) {
+		if (isNull(images) || images.isEmpty()) {
+			return List.of();
+		}
+
+		return images.stream()
+			.map(image -> uploadImage("", WORKOUT_RECORD_S3_IMAGE_PATH, image))
+			.filter(url -> !url.isEmpty())
+			.toList();
+	}
+
 	public String uploadImage(String defaultImage, String folderPath, @Nullable MultipartFile image) {
 		if (isNull(image)) {
 			return defaultImage;
@@ -97,12 +110,27 @@ public class S3Service {
 		}
 
 		try {
-			String s3Key = imageUrl.replace(S3Adapter.IMAGE_BASE_URL, "");
+			String s3Key = imageUrl.replace(IMAGE_BASE_URL, "");
 
 			s3Adapter.deleteFile(s3Key);
 		} catch (Exception e) {
 			// S3 삭제 실패해도 회원 탈퇴는 진행되어야 하므로 로그만 남김
 			log.error("이미지 삭제 실패: {}", imageUrl, e);
+		}
+	}
+
+	public void deleteWorkoutRecordImage(String imageUrl) {
+		if (isNull(imageUrl) || imageUrl.isEmpty()) {
+			return;
+		}
+
+		try {
+			String s3Key = imageUrl.replace(IMAGE_BASE_URL, "");
+
+			s3Adapter.deleteFile(s3Key);
+		} catch (Exception e) {
+			// S3 삭제 실패해도 로그만 남김
+			log.error("운동 기록 이미지 삭제 실패: {}", imageUrl, e);
 		}
 	}
 
