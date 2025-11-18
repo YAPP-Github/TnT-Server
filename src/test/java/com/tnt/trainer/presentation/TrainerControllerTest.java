@@ -6,6 +6,7 @@ import static com.tnt.trainee.domain.PtGoal.STRENGTH_ENHANCE;
 import static com.tnt.trainee.domain.PtGoal.WEIGHT_LOSS;
 import static java.util.Comparator.comparing;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -1088,5 +1089,103 @@ class TrainerControllerTest {
 		// when & then
 		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/cancel", ptLesson.getId()))
 			.andExpect(status().isOk());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - PT 수업 수정 성공")
+	void update_pt_lesson_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+		traineeMember = memberRepository.save(traineeMember);
+
+		CustomUserDetails trainerUserDetails = new CustomUserDetails(trainerMember.getId(),
+			trainerMember.getId().toString(),
+			authoritiesMapper.mapAuthorities(List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(trainerUserDetails, null,
+			authoritiesMapper.mapAuthorities(trainerUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
+
+		trainer = trainerRepository.save(trainer);
+		trainee = traineeRepository.save(trainee);
+
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
+
+		PtLesson ptLesson = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(1)
+			.lessonStart(LocalDateTime.of(2025, 1, 15, 10, 0))
+			.lessonEnd(LocalDateTime.of(2025, 1, 15, 11, 0))
+			.memo("원래 메모")
+			.build();
+
+		ptLesson = ptLessonRepository.save(ptLesson);
+
+		String updateRequest = """
+			{
+				"lessonStart": "2025-01-15T14:00:00",
+				"lessonEnd": "2025-01-15T15:00:00",
+				"memo": "수정된 메모"
+			}
+			""";
+
+		// when & then
+		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/edit", ptLesson.getId())
+				.contentType("application/json")
+				.content(updateRequest))
+			.andExpect(status().isNoContent())
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("통합 테스트 - PT 수업 삭제 성공")
+	void delete_pt_lesson_success() throws Exception {
+		// given
+		Member trainerMember = MemberFixture.getTrainerMember1();
+		Member traineeMember = MemberFixture.getTraineeMember1();
+
+		trainerMember = memberRepository.save(trainerMember);
+		traineeMember = memberRepository.save(traineeMember);
+
+		CustomUserDetails trainerUserDetails = new CustomUserDetails(trainerMember.getId(),
+			trainerMember.getId().toString(),
+			authoritiesMapper.mapAuthorities(List.of(new SimpleGrantedAuthority("ROLE_USER"))));
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(trainerUserDetails, null,
+			authoritiesMapper.mapAuthorities(trainerUserDetails.getAuthorities()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		Trainer trainer = TrainerFixture.getTrainer1(trainerMember);
+		Trainee trainee = TraineeFixture.getTrainee1(traineeMember);
+
+		trainer = trainerRepository.save(trainer);
+		trainee = traineeRepository.save(trainee);
+
+		PtTrainerTrainee ptTrainerTrainee = PtTrainerTraineeFixture.getPtTrainerTrainee1(trainer, trainee);
+		ptTrainerTrainee = ptTrainerTraineeRepository.save(ptTrainerTrainee);
+
+		PtLesson ptLesson = PtLesson.builder()
+			.ptTrainerTrainee(ptTrainerTrainee)
+			.session(1)
+			.lessonStart(LocalDateTime.of(2025, 1, 15, 10, 0))
+			.lessonEnd(LocalDateTime.of(2025, 1, 15, 11, 0))
+			.memo("삭제될 메모")
+			.build();
+
+		ptLesson = ptLessonRepository.save(ptLesson);
+
+		// when & then
+		mockMvc.perform(delete("/trainers/lessons/{ptLessonId}/delete", ptLesson.getId()))
+			.andExpect(status().isNoContent())
+			.andDo(print());
 	}
 }

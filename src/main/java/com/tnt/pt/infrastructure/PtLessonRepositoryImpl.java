@@ -1,5 +1,6 @@
 package com.tnt.pt.infrastructure;
 
+import static com.tnt.common.error.model.ErrorMessage.PT_LESSON_NOT_FOUND;
 import static com.tnt.member.infrastructure.QMemberJpaEntity.memberJpaEntity;
 import static com.tnt.pt.infrastructure.QPtLessonJpaEntity.ptLessonJpaEntity;
 import static com.tnt.pt.infrastructure.QPtTrainerTraineeJpaEntity.ptTrainerTraineeJpaEntity;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tnt.common.error.exception.NotFoundException;
-import com.tnt.common.error.model.ErrorMessage;
 import com.tnt.pt.application.repository.PtLessonRepository;
 import com.tnt.pt.domain.PtLesson;
 import com.tnt.pt.domain.PtTrainerTrainee;
@@ -170,7 +170,7 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 					ptTrainerTraineeJpaEntity.deletedAt.isNull()
 				)
 				.fetchOne())
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.PT_LESSON_NOT_FOUND))
+			.orElseThrow(() -> new NotFoundException(PT_LESSON_NOT_FOUND))
 			.toModel();
 	}
 
@@ -202,6 +202,43 @@ public class PtLessonRepositoryImpl implements PtLessonRepository {
 				ptLessonJpaEntity.lessonStart.year().eq(start.getYear())
 					.and(ptLessonJpaEntity.lessonStart.month().eq(start.getMonthValue()))
 					.and(ptLessonJpaEntity.lessonStart.dayOfMonth().eq(start.getDayOfMonth())),
+				ptLessonJpaEntity.deletedAt.isNull(),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull()
+			)
+			.fetchFirst() != null;
+	}
+
+	@Override
+	public boolean existsByStartAndEndExcludingId(PtTrainerTrainee pt, LocalDateTime start, LocalDateTime end,
+		Long excludeId) {
+		return jpaQueryFactory
+			.selectOne()
+			.from(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity)
+			.where(
+				ptTrainerTraineeJpaEntity.trainer.id.eq(pt.getTrainer().getId()),
+				ptLessonJpaEntity.lessonStart.lt(end),
+				ptLessonJpaEntity.lessonEnd.gt(start),
+				ptLessonJpaEntity.id.ne(excludeId),
+				ptLessonJpaEntity.deletedAt.isNull(),
+				ptTrainerTraineeJpaEntity.deletedAt.isNull()
+			)
+			.fetchFirst() != null;
+	}
+
+	@Override
+	public boolean existsByStartExcludingId(PtTrainerTrainee pt, LocalDateTime start, Long excludeId) {
+		return jpaQueryFactory
+			.selectOne()
+			.from(ptLessonJpaEntity)
+			.join(ptLessonJpaEntity.ptTrainerTrainee, ptTrainerTraineeJpaEntity)
+			.where(
+				ptTrainerTraineeJpaEntity.trainer.id.eq(pt.getTrainer().getId()),
+				ptTrainerTraineeJpaEntity.trainee.id.eq(pt.getTrainee().getId()),
+				ptLessonJpaEntity.lessonStart.year().eq(start.getYear())
+					.and(ptLessonJpaEntity.lessonStart.month().eq(start.getMonthValue()))
+					.and(ptLessonJpaEntity.lessonStart.dayOfMonth().eq(start.getDayOfMonth())),
+				ptLessonJpaEntity.id.ne(excludeId),
 				ptLessonJpaEntity.deletedAt.isNull(),
 				ptTrainerTraineeJpaEntity.deletedAt.isNull()
 			)

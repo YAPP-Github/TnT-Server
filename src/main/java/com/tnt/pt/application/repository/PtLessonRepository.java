@@ -34,4 +34,8 @@ public interface PtLessonRepository {
 	boolean existsByStartAndEnd(PtTrainerTrainee pt, LocalDateTime start, LocalDateTime end);
 
 	boolean existsByStart(PtTrainerTrainee pt, LocalDateTime start);
+
+	boolean existsByStartAndEndExcludingId(PtTrainerTrainee pt, LocalDateTime start, LocalDateTime end, Long excludeId);
+
+	boolean existsByStartExcludingId(PtTrainerTrainee pt, LocalDateTime start, Long excludeId);
 }

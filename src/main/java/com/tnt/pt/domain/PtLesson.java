@@ -14,8 +14,8 @@ public class PtLesson {
 
 	private final Long id;
 	private final PtTrainerTrainee ptTrainerTrainee;
-	private final LocalDateTime lessonStart;
-	private final LocalDateTime lessonEnd;
+	private LocalDateTime lessonStart;
+	private LocalDateTime lessonEnd;
 	private Boolean isCompleted;
 	private String memo;
 	private Integer session;
@@ -54,6 +54,12 @@ public class PtLesson {
 
 	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
+	}
+
+	public void update(LocalDateTime lessonStart, LocalDateTime lessonEnd, String memo) {
+		this.lessonStart = requireNonNull(lessonStart);
+		this.lessonEnd = requireNonNull(lessonEnd);
+		validateAndSetMemo(memo);
 	}
 
 	private void validateAndSetMemo(String memo) {
