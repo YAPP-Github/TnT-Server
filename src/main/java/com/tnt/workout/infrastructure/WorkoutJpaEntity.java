@@ -7,6 +7,7 @@ import com.tnt.workout.domain.Machine;
 import com.tnt.workout.domain.Workout;
 import com.tnt.workout.domain.WorkoutType;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -16,6 +17,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,11 +42,15 @@ public class WorkoutJpaEntity {
 	private String imageUrl;
 
 	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name = "workout_body_parts", joinColumns = @JoinColumn(name = "workout_id"))
 	@Enumerated(EnumType.STRING)
+	@Column(name = "body_part")
 	private List<BodyPart> bodyParts;
 
 	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name = "workout_machines", joinColumns = @JoinColumn(name = "workout_id"))
 	@Enumerated(EnumType.STRING)
+	@Column(name = "machine")
 	private List<Machine> machines;
 
 	@Enumerated(EnumType.STRING)

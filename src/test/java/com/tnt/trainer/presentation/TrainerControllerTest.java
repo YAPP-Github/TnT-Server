@@ -1141,7 +1141,7 @@ class TrainerControllerTest {
 		mockMvc.perform(put("/trainers/lessons/{ptLessonId}/edit", ptLesson.getId())
 				.contentType("application/json")
 				.content(updateRequest))
-			.andExpect(status().isNoContent())
+			.andExpect(status().isOk())
 			.andDo(print());
 	}
 
@@ -1185,7 +1185,7 @@ class TrainerControllerTest {
 
 		// when & then
 		mockMvc.perform(delete("/trainers/lessons/{ptLessonId}/delete", ptLesson.getId()))
-			.andExpect(status().isNoContent())
+			.andExpect(status().isOk())
 			.andDo(print());
 	}
 }

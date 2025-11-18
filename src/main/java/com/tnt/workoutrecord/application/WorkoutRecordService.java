@@ -70,6 +70,26 @@ public class WorkoutRecordService {
 	}
 
 	@Transactional(readOnly = true)
+	public void validateImageCount(Long workoutRecordId, int toDeleteCount, int newImageCount) {
+		WorkoutRecord workoutRecord = workoutRecordRepository.findById(workoutRecordId);
+
+		int existingImageCount = 0;
+
+		if (workoutRecord.getWorkoutNote() != null && workoutRecord.getWorkoutNote().getImageUrl() != null) {
+			existingImageCount = workoutRecord.getWorkoutNote().getImageUrl().size();
+		}
+
+		int finalImageCount = existingImageCount - toDeleteCount + newImageCount;
+
+		if (finalImageCount > 6) {
+			throw new IllegalArgumentException(
+				String.format("이미지는 최대 6장까지 등록 가능합니다. (현재: %d장, 삭제: %d장, 추가: %d장 = 최종: %d장)",
+					existingImageCount, toDeleteCount, newImageCount, finalImageCount)
+			);
+		}
+	}
+
+	@Transactional(readOnly = true)
 	public GetWorkoutRecordResponse getWorkoutRecord(Long workoutRecordId) {
 		WorkoutRecord workoutRecord = workoutRecordRepository.findById(workoutRecordId);
 		List<Routine> routines = routineRepository.findAllByWorkoutRecordId(workoutRecordId);
@@ -85,14 +105,16 @@ public class WorkoutRecordService {
 
 				List<GetWorkoutRecordResponse.SetResponse> setResponses = routineSets.stream()
 					.map(set -> new GetWorkoutRecordResponse.SetResponse(
-						set.getId(),
+						set.getId(),  // setId
 						set.getDurationMinutes(),
 						set.getRepetition(),
 						set.getWeight()
 					))
 					.toList();
 
-				return new GetWorkoutRecordResponse.RoutineResponse(routine.getId(), routine.getWorkoutId(),
+				return new GetWorkoutRecordResponse.RoutineResponse(
+					routine.getId(),  // routineId
+					routine.getWorkoutId(),
 					setResponses);
 			})
 			.toList();
@@ -100,7 +122,7 @@ public class WorkoutRecordService {
 		WorkoutNote workoutNote = workoutRecord.getWorkoutNote();
 
 		return new GetWorkoutRecordResponse(
-			workoutRecord.getId(),
+			workoutRecord.getId(),  // workoutRecordId
 			workoutRecord.getMemberId(),
 			workoutRecord.getPtLessonId(),
 			workoutRecord.getDate(),
@@ -131,10 +153,6 @@ public class WorkoutRecordService {
 		// 새 이미지 추가
 		if (newImageUrls != null && !newImageUrls.isEmpty()) {
 			existingImageUrls.addAll(newImageUrls);
-		}
-
-		if (existingImageUrls.size() > 6) {
-			throw new IllegalArgumentException("이미지는 최대 6장까지 등록 가능합니다.");
 		}
 
 		WorkoutNote updatedWorkoutNote = WorkoutNote.builder()

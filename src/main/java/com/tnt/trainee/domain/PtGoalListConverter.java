@@ -23,8 +23,11 @@ public class PtGoalListConverter implements AttributeConverter<List<PtGoal>, Str
 			return "[]";
 		}
 
+		// enum name만 추출해서 저장
+		List<String> names = attribute.stream().map(Enum::name).toList();
+
 		try {
-			return objectMapper.writeValueAsString(attribute);
+			return objectMapper.writeValueAsString(names);
 		} catch (JsonProcessingException e) {
 			throw new TnTException(FAILED_TO_CONVERT_JSON, e);
 		}
@@ -37,8 +40,10 @@ public class PtGoalListConverter implements AttributeConverter<List<PtGoal>, Str
 		}
 
 		try {
-			return objectMapper.readValue(dbData,
-				objectMapper.getTypeFactory().constructCollectionType(List.class, PtGoal.class));
+			List<String> names = objectMapper.readValue(dbData,
+				objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+
+			return names.stream().map(PtGoal::valueOf).toList();
 		} catch (JsonProcessingException e) {
 			throw new TnTException(FAILED_TO_CONVERT_JSON, e);
 		}

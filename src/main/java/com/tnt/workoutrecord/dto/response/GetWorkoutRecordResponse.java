@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "운동 기록 조회 응답")
 public record GetWorkoutRecordResponse(
 	@Schema(description = "운동 기록 ID", example = "1")
-	Long id,
+	Long workoutRecordId,
 
 	@Schema(description = "회원 ID", example = "1")
 	Long memberId,
@@ -36,7 +36,7 @@ public record GetWorkoutRecordResponse(
 	@Schema(description = "루틴 정보")
 	public record RoutineResponse(
 		@Schema(description = "루틴 ID", example = "1")
-		Long id,
+		Long routineId,
 
 		@Schema(description = "운동 ID", example = "10")
 		Long workoutId,
@@ -49,7 +49,7 @@ public record GetWorkoutRecordResponse(
 	@Schema(description = "세트 정보")
 	public record SetResponse(
 		@Schema(description = "세트 ID", example = "1")
-		Long id,
+		Long setId,
 
 		@Schema(description = "지속 시간 (분, 유산소 운동용)", example = "30", nullable = true)
 		Integer durationMinutes,

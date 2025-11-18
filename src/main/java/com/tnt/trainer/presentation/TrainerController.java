@@ -1,7 +1,6 @@
 package com.tnt.trainer.presentation;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.time.LocalDate;
@@ -124,7 +123,7 @@ public class TrainerController {
 
 	@Operation(summary = "PT 수업 수정 API")
 	@PutMapping("/lessons/{ptLessonId}/edit")
-	@ResponseStatus(NO_CONTENT)
+	@ResponseStatus(OK)
 	public void updatePtLesson(@AuthMember Long memberId, @PathVariable("ptLessonId") Long ptLessonId,
 		@RequestBody @Valid UpdatePtLessonRequest request) {
 		ptService.updatePtLesson(memberId, ptLessonId, request);
@@ -132,7 +131,7 @@ public class TrainerController {
 
 	@Operation(summary = "PT 수업 삭제 API")
 	@DeleteMapping("/lessons/{ptLessonId}/delete")
-	@ResponseStatus(NO_CONTENT)
+	@ResponseStatus(OK)
 	public void deletePtLesson(@AuthMember Long memberId, @PathVariable("ptLessonId") Long ptLessonId) {
 		ptService.deletePtLesson(memberId, ptLessonId);
 	}

@@ -156,7 +156,7 @@ class WorkoutServiceTest {
 
 		// then
 		assertThat(response.workouts()).hasSize(2);
-		assertThat(response.workouts().getFirst().id()).isEqualTo(99L);
+		assertThat(response.workouts().getFirst().workoutId()).isEqualTo(99L);
 		assertThat(response.hasNext()).isFalse();
 	}
 

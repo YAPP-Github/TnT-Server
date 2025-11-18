@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "workout_set")
+@Table(name = "workout_record_set")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SetJpaEntity {
 

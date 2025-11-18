@@ -7,8 +7,8 @@ import com.tnt.workoutrecord.domain.RecordType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Schema(description = "운동 기록 등록 요청")
 public record CreateWorkoutRecordRequest(
@@ -24,8 +24,9 @@ public record CreateWorkoutRecordRequest(
 	RecordType recordType,
 
 	@Schema(description = "운동 루틴 목록", nullable = false)
-	@NotEmpty
 	@Valid
+	@Size(min = 1, message = "최소 1개 이상의 루틴이 필요합니다.")
+	@NotNull(message = "루틴 정보는 필수입니다.")
 	List<RoutineInfo> routines,
 
 	@Schema(description = "피드백 내용", example = "오늘 운동 강도가 적절했습니다.", nullable = true)
@@ -39,8 +40,9 @@ public record CreateWorkoutRecordRequest(
 		Long workoutId,
 
 		@Schema(description = "세트 목록", nullable = false)
-		@NotEmpty
 		@Valid
+		@Size(min = 1, message = "최소 1개 이상의 세트가 필요합니다.")
+		@NotNull(message = "세트 정보는 필수입니다.")
 		List<SetInfo> sets
 	) {
 

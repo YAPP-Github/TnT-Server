@@ -313,7 +313,7 @@ class WorkoutRecordControllerTest {
 		// when & then
 		mockMvc.perform(get("/workout-records/{recordId}", workoutRecord.getId()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.id").value(workoutRecord.getId()))
+			.andExpect(jsonPath("$.workoutRecordId").value(workoutRecord.getId()))
 			.andExpect(jsonPath("$.date").value("2025-01-18T15:00:00"))
 			.andExpect(jsonPath("$.recordType").value("TRAINEE"))
 			.andExpect(jsonPath("$.feedback").value("조회 테스트용 기록"))
@@ -388,7 +388,7 @@ class WorkoutRecordControllerTest {
 		mockMvc.perform(multipart(PUT, "/workout-records/{recordId}", workoutRecord.getId())
 				.file(updateJsonRequest)
 				.contentType(MULTIPART_FORM_DATA_VALUE))
-			.andExpect(status().isNoContent())
+			.andExpect(status().isOk())
 			.andDo(print());
 	}
 
@@ -431,7 +431,7 @@ class WorkoutRecordControllerTest {
 
 		// when & then
 		mockMvc.perform(delete("/workout-records/{recordId}", workoutRecord.getId()))
-			.andExpect(status().isNoContent())
+			.andExpect(status().isOk())
 			.andDo(print());
 	}
 

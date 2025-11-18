@@ -1,7 +1,6 @@
 package com.tnt.workoutrecord.presentation;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
@@ -68,7 +67,7 @@ public class WorkoutRecordController {
 	@Operation(summary = "운동 기록 수정 API",
 		description = "운동 기록을 수정합니다. 새 이미지 추가와 기존 이미지 삭제를 동시에 처리하며, 루틴 정보는 전체 교체됩니다.")
 	@PutMapping(value = "/{recordId}", consumes = MULTIPART_FORM_DATA_VALUE)
-	@ResponseStatus(NO_CONTENT)
+	@ResponseStatus(OK)
 	public void updateWorkoutRecord(@AuthMember Long memberId,
 		@PathVariable Long recordId,
 
@@ -78,6 +77,12 @@ public class WorkoutRecordController {
 		@Parameter(description = "추가할 운동 사진 (기존 사진과 합쳐 최대 6장)", schema = @Schema(type = "array", format = "binary"))
 		@RequestPart(value = "newImages", required = false) List<MultipartFile> newImages
 	) {
+		// 이미지 개수 검증
+		int toDeleteCount = request.imageUrlsToDelete() != null ? request.imageUrlsToDelete().size() : 0;
+		int newImageCount = newImages != null ? newImages.size() : 0;
+
+		workoutRecordService.validateImageCount(recordId, toDeleteCount, newImageCount);
+
 		// 새 이미지 업로드
 		List<String> newImageUrls = s3Service.uploadWorkoutRecordImages(newImages);
 
@@ -92,7 +97,7 @@ public class WorkoutRecordController {
 
 	@Operation(summary = "운동 기록 삭제 API", description = "운동 기록과 관련된 루틴, 세트를 모두 삭제합니다.")
 	@DeleteMapping("/{recordId}")
-	@ResponseStatus(NO_CONTENT)
+	@ResponseStatus(OK)
 	public void deleteWorkoutRecord(@PathVariable Long recordId) {
 		// 이미지 URL 조회 후 S3에서 삭제
 		GetWorkoutRecordResponse workoutRecord = workoutRecordService.getWorkoutRecord(recordId);

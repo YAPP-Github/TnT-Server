@@ -28,7 +28,7 @@ public record SearchWorkoutResponse(
 	@Schema(description = "운동 정보")
 	public record WorkoutInfo(
 		@Schema(description = "운동 ID", example = "1")
-		Long id,
+		Long workoutId,
 
 		@Schema(description = "운동 이름", example = "벤치프레스")
 		String name,
@@ -45,6 +45,7 @@ public record SearchWorkoutResponse(
 		@Schema(description = "운동 타입", example = "ANAEROBIC")
 		WorkoutType workoutType
 	) {
+
 		public static WorkoutInfo from(Workout workout) {
 			return new WorkoutInfo(
 				workout.getId(),

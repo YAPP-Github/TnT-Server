@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "routine")
+@Table(name = "workout_record_routine")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoutineJpaEntity {
 
