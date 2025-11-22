@@ -32,7 +32,10 @@ public class Trainer {
 		this.member = requireNonNull(member);
 		this.invitationCode = invitationCode;
 		this.deletedAt = deletedAt;
-		setNewInvitationCode();
+
+		if (invitationCode == null) {
+			setNewInvitationCode();
+		}
 	}
 
 	public void setNewInvitationCode() {
