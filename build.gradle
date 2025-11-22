@@ -190,7 +190,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // Testcontainer
-    testImplementation "org.testcontainers:testcontainers:1.20.4"
+    testImplementation "org.testcontainers:testcontainers:2.0.2"
     testImplementation "org.testcontainers:junit-jupiter:1.20.4"
 
     // MockWebServer
